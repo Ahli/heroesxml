@@ -1,0 +1,26 @@
+include "TriggerLibs/HeroesLib"
+
+//--------------------------------------------------------------------------------------------------
+// Library: Imperius
+//--------------------------------------------------------------------------------------------------
+// Variable Declarations
+int libHIMP_gv_heroImperiusTriggerRegistrationVariable;
+bool[libCore_gv_bALMaxPlayers + 1] libHIMP_gv_heroImperiusCelestialChargeMoltenArmorOrderProcBoolean;
+
+// Function Declarations
+void libHIMP_gf_HeroImperiusIncrementHeroCountFunction ();
+void libHIMP_gf_HeroImperiusDecrementHeroCountFunction ();
+
+// Trigger Declarations
+trigger libHIMP_gt_HeroImperiusCelestialChargeTargetUnitAlignment;
+trigger libHIMP_gt_HeroImperiusCelestialChargeTimeStopHandler;
+trigger libHIMP_gt_HeroImperiusWrathOfTheAngirisOverlayShow;
+trigger libHIMP_gt_HeroImperiusWrathOfTheAngirisOverlayHide;
+trigger libHIMP_gt_HeroImperiusWrathOfTheAngirisAIControl;
+trigger libHIMP_gt_HeroImperiusWrathOfTheAngirisImperiusTeleport;
+trigger libHIMP_gt_HeroImperiusWrathOfTheAngirisTargetTeleport;
+trigger libHIMP_gt_HeroImperiusCelestialChargeMoltenArmorOrderProc;
+
+// Library Initialization
+void libHIMP_InitVariables ();
+
