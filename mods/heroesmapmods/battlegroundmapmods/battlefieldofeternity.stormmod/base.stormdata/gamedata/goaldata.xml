@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<Catalog>
+    <CGoalEscort id="DefendImmortal">
+        <BaseBenefitScore value="180"/>
+        <EnemyThreatFactor value="0.25"/>
+    </CGoalEscort>
+    <CGoalEscort id="DefendImmortalLaner">
+        <BaseBenefitScore value="250"/>
+        <EnemyThreatFactor value="0.25"/>
+    </CGoalEscort>
+    <CGoalGank id="Gank">
+        <BaseBenefitScore value="100"/>
+    </CGoalGank>
+    <CGoalAttackTarget id="KillEnemyImmortal">
+        <BaseBenefitScore value="180"/>
+        <EnemyThreatFactor value="0.5"/>
+    </CGoalAttackTarget>
+    <CGoalAttackTarget id="KillEnemyImmortalLaner">
+        <BaseBenefitScore value="250"/>
+        <EnemyThreatFactor value="0.5"/>
+    </CGoalAttackTarget>
+</Catalog>

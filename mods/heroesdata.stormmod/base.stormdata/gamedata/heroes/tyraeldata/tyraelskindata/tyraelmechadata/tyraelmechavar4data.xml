@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<Catalog>
+    <CActorEventMacroRunnable id="TyraelMechaVar4Macro">
+        <Do Send="TextureSelectById Storm_Hero_Tyrael_Mecha_Var4_Diff"/>
+        <Do Send="TextureSelectById Storm_Hero_Tyrael_Mecha_Var4_Emis"/>
+        <Do Send="TextureSelectById Storm_Hero_Tyrael_Mecha_Var4_Spec"/>
+        <Do Send="TextureSelectById Storm_Mount_Tyrael_Mecha_JetMount_Var4_Diff"/>
+        <Do Send="TextureSelectById Storm_Mount_Tyrael_Mecha_JetMount_Var4_Spec"/>
+        <Do Send="TextureSelectById Storm_Mount_Tyrael_Mecha_JetMount_Var4_Emis"/>
+    </CActorEventMacroRunnable>
+    <CActorEventMacroRunnable id="TyraelMechaGhostMatVar4Macro">
+        <Do Send="TextureSelectById Storm_Hero_Tyrael_Mecha_Var4_Diff"/>
+        <Do Send="TextureSelectById Storm_Hero_Tyrael_Mecha_Var4_Spec"/>
+    </CActorEventMacroRunnable>
+    <CLight id="Storm_Portrait_Tyrael_Mecha_Var4" parent="default">
+        <ToDInfoArray index="0" Id="Storm_Portrait_Tyrael_Mecha_Var4" OperatorHDR="4" Colorize="1">
+            <Param index="HDRExposure" value="1.650000"/>
+            <Param index="HDRBloomThreshold" value="0.900000"/>
+            <Param index="HDRWhitePoint" value="1.850000"/>
+            <Param index="TerrainSpecularExp" value="73.000000"/>
+            <Param index="CreepSpecularExp" value="30.000000"/>
+            <Param index="CreepHDRSpecMultiplier" value="3.000000"/>
+            <Param index="ColorizationInputHigh" value="0.975000"/>
+            <Param index="ColorizationBlend" value="0.000000"/>
+            <Param index="ShadowPenumbraSize" value="0.166000"/>
+            <DirectionalLight index="Key" ColorMultiplier="2.000000" SpecColorMultiplier="3.000000">
+                <Color X="0.564706" Y="0.647059" Z="0.686275"/>
+                <SpecularColor X="0.921569" Y="0.921569"/>
+                <Direction X="-0.701771" Y="0.041939" Z="-0.711168"/>
+            </DirectionalLight>
+            <DirectionalLight index="Fill" ColorMultiplier="2.000000">
+                <Color X="0.486275" Y="0.313726" Z="0.192157"/>
+                <Direction X="0.500602" Y="-0.097942" Z="0.860120"/>
+            </DirectionalLight>
+            <DirectionalLight index="Back" ColorMultiplier="4.000000">
+                <Color X="0.349020" Y="0.584314" Z="0.819608"/>
+                <Direction X="0.149159" Y="-0.969100" Z="0.196460"/>
+            </DirectionalLight>
+            <DirectionalLight index="Shadow">
+                <Color X="0.007843" Y="0.003922" Z="0.054902"/>
+                <Direction Y="-0.000000" Z="1.000000"/>
+            </DirectionalLight>
+        </ToDInfoArray>
+        <EditorCategories value="LightGroup:PortraitsUnitsOther"/>
+    </CLight>
+    <CModel id="TyraelSkinMechaVar4Portrait" parent="TyraelSkinMechaPortrait">
+        <Lighting value="Storm_Portrait_Tyrael_Mecha_Var4"/>
+    </CModel>
+    <CRewardSkin id="TyraelMechaVar4">
+        <License value="35656"/>
+        <Category File="HeroLicense" Tag="Lcns"/>
+        <RewardDisplayType value="Fullscreen"/>
+        <Description value="Reward/Description/Summer2019EventCompletionReward"/>
+        <DescriptionUnearned value=""/>
+    </CRewardSkin>
+    <CSkin id="TyraelMechaVar4" parent="TyraelMechaCommon">
+        <AttributeId value="TylF"/>
+        <ModelMacroRun Models="TyraelMechaModels" Macro="TyraelMechaVar4Macro"/>
+        <ModelMacroRun Models="TyraelMechaGhostMatModels" Macro="TyraelMechaGhostMatVar4Macro"/>
+        <ReplacementArray Catalog="Model" From="TyraelSkinMechaPortrait" To="TyraelSkinMechaVar4Portrait"/>
+        <ProductId value="56470"/>
+        <RequiredRewardArray value="TyraelMechaVar4"/>
+        <SortName value="Skin/SortName/TyraelMechaVar2"/>
+        <HyperlinkId value="PerfectMechaTyrael"/>
+        <ReleaseDate Month="6" Day="18" Year="2019"/>
+        <EventName value="SunsOutGunsOut"/>
+    </CSkin>
+    <CTexture id="Storm_Hero_Tyrael_Mecha_Var4_Emis" parent="MainSlotTexture"/>
+    <CTexture id="Storm_Hero_Tyrael_Mecha_Var4_Diff" parent="MainSlotTexture"/>
+    <CTexture id="Storm_Hero_Tyrael_Mecha_Var4_Spec" parent="MainSlotTexture"/>
+    <CTexture id="Storm_Mount_Tyrael_Mecha_JetMount_Var4_Diff" parent="Generic01SlotTexture"/>
+    <CTexture id="Storm_Mount_Tyrael_Mecha_JetMount_Var4_Emis" parent="Generic01SlotTexture"/>
+    <CTexture id="Storm_Mount_Tyrael_Mecha_JetMount_Var4_Spec" parent="Generic01SlotTexture"/>
+</Catalog>

@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<Catalog>
+    <CLight id="DefaultLight">
+        <ToDInfoArray index="0">
+            <Id value="DefaultLight"/>
+            <AmbientEnvironmentMultiplier value="0.116000"/>
+            <OperatorHDR value="4"/>
+            <Colorize value="1"/>
+            <AmbientColor X="0.584314" Y="0.568627" Z="0.549020"/>
+            <Param index="HDRExposure" value="1.650000"/>
+            <Param index="HDRBloomThreshold" value="0.900000"/>
+            <Param index="HDRWhitePoint" value="1.850000"/>
+            <Param index="HDRSpecMultiplier" value="2.050000"/>
+            <Param index="TerrainSpecularExp" value="73.000000"/>
+            <Param index="TerrainHDRSpecular" value="1.000000"/>
+            <Param index="CreepSpecularExp" value="30.000000"/>
+            <Param index="CreepHDRSpecMultiplier" value="0.500000"/>
+            <Param index="ColorizationInputHigh" value="0.975000"/>
+            <Param index="ColorizationHue" value="-0.000000"/>
+            <Param index="ColorizationBlend" value="0.000000"/>
+            <DirectionalLight index="Key" ColorMultiplier="1.000000">
+                <Color X="0.937255" Y="0.921569" Z="0.901961"/>
+                <Direction X="-0.427634" Y="-0.416873" Z="-0.802088"/>
+            </DirectionalLight>
+            <DirectionalLight index="Fill" ColorMultiplier="0.300000">
+                <Color X="0.160784" Y="0.250980" Z="0.552941"/>
+                <Direction X="-0.836095" Y="0.266028" Z="-0.479764"/>
+            </DirectionalLight>
+            <DirectionalLight index="Back" ColorMultiplier="1.500000">
+                <Color X="0.113725" Y="0.368627" Z="0.572549"/>
+                <Direction X="-0.871676" Y="-0.196760" Z="0.448851"/>
+            </DirectionalLight>
+        </ToDInfoArray>
+    </CLight>
+    <CLight id="StormEgyptWorld">
+        <ToDInfoArray index="0">
+            <Id value="StormEgyptWorld"/>
+            <AmbientEnvironmentMultiplier value="0.417000"/>
+            <OperatorHDR value="4"/>
+            <Colorize value="1"/>
+            <AmbientColor X="0.639216" Y="0.615686" Z="0.807843"/>
+            <Param index="HDRExposure" value="1.000000"/>
+            <Param index="HDRBloomThreshold" value="0.900000"/>
+            <Param index="HDRWhitePoint" value="1.850000"/>
+            <Param index="TerrainSpecularExp" value="27.170000"/>
+            <Param index="TerrainHDRSpecular" value="2.170000"/>
+            <Param index="CreepSpecularExp" value="30.000000"/>
+            <Param index="CreepHDRSpecMultiplier" value="3.000000"/>
+            <Param index="ColorizationInputHigh" value="0.975000"/>
+            <Param index="ColorizationBlend" value="0.000000"/>
+            <DirectionalLight index="Key" ColorMultiplier="1.550000" SpecColorMultiplier="2.500000">
+                <Color X="0.149020" Y="0.211765" Z="0.658824"/>
+                <SpecularColor X="0.384314" Y="0.486275" Z="0.858824"/>
+                <Direction X="0.538372" Y="-0.109827" Z="-0.835520"/>
+            </DirectionalLight>
+            <DirectionalLight index="Fill" ColorMultiplier="0.650000">
+                <Color X="0.674510" Y="0.431373" Z="0.674510"/>
+                <Direction X="-0.871676" Y="0.196760" Z="-0.448851"/>
+            </DirectionalLight>
+            <DirectionalLight index="Back" ColorMultiplier="1.000000">
+                <Color X="0.156863" Y="0.305882" Z="0.800000"/>
+                <Direction X="-0.485044" Y="0.421791" Z="-0.766044"/>
+            </DirectionalLight>
+            <DirectionalLight index="Shadow" ColorMultiplier="0.124000">
+                <Color Z="0.505882"/>
+                <Direction Z="1.000000"/>
+            </DirectionalLight>
+        </ToDInfoArray>
+    </CLight>
+    <CLight id="CustomLight">
+        <ToDInfoArray Id="CustomLight" OperatorHDR="4" Colorize="1">
+            <AmbientColor X="0.611765" Y="0.619608" Z="0.694118"/>
+            <Param index="HDRExposure" value="1.650000"/>
+            <Param index="HDRBloomThreshold" value="0.900000"/>
+            <Param index="HDRWhitePoint" value="1.850000"/>
+            <Param index="TerrainSpecularExp" value="73.000000"/>
+            <Param index="CreepSpecularExp" value="30.000000"/>
+            <Param index="CreepHDRSpecMultiplier" value="3.000000"/>
+            <Param index="ColorizationInputHigh" value="0.975000"/>
+            <Param index="ColorizationHue" value="-0.000000"/>
+            <Param index="ColorizationBlend" value="0.000000"/>
+            <DirectionalLight index="Key" ColorMultiplier="1.150000">
+                <Color X="0.886275" Y="0.886275" Z="0.792157"/>
+                <SpecularColor X="0.988235" Z="0.909804"/>
+                <Direction X="0.598355" Y="0.335918" Z="-0.727414"/>
+            </DirectionalLight>
+            <DirectionalLight index="Fill">
+                <Color X="0.349020" Y="0.349020" Z="0.313726"/>
+            </DirectionalLight>
+            <DirectionalLight index="Back" ColorMultiplier="0.020000">
+                <Color X="0.886275" Y="0.835294" Z="0.776471"/>
+                <Direction X="0.663789" Y="-0.136981" Z="-0.735269"/>
+            </DirectionalLight>
+        </ToDInfoArray>
+    </CLight>
+    <CLight id="StormCastleWorld">
+        <ToDInfoArray Id="StormCastleWorld" Colorize="1">
+            <AmbientColor X="0.294118" Y="0.313726" Z="0.329412"/>
+            <Param index="HDRExposure" value="1.500000"/>
+            <Param index="HDRWhitePoint" value="1.850000"/>
+            <Param index="TerrainSpecularExp" value="11.210000"/>
+            <Param index="TerrainHDRSpecular" value="3.750000"/>
+            <Param index="CreepSpecularExp" value="30.000000"/>
+            <Param index="CreepHDRSpecMultiplier" value="3.000000"/>
+            <Param index="ColorizationContrast" value="1.066000"/>
+            <Param index="ColorizationHue" value="0.001000"/>
+            <Param index="ColorizationBlend" value="0.300000"/>
+        </ToDInfoArray>
+    </CLight>
+    <CLight id="StormKingsCrestALL">
+        <ToDInfoArray index="0" Id="BASRavenCourtFinal" OperatorHDR="4" Colorize="1">
+            <AmbientColor X="0.517647" Y="0.454902" Z="0.627451"/>
+            <Param index="HDRExposure" value="1.650000"/>
+            <Param index="HDRBloomThreshold" value="0.900000"/>
+            <Param index="HDRWhitePoint" value="1.850000"/>
+            <Param index="TerrainSpecularExp" value="73.000000"/>
+            <Param index="CreepSpecularExp" value="30.000000"/>
+            <Param index="CreepHDRSpecMultiplier" value="3.000000"/>
+            <Param index="ColorizationInputHigh" value="0.975000"/>
+            <Param index="ColorizationHue" value="-0.000000"/>
+            <Param index="ColorizationBlend" value="0.000000"/>
+            <DirectionalLight index="Key" ColorMultiplier="1.150000">
+                <Color X="0.886275" Y="0.886275" Z="0.792157"/>
+                <SpecularColor X="0.909804" Y="0.913725"/>
+            </DirectionalLight>
+            <DirectionalLight index="Fill" ColorMultiplier="0.300000">
+                <Color X="0.349020" Y="0.349020" Z="0.313726"/>
+            </DirectionalLight>
+            <DirectionalLight index="Back" ColorMultiplier="0.020000">
+                <Color X="0.890196" Y="0.890196" Z="0.776471"/>
+                <Direction X="0.663789" Y="-0.136981" Z="-0.735269"/>
+            </DirectionalLight>
+        </ToDInfoArray>
+        <ToDInfoArray Id="StormKingsCrestALL" OperatorHDR="4" Colorize="1">
+            <AmbientColor X="0.584314" Y="0.568627" Z="0.549020"/>
+            <Param index="HDRExposure" value="1.500000"/>
+            <Param index="HDRWhitePoint" value="1.850000"/>
+            <Param index="TerrainSpecularExp" value="73.000000"/>
+            <Param index="CreepSpecularExp" value="30.000000"/>
+            <Param index="CreepHDRSpecMultiplier" value="0.500000"/>
+            <Param index="ColorizationContrast" value="1.066000"/>
+            <Param index="ColorizationHue" value="0.001000"/>
+            <Param index="ColorizationBlend" value="0.300000"/>
+            <DirectionalLight index="Key" ColorMultiplier="1.000000" SpecColorMultiplier="1.250000">
+                <Color X="0.937255" Y="0.329412" Z="0.329412"/>
+                <Direction X="0.647974" Y="-0.127480" Z="-0.750919"/>
+            </DirectionalLight>
+            <DirectionalLight index="Fill" ColorMultiplier="0.300000">
+                <Color X="0.160784" Y="0.250980" Z="0.552941"/>
+                <Direction X="-0.836095" Y="0.266028" Z="-0.479764"/>
+            </DirectionalLight>
+            <DirectionalLight index="Back" ColorMultiplier="1.500000">
+                <Color X="0.113725" Y="0.368627" Z="0.572549"/>
+                <Direction X="-0.871676" Y="-0.196760" Z="0.448851"/>
+            </DirectionalLight>
+        </ToDInfoArray>
+    </CLight>
+    <CLight id="StormKingsCrestFilmicTest">
+        <ToDInfoArray Id="StormKingsCrestFilmicTest" OperatorHDR="4" Colorize="1">
+            <AmbientColor X="0.584314" Y="0.568627" Z="0.549020"/>
+            <Param index="HDRExposure" value="1.500000"/>
+            <Param index="HDRWhitePoint" value="1.850000"/>
+            <Param index="TerrainSpecularExp" value="73.000000"/>
+            <Param index="CreepSpecularExp" value="30.000000"/>
+            <Param index="CreepHDRSpecMultiplier" value="3.000000"/>
+            <Param index="ColorizationContrast" value="1.066000"/>
+            <Param index="ColorizationHue" value="0.001000"/>
+            <Param index="ColorizationBlend" value="0.300000"/>
+        </ToDInfoArray>
+    </CLight>
+    <CLight id="Char">
+        <ToDInfoArray Id="MarSaraDayTest" OperatorHDR="4" Colorize="1">
+            <AmbientColor X="0.584314" Y="0.568627" Z="0.549020"/>
+            <Param index="HDRExposure" value="1.500000"/>
+            <Param index="HDRWhitePoint" value="1.850000"/>
+            <Param index="TerrainSpecularExp" value="11.210000"/>
+            <Param index="TerrainHDRSpecular" value="3.750000"/>
+            <Param index="CreepSpecularExp" value="30.000000"/>
+            <Param index="CreepHDRSpecMultiplier" value="3.000000"/>
+            <Param index="ColorizationContrast" value="1.066000"/>
+            <Param index="ColorizationHue" value="0.001000"/>
+            <Param index="ColorizationBlend" value="0.300000"/>
+            <DirectionalLight index="Key">
+                <Color X="0.941176" Y="0.925490" Z="0.901961"/>
+                <Direction X="0.647974" Y="-0.127480" Z="-0.750919"/>
+            </DirectionalLight>
+            <DirectionalLight index="Fill" ColorMultiplier="0.300000">
+                <Color X="0.160784" Y="0.250980" Z="0.552941"/>
+                <Direction X="-0.836095" Y="0.266028" Z="-0.479764"/>
+            </DirectionalLight>
+            <DirectionalLight index="Back" ColorMultiplier="1.500000">
+                <Color X="0.113725" Y="0.368627" Z="0.572549"/>
+                <Direction X="-0.871676" Y="-0.196760" Z="0.448851"/>
+            </DirectionalLight>
+        </ToDInfoArray>
+    </CLight>
+</Catalog>

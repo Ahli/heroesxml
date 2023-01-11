@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<Catalog>
+    <CGoalEscort id="EscortVolskayaRobot">
+        <BaseBenefitScore value="150"/>
+        <MinStagingRange value="0"/>
+    </CGoalEscort>
+    <CGoalAttackTarget id="KillVolskayaRobot">
+        <BaseBenefitScore value="200"/>
+    </CGoalAttackTarget>
+    <CGoalBeacon id="VolskayaPoint">
+        <BaseBenefitScore value="200"/>
+        <CapturedByEnemyBonus value="50"/>
+        <EnemyThreatFactor value="0.75"/>
+        <MinStagingRange value="15"/>
+        <MaxStagingRange value="20"/>
+    </CGoalBeacon>
+    <CGoalInteract id="VolskayaRobotGunner">
+        <Name value="VolskayaRobotGunner"/>
+        <BaseBenefitScore value="200"/>
+        <EnemyThreatFactor value="0.25"/>
+    </CGoalInteract>
+    <CGoalInteract id="VolskayaRobotPilot">
+        <Name value="VolskayaRobotPilot"/>
+        <BaseBenefitScore value="200"/>
+        <EnemyThreatFactor value="0.25"/>
+    </CGoalInteract>
+</Catalog>

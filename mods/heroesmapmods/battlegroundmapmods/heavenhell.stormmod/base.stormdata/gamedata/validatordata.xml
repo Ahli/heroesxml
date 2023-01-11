@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<Catalog>
+    <CValidatorUnitCompareBehaviorCount id="DoesNotHaveWeaponRackClickDelay">
+        <Behavior value="WeaponRackClickDelay"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="Has5WeaponRackClickedStacks">
+        <Value value="5"/>
+        <Behavior value="WeaponRackStackBehavior"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorUnitCompareBehaviorCount id="DoesNotHaveWeaponDroppedBehavior">
+        <Behavior value="WeaponRackWeaponDroppedBehavior"/>
+    </CValidatorUnitCompareBehaviorCount>
+    <CValidatorPlayerRequirement id="IsHeavenPlayer">
+        <Value value="IsHeavenPlayer"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorPlayerRequirement id="IsHellPlayer">
+        <Value value="IsHellPlayer"/>
+    </CValidatorPlayerRequirement>
+    <CValidatorLocationEnumArea id="DiabloCoreEnemyHeroesNearby">
+        <WhichLocation Value="TargetUnit"/>
+        <AreaArray Compare="GT" Count="0">
+            <Radius value="11.75"/>
+        </AreaArray>
+        <SearchFilters value="Heroic;Player,Ally,Neutral,Creep,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable,IgnoredByTowerAI"/>
+    </CValidatorLocationEnumArea>
+    <CValidatorUnitCompareBehaviorCount id="DiabloCoreDoesNotHaveFrozenCooldown">
+        <Behavior value="DiabloCoreFrozenCooldown"/>
+        <WhichUnit Value="Caster"/>
+    </CValidatorUnitCompareBehaviorCount>
+</Catalog>

@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<Catalog>
+  <CActorUnit default="1" id="StormHeroBase">
+    <Macros value="DragonShireCorePetrifyMacro" />
+  </CActorUnit>
+  <CActorUnit default="1" id="StormHeroBaseMulti">
+    <Macros value="DragonShireCorePetrifyMacro" />
+  </CActorUnit>
+  <CActorUnit default="1" id="StormHeroBasePredictive" />
+  <CActorUnit default="1" id="StormHeroStandard">
+    <Macros value="DragonShireCorePetrifyMacro" />
+  </CActorUnit>
+  <CActorAction id="DragonShireCorePetrifyActionActor" parent="GenericAttack" effectImpact="DragonShireCorePetrifySearchPersistent" effectLaunch="DragonShireCorePetrifyLaunchMissile">
+    <LaunchSiteOps Ops="SOpAttachWeapon" />
+  </CActorAction>
+  <CActorModel id="DragonShireCorePetrifyGroundFXModel" parent="StormModelAnimationStyleContinuous">
+    <On Terms="Effect.DragonShireCorePetrifySearchPersistent.Start" Send="Create" />
+    <On Terms="Effect.DragonShireCorePetrifySearchPersistent.Stop" Send="Destroy" />
+    <HostSiteOps Ops="SOpShadow SOpMoveUpByDot25" />
+  </CActorModel>
+  <CActorModelMaterial id="DragonShireCorePetrifyGlaze" parent="BuffContinuous">
+    <ModelFlags index="AutomateGlobalLoops" value="1" />
+  </CActorModelMaterial>
+  <CActorSound id="DragonShireCorePetrifyGroundImpactSound" parent="SoundOneShot">
+    <On Terms="Effect.DragonShireCorePetrifyDummySet.Start; At Effect" Send="Create" />
+    <Sound value="DragonShireCorePetrifyImpactSound" />
+  </CActorSound>
+  <CActorSound id="DragonShireCorePetrifyWarningSound" parent="SoundOneShot">
+    <On Terms="Effect.DragonShireCorePetrifyLaunchPersistent.Start; At Caster" Send="Create" />
+    <On Terms="Effect.DragonShireCorePetrifyLaunchPersistent.Stop; FromEffectTreeDescendant" Send="Destroy Immediate" />
+    <Inherits index="Visibility" value="0" />
+  </CActorSound>
+  <CActorMissile id="DragonShireCorePetrifyMissile" parent="GenericAttackMissile" unitName="DragonShireCorePetrifyMissile">
+    <On Terms="UnitDeath" Target="DragonShireCorePetrifyMissileModelAddition" Send="Destroy" />
+    <On Terms="ActorCreation" Send="Create DragonShireCorePetrifyMissileModelAddition" />
+  </CActorMissile>
+  <CActorModel id="DragonShireCorePetrifyMissileModelAddition" parent="StormModelAnimationStyleContinuousUnit">
+    <Host Subject="_Missile" />
+  </CActorModel>
+  <CActorModel id="DragonShireCorePetrifyWarningSplat" parent="StormModelAnimationStyleContinuous">
+    <On Terms="Effect.DragonShireCorePetrifyLaunchPersistent.Start" Send="Create" />
+    <On Terms="Effect.DragonShireCorePetrifyLaunchPersistent.Stop; FromEffectTreeDescendant" Send="Destroy" />
+  </CActorModel>
+  <CActorModel id="DragonShireCorePetrifyExplosionFXModel" parent="StormModelAnimationStyleContinuous">
+    <On Terms="Effect.DragonShireCorePetrifySearchPersistent.Start" Send="Create" />
+    <On Terms="Effect.DragonShireCorePetrifySearchPersistent.Stop" Send="Destroy" />
+    <HostSiteOps Ops="SOpShadow" />
+  </CActorModel>
+  <CActorUnit id="HeroArtanis">
+    <Macros value="DragonShireCorePetrifyMacro" />
+  </CActorUnit>
+  <CActorUnit id="HeroAzmodan" />
+  <CActorUnit id="HeroButcher">
+    <Macros value="DragonShireCorePetrifyMacro" />
+  </CActorUnit>
+  <CActorUnit id="HeroGreymane" />
+  <CActorUnit id="HeroKaelthas">
+    <Macros value="DragonShireCorePetrifyMacro" />
+  </CActorUnit>
+  <CActorUnit id="HeroLeoric">
+    <Macros value="DragonShireCorePetrifyMacro" />
+  </CActorUnit>
+  <CActorUnit id="HeroNecromancer" />
+  <CActorUnit id="HeroRaynor">
+    <Macros value="DragonShireCorePetrifyMacro" />
+  </CActorUnit>
+  <CActorUnit id="HeroRexxar">
+    <Macros value="DragonShireCorePetrifyMacro" />
+  </CActorUnit>
+  <CActorUnit id="HeroTassadar">
+    <Macros value="DragonShireCorePetrifyMacro" />
+  </CActorUnit>
+  <CActorUnit id="HeroTestHero">
+    <Macros value="DragonShireCorePetrifyMacro" />
+  </CActorUnit>
+  <CActorUnit id="HeroWizard">
+    <Macros index="41" removed="1" />
+    <Macros index="42" removed="1" />
+  </CActorUnit>
+  <CActorUnit id="LongboatRaidBoat">
+    <Macros value="DragonShireCorePetrifyMacro" />
+  </CActorUnit>
+  <CActorUnit id="TargetHeroDummy" />
+  <CActorUnit id="TargetHeroDummyFreddie">
+    <Macros value="DragonShireCorePetrifyMacro" />
+  </CActorUnit>
+  <CActorUnit id="VehicleDragon">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_DragonShire_Boss_Dragon.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="KingsCore">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_DragonShire_Building_Core.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownTownHallL2">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_DragonShire_Building_Fort.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownTownHallL3">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_DragonShire_Building_Keep.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownCannonTowerL2">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Building_Tower_0.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownCannonTowerL3">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_DragonShire_Building_Tower_1.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownMoonwellL2">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Building_Moonwell.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownMoonwellL3">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Building_Moonwell.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownGateL215BRUL">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_DragonShire_Building_Gate.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownGateL215BLUR">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_DragonShire_Building_Gate.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownGateL3BRULBLVisionBlocked">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_DragonShire_Building_Gate.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownGateL3BLURBRVisionBlocked">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_DragonShire_Building_Gate.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownGateL3VerticalLeftVisionBlocked">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_DragonShire_Building_Gate.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownGateL3VerticalRightVisionBlocked">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_DragonShire_Building_Gate.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownGateL3BLURTLVisionBlocked">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_DragonShire_Building_Gate.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownGateL3BRULTRVisionBlocked">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_DragonShire_Building_Gate.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownWallRadial4L2">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_DragonShire_Building_Wall.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownWallRadial5L2">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_DragonShire_Building_Wall.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownWallRadial18L2">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_DragonShire_Building_Wall.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownWallRadial19L2">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_DragonShire_Building_Wall.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownWallRadial2L3">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_DragonShire_Building_Wall.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownWallRadial3L3">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_DragonShire_Building_Wall.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownWallRadial5L3">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_DragonShire_Building_Wall.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownWallRadial6L3">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_DragonShire_Building_Wall.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownWallRadial8L3">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_DragonShire_Building_Wall.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownWallRadial9L3">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_DragonShire_Building_Wall.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownWallRadial17L3">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_DragonShire_Building_Wall.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownWallRadial18L3">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_DragonShire_Building_Wall.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownWallRadial14L3">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_DragonShire_Building_Wall.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownWallRadial15L3">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_DragonShire_Building_Wall.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownWallRadial20L3">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_DragonShire_Building_Wall.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownWallRadial21L3">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_DragonShire_Building_Wall.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="MercDefenderMeleeKnight">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_DragonShire_Merc_Bruiser_Knight.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="MercLanerMeleeKnight">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_DragonShire_Merc_Bruiser_Knight.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="MercDefenderRangedMage">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_DragonShire_Merc_Bruiser_Wizard.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="MercLanerRangedKnight">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_DragonShire_Merc_Bruiser_Wizard.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="MercDefenderSiegeGiant">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_DragonShire_Merc_Siege.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="MercLanerSiegeGiant">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_DragonShire_Merc_Siege.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="FootmanMinion">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Minion_Melee.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="RangedMinion">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Minion_Ranged.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="WizardMinion">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Minion_Wizard.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="CatapultMinion">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_DragonShire_Minion_Catapult.dds" />
+    </GroupIcon>
+  </CActorUnit>
+</Catalog>

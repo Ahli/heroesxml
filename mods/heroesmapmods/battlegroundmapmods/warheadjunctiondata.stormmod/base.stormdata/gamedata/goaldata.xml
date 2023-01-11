@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<Catalog>
+    <CGoalInteract id="Harvest">
+        <Name value="Harvest"/>
+        <Validators value="MapMechanicCasterHasNoNukes"/>
+        <BaseBenefitScore value="125"/>
+        <CaptureAbility value="CaptureMacGuffin"/>
+    </CGoalInteract>
+</Catalog>

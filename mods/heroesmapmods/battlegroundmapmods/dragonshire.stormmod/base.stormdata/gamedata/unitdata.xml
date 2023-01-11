@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<Catalog>
+    <CUnit id="DragonShireCorePetrifyMissile" parent="MISSILE_INVULNERABLE">
+        <Mover value="DragonShireCorePetrifyMover"/>
+        <LeaderAlias value="DragonShireCorePetrifyMissile"/>
+    </CUnit>
+    <CUnit id="KingsCore">
+        <AIThinkTree value="AI/DragonShireCoreThinkTree.aitree"/>
+        <AbilArray Link="DragonShireCorePetrify"/>
+        <CardLayouts index="0">
+            <LayoutButtons Face="DragonShireCorePetrify" Type="AbilCmd" AbilCmd="DragonShireCorePetrify,Execute" Slot="Ability1"/>
+        </CardLayouts>
+    </CUnit>
+    <CUnit id="TownCannonTower">
+        <AIThinkTree value="AI/DragonShireTowerThinkTree.aitree"/>
+    </CUnit>
+    <CUnit id="TownCannonTowerL2">
+        <AIThinkTree value="AI/DragonShireTowerThinkTree.aitree"/>
+    </CUnit>
+    <CUnit id="TownCannonTowerL2Standalone">
+        <AIThinkTree value="AI/DragonShireTowerThinkTree.aitree"/>
+    </CUnit>
+    <CUnit id="TownCannonTowerL3">
+        <AIThinkTree value="AI/DragonShireTowerThinkTree.aitree"/>
+    </CUnit>
+    <CUnit id="TownCannonTowerL3Standalone">
+        <AIThinkTree value="AI/DragonShireTowerThinkTree.aitree"/>
+    </CUnit>
+    <CUnit id="TownTownHallL2">
+        <AIThinkTree value="AI/DragonShireTowerThinkTree.aitree"/>
+    </CUnit>
+    <CUnit id="TownTownHallL3">
+        <AIThinkTree value="AI/DragonShireTowerThinkTree.aitree"/>
+    </CUnit>
+</Catalog>

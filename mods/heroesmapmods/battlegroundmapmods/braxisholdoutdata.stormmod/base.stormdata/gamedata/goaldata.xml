@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<Catalog>
+    <CGoalBeacon id="Beacon">
+        <BaseBenefitScore value="200"/>
+        <CapturedByEnemyBonus value="50"/>
+        <EnemyThreatFactor value="0.75"/>
+    </CGoalBeacon>
+</Catalog>

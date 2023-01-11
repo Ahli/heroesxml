@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<Catalog>
+  <CActorUnit id="KingsCore">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Building_Core.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="DocksTreasureChest">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Doodad_Chest.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownTownHallL2">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Building_Fort.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownTownHallL3">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Building_Keep.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownGateL215BRUL">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Building_Gate.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownMoonwellL2">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Building_Moonwell.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownMoonwellL3">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Building_Moonwell.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownCannonTowerL2">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Building_Tower_0.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownCannonTowerL3">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Building_Tower_1.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownGateL215BLUR">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Building_Gate.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownGateL2VerticalLeftVisionBlocked">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Building_Gate.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownGateL2VerticalRightVisionBlocked">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Building_Gate.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownGateL3BLURTLVisionBlocked">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Building_Gate.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownGateL3BRULTRVisionBlocked">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Building_Gate.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownGateL3BLURBRVisionBlocked">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Building_Gate.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownGateL3BRULBLVisionBlocked">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Building_Gate.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="JungleGraveGolemDefender">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Boss_GraveGolem.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="JungleGraveGolemLaner">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Boss_GraveGolem.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="MercDefenderMeleeKnight">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Merc_Bruiser_Knight.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="MercLanerMeleeKnight">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Merc_Bruiser_Knight.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="MercDefenderRangedMage">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Merc_Bruiser_Wizard.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="MercLanerRangedKnight">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Merc_Bruiser_Wizard.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="MercDefenderSiegeGiant">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Merc_Siege_Pirate.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="MercLanerSiegeGiant">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Merc_Siege_Pirate.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="SkeletalPirate">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Merc_DoubloonCamp.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownWallRadial4L2">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Building_Wall.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownWallRadial6L2">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Building_Wall.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownWallRadial2L3">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Building_Wall.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownWallRadial3L3">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Building_Wall.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownWallRadial17L2">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Building_Wall.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownWallRadial19L2">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Building_Wall.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownWallRadial20L3">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Building_Wall.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="TownWallRadial21L3">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Building_Wall.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="FootmanMinion">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Minion_Melee.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="RangedMinion">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Minion_Ranged.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="WizardMinion">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Minion_Wizard.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorUnit id="CatapultMinion">
+    <GroupIcon>
+      <Image value="Assets\Textures\Storm_UI_InGame_TargetInfoPanel_Unit_BB_Minion_Catapult.dds" />
+    </GroupIcon>
+  </CActorUnit>
+  <CActorModel id="BlackheartsCoreBombardWarning" parent="StormModelAnimationStyleContinuous">
+    <Inherits index="TeamColor" value="1" />
+    <On Terms="Effect.BlackheartsCoreBombardPersistent.Start" Send="Create" />
+    <On Terms="Effect.BlackheartsCoreBombardSearch.Stop; FromEffectTreeDescendant" Send="Destroy" />
+    <On Terms="ActorCreation" Send="TimerSet 6.000000 Expire" />
+    <On Terms="TimerExpired; TimerName Expire" Send="Destroy" />
+    <Flags index="VisionTestCenterOnly" value="1" />
+  </CActorModel>
+  <CActorModel id="BlackheartsCoreBombardImpact" parent="StormModelAnimationStyleOneShot">
+    <On Terms="Effect.BlackheartsCoreBombardSearch.Start" Send="Create" />
+  </CActorModel>
+  <CActorSound id="BlackheartsCoreBombardWarningSound" parent="SoundOneShot">
+    <On Terms="Effect.BlackheartsCoreBombardWarningSound.Start" Send="Create" />
+  </CActorSound>
+  <CActorSound id="BlackheartsCoreBombardImpactSound" parent="SoundOneShot">
+    <On Terms="Effect.BlackheartsCoreBombardSearch.Start" Send="Create" />
+    <FogVisibility value="Visible" />
+  </CActorSound>
+  <CActorMissile id="BlackheartsCoreBombardMissile" parent="StormMissileWithDeath" unitName="BlackheartsCoreBombardMissile">
+    <Scale value="1.500000" />
+  </CActorMissile>
+  <CActorAction id="BlackheartsCoreBombardAttackLongStarboard" parent="GenericAttackStorm" effectImpact="BlackheartsCoreBombardImpactSearchArea" effectLaunch="BlackheartsCoreBombardLaunchMissileLongStarboard">
+    <Missile value="BlackheartsCoreBombardMissile" />
+    <LaunchAttachQuery Methods="AMFilterWeaponSetA0 AMRandomUniform" />
+    <LaunchAssets Sound="Event_GhostShip_Cannon_Fire_Close" />
+    <ImpactMap index="None" Sound="Event_GhostShip_Cannon_Explo_Close" />
+    <ImpactSound value="GenericAttackImpactSound" />
+  </CActorAction>
+</Catalog>

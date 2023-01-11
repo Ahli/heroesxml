@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<Catalog>
+    <CGoalEscort id="EscortPayload">
+        <BaseBenefitScore value="200"/>
+        <FlagArray index="DelayedByDifficulty" value="0"/>
+        <TimeToExecute value="0"/>
+    </CGoalEscort>
+    <CGoalMercenaryCamp id="MercenaryCampSentinel">
+        <BaseBenefitScore value="135"/>
+    </CGoalMercenaryCamp>
+    <CGoalMercenaryCamp id="MercenaryCampVision">
+        <BaseBenefitScore value="150"/>
+    </CGoalMercenaryCamp>
+    <CGoalBeacon id="PrepareForPayload">
+        <BaseBenefitScore value="200"/>
+    </CGoalBeacon>
+    <CGoalMercenaryCamp id="MercenaryCampVisionTop" parent="MercenaryCampVision">
+        <Name value="Goal/Name/MercenaryCampVisionTop"/>
+        <BaseBenefitScore value="40"/>
+    </CGoalMercenaryCamp>
+    <CGoalMercenaryCamp id="MercenaryCampVisionBottom" parent="MercenaryCampVision">
+        <BaseBenefitScore value="40"/>
+        <Name value="Goal/Name/MercenaryCampVisionBottom"/>
+    </CGoalMercenaryCamp>
+</Catalog>
