@@ -10,7 +10,7 @@ I wrote my own tool for this which facilitates [Zezula's CascLib](https://github
     CascExtractor.exe ["Path\to\the\CASC storage"] ["*mask.txt"] ["Path\to\the\output Directory"]
     example: `CascExtractor.exe "D:\Games\StarCraft II\SC2Data" "*.xml" "D:\exportedXml"`
 
-## Commands used to expor this data:
-    CascExtractor.exe "E:\Spiele\Heroes of the Storm\HeroesData" "*.xml" ""D:\exportedXml""
-    CascExtractor.exe "E:\Spiele\Heroes of the Storm\HeroesData" "*.triggerlib" ""D:\exportedXml""
-    CascExtractor.exe "E:\Spiele\Heroes of the Storm\HeroesData" "*.galaxy" ""D:\exportedXml""
+## Commands used to export this data:
+    CascExtractor.exe "C:\Spiele\Heroes of the Storm\HeroesData" "*.xml" ""D:\exportedXml""
+    CascExtractor.exe "C:\Spiele\Heroes of the Storm\HeroesData" "*.triggerlib" ""D:\exportedXml""
+    CascExtractor.exe "C:\Spiele\Heroes of the Storm\HeroesData" "*.galaxy" ""D:\exportedXml""
