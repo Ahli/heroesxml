@@ -2128,7 +2128,6 @@
     <Cost Abil="BrightwingSoothingMistDummyCooldown,Execute" CooldownOperation="Add" CooldownTimeUse="-0.5" />
   </CEffectModifyUnit>
   <CEffectSet id="BrightwingSoothingMistImpactSet">
-    <ValidatorArray value="TargetNotStasis" />
     <ValidatorArray value="LifeNotFull" />
     <EffectArray value="BrightwingSoothingMistCreateHealer" />
     <EffectArray value="BrightwingPixieDustApplyManicPixie" />
@@ -2635,6 +2634,7 @@
   </CEffectCreateHealer>
   <CEffectEnumArea id="BrightwingSoothingMistSearchArea">
     <ImpactLocation Value="CasterPoint" />
+    <ValidatorArray value="CasterNotStasis" />
     <SearchFilters value="Heroic;Neutral,Enemy,Structure,ImmuneToFriendlyAbilities,Missile,Stasis,Dead" />
     <AreaArray Effect="BrightwingSoothingMistImpactSet">
       <Radius value="7" />

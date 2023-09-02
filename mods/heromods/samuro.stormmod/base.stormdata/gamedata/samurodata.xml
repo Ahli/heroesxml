@@ -2455,6 +2455,14 @@
   <CEffectSet id="UseVehicleCastCompleteSet">
     <ValidatorArray value="SourceNotHallucination" />
   </CEffectSet>
+  <CEffectSet id="HearthstoneSpecialCaseSet">
+    <EffectArray value="SamuroRemoveTrackedClones" />
+  </CEffectSet>
+  <CEffectEnumTrackedUnits id="SamuroRemoveTrackedClones">
+    <BehaviorLink value="SamuroMirrorImageUnitTracker" />
+    <Effect value="StormKillRemove" />
+    <TrackedUnitFilters value="Heroic;Ally,Neutral,Enemy" />
+  </CEffectEnumTrackedUnits>
   <CGame id="Dflt">
     <TriggerLibs Id="HSAM" />
   </CGame>
