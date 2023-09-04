@@ -1683,7 +1683,7 @@
   <CEffectApplyBehavior id="IllidanDiveApplyReflexiveBlockTalentStacks">
     <ValidatorArray index="0" value="IllidanHasDashTalentReflexiveBlock" />
     <WhichUnit Value="Caster" />
-    <Behavior value="TalentBucketBlock" />
+    <Behavior value="IllidanBucketBlock" />
     <Count value="3" />
     <Flags index="UseDuration" value="1" />
     <Duration value="4" />
@@ -2331,10 +2331,10 @@
     <VOArray index="PingTransport" value="Illidan_Ping_Transport" />
     <VOArray index="PingTurnIn" value="Illidan_Ping_TurnIn" />
     <VOArray index="VOPing_AssistMe" value="Illidan_VOPing_AssistMe" />
-    <VOArray index="VOPing_OnMyWay" value="Illidan_VOPing_OnMyWay" />
     <VOArray index="VOPing_Danger" value="Illidan_VOPing_Danger" />
-    <VOArray index="VOPing_EnemyMissing" value="Illidan_VOPing_EnemyMissing" />
     <VOArray index="VOPing_Defend" value="Illidan_VOPing_Defend" />
+    <VOArray index="VOPing_EnemyMissing" value="Illidan_VOPing_EnemyMissing" />
+    <VOArray index="VOPing_OnMyWay" value="Illidan_VOPing_OnMyWay" />
     <VOArray index="VOPing_Retreat" value="Illidan_VOPing_Retreat" />
     <HeroAbilArray Abil="IllidanDive" Button="IllidanDive">
       <Flags index="ShowInHeroSelect" value="1" />

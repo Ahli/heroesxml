@@ -9559,6 +9559,29 @@
     <InfoIcon value="Assets\Textures\storm_ui_icon_talent_block.dds" />
     <SortIndex value="100" />
   </CBehaviorBuff>
+  <CBehaviorBuff id="IllidanBucketBlock" parent="StormArmorPermanent">
+    <Alignment value="Positive" />
+    <InfoFlags index="Hidden" value="0" />
+    <MaxStackCount value="4" />
+    <DamageResponse>
+      <Chance value="1" />
+      <Handled value="TalentBucketBlockRemoveSet" />
+      <TargetFilters value="Heroic;Structure" />
+      <Priority value="55" />
+      <Kind index="Ability" value="0" />
+      <ProvideCategories index="Proc" value="1" />
+    </DamageResponse>
+    <ArmorModification>
+      <ArmorSet index="Hero">
+        <ArmorMitigationTable index="Basic" value="75" />
+      </ArmorSet>
+    </ArmorModification>
+    <BuffFlags index="RemoveDamageResponseExhausted" value="0" />
+    <BuffFlags index="RefreshStack" value="1" />
+    <DisableValidatorArray value="SourceNotDead" />
+    <InfoIcon value="Assets\Textures\storm_ui_icon_talent_block.dds" />
+    <SortIndex value="100" />
+  </CBehaviorBuff>
   <CBehaviorBuff id="TalentBucketBlockCharged" parent="CarryBehaviorParent">
     <Alignment value="Positive" />
     <InfoFlags index="Hidden" value="0" />

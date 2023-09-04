@@ -15522,22 +15522,6 @@ bool libGDHL_gt_HeroLostVikingsAbathurClone_Func (bool testConds, bool runAction
     }
     UnitBehaviorAdd(EventUnit(), "LostVikings1VikingAlive", EventUnit(), 1);
     UnitBehaviorAdd(EventUnit(), "UltimateEvolutionAlternateHero", EventUnit(), 1);
-    if ((PlayerHasTalent(lv_lVPlayer, "LostVikingsMasteryJump") == true)) {
-        UnitBehaviorAdd(EventUnit(), "LostVikingsJumpEnabled", EventUnit(), 1);
-    }
-
-    if ((PlayerHasTalent(lv_lVPlayer, "LostVikingsMasterySpinToWin") == true)) {
-        UnitBehaviorAdd(EventUnit(), "LostVikingsSpinToWinCarry", EventUnit(), 1);
-    }
-
-    if ((PlayerHasTalent(lv_lVPlayer, "LostVikingsMasteryNordicAttackSquad") == true)) {
-        UnitBehaviorAdd(EventUnit(), "LostVikingsNordicAttackSquadCarry", EventUnit(), 1);
-    }
-
-    if ((PlayerHasTalent(lv_lVPlayer, "LostVikingsMasteryNorseForce") == true)) {
-        UnitBehaviorAdd(EventUnit(), "LostVikingsNorseForceEnabled", EventUnit(), 1);
-    }
-
     PlayerAddCooldown(UnitGetOwner(EventUnit()), CatalogFieldValueGet(c_gameCatalogAbil, "LostVikingsLongboatRaidNewer", "Cost[" + IntToString(0) + "].Cooldown.Link", UnitGetOwner(EventUnit())), 15.0);
     PlayerAddCooldown(UnitGetOwner(EventUnit()), CatalogFieldValueGet(c_gameCatalogAbil, "LostVikingsPlayAgain", "Cost[" + IntToString(0) + "].Cooldown.Link", UnitGetOwner(EventUnit())), 15.0);
     return true;
