@@ -1881,7 +1881,7 @@
   </CEffectApplyBehavior>
   <CEffectRemoveBehavior id="SamuroIllusionMasterThreeBladeStyleRemovedTimedLifeBehavior">
     <WhichUnit Value="Caster" />
-    <BehaviorLink value="SamuroAdvancingStrikesDeflectionBlock" />
+    <BehaviorLink value="SamuroMirrorImageTimedLife" />
   </CEffectRemoveBehavior>
   <CEffectCancelOrder id="SamuroMirrorImageWeaponImpactCancelAttackOrder">
     <ValidatorArray value="CasterisSamuroMirrorImage" />

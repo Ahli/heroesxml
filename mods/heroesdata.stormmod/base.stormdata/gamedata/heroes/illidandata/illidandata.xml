@@ -1034,6 +1034,7 @@
     <Period value="1" />
     <PeriodicEffect value="IllidanSweepingStrikesImmolationSearch" />
     <DisableValidatorArray value="NotMounted" />
+    <DisableValidatorArray value="NotMountedCaboose" />
     <DisableValidatorArray value="CasterNotStasis" />
   </CBehaviorBuff>
   <CBehaviorBuff id="IllidanTheHunt">
@@ -1683,7 +1684,7 @@
   <CEffectApplyBehavior id="IllidanDiveApplyReflexiveBlockTalentStacks">
     <ValidatorArray index="0" value="IllidanHasDashTalentReflexiveBlock" />
     <WhichUnit Value="Caster" />
-    <Behavior value="IllidanBucketBlock" />
+    <Behavior value="TalentBucketBlock" />
     <Count value="3" />
     <Flags index="UseDuration" value="1" />
     <Duration value="4" />
