@@ -114,6 +114,12 @@
     <TokenId value="MuradinStormboltPerfectStormQuestToken" />
     <MinAccumulation value="0" />
   </CAccumulatorToken>
+  <CAccumulatorToken id="MuradinHealingStaticHeroHitCounterAccumulator" parent="BaseAccumulator">
+    <MaxAccumulation value="15" />
+    <TokenId value="MuradinHealingStaticHeroHitCounter" />
+    <Scale value="1" />
+    <Offset value="-1" />
+  </CAccumulatorToken>
   <CActorModel id="MuradinHammerTimeQuestCompleteVisualFX2" parent="StormModelAnimationStyleContinuousUnit">
     <Inherits index="TimeScale" value="1" />
     <On Terms="Behavior.MuradinItsHammerTimeQuestCompletionCarry.On" Send="Create" />
@@ -700,7 +706,7 @@
     <Max value="25" />
   </CBehaviorTokenCounter>
   <CBehaviorBuff id="MuradinBronzebeardRage">
-    <Face value="GenericBurningRageTalent" />
+    <Face value="MuradinBronzebeardRage" />
     <Alignment value="Positive" />
     <BehaviorFlags index="Permanent" value="1" />
     <BehaviorFlags index="EnabledWhileDead" value="1" />
@@ -753,7 +759,6 @@
     </ArmorModification>
   </CBehaviorBuff>
   <CBehaviorBuff id="MuradinThunderclapAttackSpeedDebuff" parent="StormDamageReductionAttackSpeedSlow">
-    <BehaviorCategories index="DebuffAutoattackDPS" value="1" />
     <Duration value="2.5" />
     <Modification>
       <AdditiveAttackSpeedFactor value="-0.3" />
@@ -953,6 +958,9 @@
     <Face value="MuradinStormBoltPerfectStormQuestToken" />
     <Max value="65000" />
   </CBehaviorTokenCounter>
+  <CBehaviorTokenCounter id="MuradinHealingStaticHeroHitCounter" parent="StormGenericToken">
+    <Max value="15" />
+  </CBehaviorTokenCounter>
   <CButton id="MuradinStormBoltIt'sHammerTime" parent="StormButtonParent">
     <Icon value="Assets\Textures\storm_ui_icon_muradin_stormbolt.dds" />
   </CButton>
@@ -1071,7 +1079,7 @@
     <TooltipAppender Validator="HasMuradinAvatarUnstoppableForce" Face="MuradinAvatarUnstoppableForceTalent" />
   </CButton>
   <CButton id="MuradinStormBoltPerfectStormQuestToken" parent="StormButtonParent">
-    <Icon value="Assets\Textures\storm_ui_icon_Muradin_Stormbolt_A.dds" />
+    <Icon value="Assets\Textures\storm_ui_icon_Muradin_Stormbolt.dds" />
   </CButton>
   <CCharacter id="Muradin">
     <Age value="30" />
@@ -1177,6 +1185,7 @@
     <Flags index="NoVitalLeechEnergy" value="1" />
     <Amount value="15" />
     <LeechFraction index="Life" value="0.75" />
+    <CritValidatorArray index="0" removed="1" />
   </CEffectDamage>
   <CEffectEnumArea id="MuradinBronzebeardRageSearch">
     <ImpactLocation Value="SourceUnit" />
@@ -1283,6 +1292,7 @@
   </CEffectModifyUnit>
   <CEffectModifyTokenCount id="MuradinStormBoltPerfectStormModifyQuestToken" parent="BaseEffectModifyTokenCount">
     <ValidatorArray value="TargetIsHero" />
+    <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
     <EffectCategory index="Quest" value="1" />
     <Chance value="0" />
     <TokenId value="MuradinStormboltPerfectStormQuestToken" />
@@ -1491,6 +1501,7 @@
   </CEffectApplyBehavior>
   <CEffectDamage id="MuradinThunderclapThunderburnTalentThunderstrikeDamage" parent="StormSpell">
     <Flags index="Crit" value="1" />
+    <Visibility value="Hidden" />
     <Amount value="216" />
   </CEffectDamage>
   <CEffectSwitch id="MuradinThunderclapThunderburnTalentThunderstrikeSearchSwitch">
@@ -1501,15 +1512,32 @@
     <Flags index="Crit" value="1" />
     <Amount value="288" />
   </CEffectDamage>
-  <CEffectCreateHealer id="ThunderclapHealingStaticCreateHealer" parent="StormSelfOnlyHealingSpellPercent">
-    <Chance value="0" />
-    <ImpactUnit Value="Caster" />
-    <RechargeVitalFraction value="0.0507" />
+  <CEffectModifyTokenCount id="MuradinHealingStaticHeroHitIncrementTokenCount" parent="BaseEffectModifyTokenCount">
+    <ValidatorArray value="HasMuradinThunderclapHealingStatic" />
     <ValidatorArray value="TargetIsHero" />
+    <TokenId value="MuradinHealingStaticHeroHitCounter" />
+  </CEffectModifyTokenCount>
+  <CEffectSet id="MuradinHealingStaticSet">
+    <EffectArray value="ThunderclapHealingStaticCreateHealer" />
+    <EffectArray value="MuradinHealingStaticHeroHitResetTokens" />
+  </CEffectSet>
+  <CEffectCreateHealer id="ThunderclapHealingStaticCreateHealer" parent="StormSelfOnlyHealingSpellPercent">
+    <ValidatorArray value="MuradinCasterHasGE1HealingStaticHeroHit" />
+    <ValidatorArray value="HasMuradinThunderclapHealingStatic" />
+    <SourceButtonFace value="MuradinThunderclapHealingStaticTalent" />
+    <ImpactUnit Value="Caster" />
+    <RechargeVitalFraction value="0.05">
+      <AccumulatorArray value="MuradinHealingStaticHeroHitCounterAccumulator" />
+    </RechargeVitalFraction>
   </CEffectCreateHealer>
+  <CEffectModifyTokenCount id="MuradinHealingStaticHeroHitResetTokens">
+    <TokenId value="MuradinHealingStaticHeroHitCounter" />
+    <ContextUnit Value="Caster" />
+    <Operation value="Set" />
+  </CEffectModifyTokenCount>
   <CEffectSet id="ThunderclapMasteriesSet">
     <EffectArray value="MuradinThunderclapApplyAttackSpeedSlowDebuff" />
-    <EffectArray value="ThunderclapHealingStaticCreateHealer" />
+    <EffectArray value="MuradinHealingStaticHeroHitIncrementTokenCount" />
     <EffectArray value="MuradinThunderClapReverberationModifyHeroicCooldown" />
   </CEffectSet>
   <CEffectApplyBehavior id="MuradinThunderclapApplyAttackSpeedSlowDebuff">
@@ -1648,11 +1676,6 @@
     <RevealRadius value="1" />
     <RevealFlags index="Unfog" value="1" />
   </CEffectCreatePersistent>
-  <CEffectCreatePersistent id="StormBoltCreatePersistentReveal">
-    <ExpireDelay value="2" />
-    <RevealRadius value="1" />
-    <RevealFlags index="Unfog" value="1" />
-  </CEffectCreatePersistent>
   <CEffectDamage id="StormBoltSuicideRemove" parent="StormSuicideParent">
     <ValidatorArray value="MuradinHasLT25ItsHammerTimeTokens" />
   </CEffectDamage>
@@ -1671,9 +1694,11 @@
   <CEffectCreatePersistent id="MuradinThunderclapThunderburnTalentCreatePersistent">
     <WhichLocation Value="CasterPoint" />
     <ExpireEffect value="ThunderclapCreatePersistentReveal" />
-    <PeriodCount value="1" />
+    <PeriodCount value="2" />
     <PeriodicEffectArray value="MuradinThunderclapThunderburnTalentThunderstrikeSearchSwitch" />
+    <PeriodicEffectArray value="MuradinHealingStaticSet" />
     <PeriodicPeriodArray value="2" />
+    <PeriodicPeriodArray value="0" />
     <RevealRadius value="4" />
     <RevealFlags index="Unfog" value="1" />
   </CEffectCreatePersistent>
@@ -1751,6 +1776,7 @@
     <EffectArray value="SkullcrackerSwitch" />
     <EffectArray value="MuradinStormBoltQuestCompleteCreateManaHealer" />
     <EffectArray value="MuradinStormBoltPerfectStormModifyQuestToken" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectSet id="HeroMuradinSkullcrackerSet">
     <EffectArray value="UniversalWeaponImpact" />
@@ -1822,7 +1848,7 @@
     <EffectArray value="StormBoltDamage" />
     <EffectArray value="StormBoltImpactSecondSet" />
     <EffectArray value="CameraShakeMediumTauntingTotemSet" />
-    <EffectArray value="StormBoltCreatePersistentReveal" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
     <EffectArray value="StormBoltMasteriesSet" />
     <EffectArray value="MuradinHeroWeaponApplyBronzebeardRageTalentCCDamageBoost" />
   </CEffectSet>
@@ -1842,6 +1868,7 @@
     <EffectArray value="MuradinThunderclapThunderburnProcSearch" />
     <EffectArray value="MuradinThunderclapCrowdControlTalentSearch" />
     <EffectArray value="MuradinThunderclapSearchSwitchThunderstrike" />
+    <EffectArray value="MuradinHealingStaticSet" />
     <EffectArray value="CameraShakeMediumCasterDummySet" />
     <EffectArray value="ThunderclapCreatePersistentReveal" />
   </CEffectSet>
@@ -2260,6 +2287,7 @@
       <Flags index="Trait" value="1" />
     </HeroAbilArray>
     <HeroSpecificUIArray Location="CommandButton05Status" DescName="Muradin/UnitStatusMuradinSecondWindCooldownOverrideFrame" />
+    <HeroSpecificUIArray Location="Status" DescName="Muradin/MuradinFrame" />
     <AllowedMountCategoryArray value="Ride" />
     <AllowedMountCategoryArray value="Ridebeast" />
     <AllowedMountCategoryArray value="Ridebike" />
@@ -2470,15 +2498,9 @@
   </CTalent>
   <CTalent id="MuradinMasteryThunderclapHealingStatic">
     <Face value="MuradinThunderclapHealingStaticTalent" />
-    <AbilityModificationArray>
-      <Modifications>
-        <Type value="FlatModification" />
-        <Catalog value="Effect" />
-        <Entry value="ThunderclapHealingStaticCreateHealer" />
-        <Field value="Chance" />
-        <Value value="1.000000" />
-      </Modifications>
-    </AbilityModificationArray>
+    <RankArray>
+      <BehaviorArray value="MuradinHealingStaticHeroHitCounter" />
+    </RankArray>
     <Abil value="MuradinThunderclap" />
   </CTalent>
   <CTalent id="MuradinMasteryThunderclapReverberation">
@@ -2817,6 +2839,7 @@
     <Type value="And" />
     <CombineArray value="ExecutionerCCCombine" />
     <CombineArray value="MuradinHasTalentMuradinGiveEmTheAxe" />
+    <CombineArray value="CasterNotBlindedAndTargetNotEvading" />
   </CValidatorCombine>
   <CValidatorPlayerTalent id="MuradinHasTalentMuradinGiveEmTheAxe">
     <WhichPlayer Value="Caster" />
@@ -2892,6 +2915,12 @@
     <Find value="1" />
     <Value value="MuradinMasteryThunderclapHealingStatic" />
   </CValidatorPlayerTalent>
+  <CValidatorUnitCompareTokenCount id="MuradinCasterHasGE1HealingStaticHeroHit">
+    <WhichUnit Value="Caster" />
+    <Compare value="GE" />
+    <Value value="1" />
+    <TokenId value="MuradinHealingStaticHeroHitCounter" />
+  </CValidatorUnitCompareTokenCount>
   <CValidatorPlayerTalent id="HasMuradinThunderburn">
     <WhichPlayer Value="Caster" />
     <Find value="1" />

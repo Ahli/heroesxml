@@ -511,14 +511,22 @@
     <DamageResponse>
       <Chance value="1" />
       <Handled value="BlindMissedDummy" />
+      <TargetFilters value="Heroic;-" />
       <Priority value="85" />
       <Location value="Attacker" />
       <ModifyFraction value="0" />
       <Kind index="Ability" value="0" />
+      <ModifyScoreArray Value="Healing" />
+    </DamageResponse>
+  </CBehaviorBuff>
+  <CBehaviorBuff default="1" id="StormBlindNonHeroes" parent="StormBlind">
+    <DamageResponse TargetFilters="-;Heroic">
+      <ModifyScoreArray index="0" Value="" />
     </DamageResponse>
   </CBehaviorBuff>
   <CBehaviorBuff default="1" id="StormTimeStopParent">
     <BehaviorCategories index="TimeStop" value="1" />
+    <DisplayPriority value="1001" />
     <TimeScaleSource Value="Global" />
     <Modification>
       <ModifyFlags index="SuppressTurning" value="1" />
@@ -545,6 +553,7 @@
     </Modification>
   </CBehaviorBuff>
   <CBehaviorBuff default="1" id="StormDamageReductionAttackSpeedSlow">
+    <BehaviorCategories index="DebuffAutoattackDPS" value="1" />
     <BehaviorFlags index="Permanent" value="1" />
     <BehaviorFlags index="EnabledWhileDead" value="1" />
     <BuffFlags index="UpdateDurationWhileDisabled" value="1" />
@@ -844,6 +853,7 @@
   <CBehaviorBuff id="HeroGenericStationaryExtraStealthCountdown">
     <RemoveValidatorArray value="TargetIsStationary" />
     <RemoveValidatorArray value="TargetIsCloaked" />
+    <RemoveValidatorArray value="TargetDoesNotHaveInCargo" />
     <RemoveValidatorArray value="UserCategoryTargetNotRevealed" />
     <Duration value="1.5" />
     <ExpireEffect value="HeroGenericStationaryExtraStealthApplyActive" />
@@ -864,6 +874,7 @@
     <BehaviorFlags index="EnabledWhileDead" value="0" />
     <DisableValidatorArray value="TargetIsStationary" />
     <DisableValidatorArray value="TargetIsCloaked" />
+    <DisableValidatorArray value="TargetDoesNotHaveInCargo" />
     <DisableValidatorArray value="UserCategoryTargetNotRevealed" />
     <Period value="0.0625" />
     <PeriodicEffect value="HeroGenericStationaryExtraStealthApplyCountdown" />
@@ -1013,7 +1024,11 @@
       <UnifiedMoveSpeedFactor value="-0.25" />
     </Modification>
   </CBehaviorBuff>
-  <CBehaviorBuff id="PermaBlind" parent="StormBlind" />
+  <CBehaviorBuff id="PermaBlind" parent="StormBlind">
+    <DamageResponse TargetFilters="-;-">
+      <ModifyScoreArray index="0" Value="" />
+    </DamageResponse>
+  </CBehaviorBuff>
   <CBehaviorBuff id="PermaRoot" parent="StormRoot" />
   <CBehaviorBuff id="PermaStun" parent="StormStun" />
   <CBehaviorBuff id="PermaPoly" parent="StormPolymorph" />
@@ -1094,7 +1109,6 @@
   </CBehaviorBuff>
   <CBehaviorBuff id="TalentBribeTalentCarry" parent="CarryBehaviorParent" />
   <CBehaviorBuff id="TalentImposingPresenceActivatedDebuff" parent="StormDamageReductionAttackSpeedSlow">
-    <BehaviorCategories index="DebuffAutoattackDPS" value="1" />
     <Duration value="2.5" />
     <Modification>
       <AdditiveAttackSpeedFactor value="-0.5" />
@@ -1119,7 +1133,6 @@
     </DamageResponse>
   </CBehaviorBuff>
   <CBehaviorBuff id="TalentImposingPresenceDamageResponseDebuff" parent="StormDamageReductionAttackSpeedSlow">
-    <BehaviorCategories index="DebuffAutoattackDPS" value="1" />
     <Duration value="2.5" />
     <Modification>
       <AdditiveAttackSpeedFactor value="-0.2" />
@@ -1382,10 +1395,13 @@
   </CBehaviorBuff>
   <CBehaviorBuff id="AbilityImpactReveal">
     <Duration value="2" />
+    <MaxStackCountPerCaster value="1" />
+    <MaxStackCount value="10" />
     <Modification>
       <ModifyFlags index="Reveal" value="1" />
     </Modification>
     <RemoveValidatorArray value="TargetNotUnrevealable" />
+    <RemoveValidatorArray value="CasterNotVisionRemoval" />
   </CBehaviorBuff>
   <CBehaviorReveal id="AttackReveal">
     <Duration value="2" />
@@ -3676,7 +3692,7 @@
     <DisableValidatorArray value="SummonedUnitMountBehaviorCasterIsNear" />
     <DisableValidatorArray value="DoesNotHaveSummonedUnitMountBehaviorSuppressor" />
     <Modification>
-      <UnifiedMoveSpeedFactor value="0.4" />
+      <UnifiedMoveSpeedFactor value="0.3" />
     </Modification>
   </CBehaviorBuff>
   <CBehaviorBuff id="ScoutingDroneSelfRevealer">
@@ -10513,7 +10529,6 @@
     <Modification>
       <AdditiveAttackSpeedFactor value="-0.4" />
     </Modification>
-    <BehaviorCategories index="DebuffAutoattackDPS" value="1" />
   </CBehaviorBuff>
   <CBehaviorBuff id="GenericNoBounceEffects" />
   <CBehaviorBuff id="UnderworldBossStun" parent="StormStun">

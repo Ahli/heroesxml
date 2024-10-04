@@ -22,6 +22,7 @@
       <Cooldown Link="Abil/AurielResurrect" TimeUse="100" />
     </Cost>
     <CmdButtonArray index="Execute" DefaultButtonFace="AurielResurrectSelf" Requirements="AurielResurrectSelfRequirement" ShowValidator="IsDead" />
+    <SharedFlags index="AllowQuickCastCustomization" value="0" />
     <SharedFlags index="ExecutableWhileDead" value="1" />
   </CAbilEffectInstant>
   <CAbilEffectTarget id="AurielSacredSweep">
@@ -82,6 +83,7 @@
     </InterruptCost>
     <TargetFilters value="Invulnerable,Benign;Player,Enemy" />
     <Range value="5" />
+    <RangeSlop value="5" />
     <CastIntroTime value="1" />
     <ShowProgressArray index="Cast" value="1" />
     <UninterruptibleArray index="Cast" value="1" />
@@ -106,6 +108,7 @@
       <Cooldown TimeUse="30" />
     </Cost>
     <Range value="75" />
+    <RangeSlop value="5" />
     <Arc value="360" />
     <CastIntroTime value="2" />
     <ShowProgressArray index="Cast" value="1" />
@@ -1015,7 +1018,10 @@
   </CBehaviorBuff>
   <CBehaviorBuff id="AurielSacredSweepBlindingFlashBlind" parent="StormBlind">
     <Duration value="2" />
-    <Period value="0.1875" />
+  </CBehaviorBuff>
+  <CBehaviorBuff id="AurielSacredSweepBlindingFlashNonHeroesBlind" parent="StormBlindNonHeroes">
+    <RemoveValidatorArray value="AurielTargetHasBlindingFlashBlind" />
+    <Duration value="2" />
   </CBehaviorBuff>
   <CBehaviorBuff id="AurielSacredSweepConvergingForceMovementSpeed">
     <RemoveValidatorArray value="TargetNotUnstoppable" />
@@ -1467,6 +1473,7 @@
   <CEffectSet id="AurielHeroWeaponImpactSet">
     <EffectArray value="AurielHeroWeaponDamageSet" />
     <EffectArray value="UniversalWeaponImpact" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectSet id="AurielHeroWeaponInitialSet">
     <EffectArray value="AurielHeroWeaponLaunchMissile" />
@@ -1477,7 +1484,6 @@
   </CEffectSet>
   <CEffectDamage id="AurielRayOfHeavenSearingLightHeroDamage" parent="AurielDamageVsHeroicTargetParent">
     <ValidatorArray value="noMarkers" />
-    <ValidatorArray value="TargetNotProtected" />
     <Amount value="130" />
     <LaunchLocation Effect="AurielRayOfHeavenCastDummy" Value="CasterUnit" />
     <SourceButtonFace value="AurielSearingLightRayOfHeavenTalent" />
@@ -1543,6 +1549,7 @@
     <EffectArray value="AurielSacredSweepIncreasingClarityModifyQuestToken" />
     <EffectArray value="AurielSacredSweepIncreasingClarityTargetArtDummy" />
     <EffectArray value="AurielSacredSweepBlindingFlashApplyBlind" />
+    <EffectArray value="AurielSacredSweepBlindingFlashApplyNonHeroesBlind" />
     <EffectArray value="AurielBestowHopeWrathofHeavenTalentApplyArmorDebuff" />
   </CEffectSet>
   <CEffectModifyUnit id="AurielSacredSweepIncreasingClarityTargetArtDummy">
@@ -1560,7 +1567,6 @@
   </CEffectSet>
   <CEffectDamage id="AurielRayOfHeavenSearingLightNonHeroDamage" parent="AurielDamageVsNonHeroicTargetParent">
     <ValidatorArray value="noMarkers" />
-    <ValidatorArray value="TargetNotProtected" />
     <Amount value="130" />
     <LaunchLocation Effect="AurielRayOfHeavenCastDummy" Value="CasterUnit" />
   </CEffectDamage>
@@ -1604,6 +1610,7 @@
     <EffectArray value="AurielSacredSweepHeroCenterDamage" />
     <EffectArray value="AurielSacredSweepNonHeroDamage" />
     <EffectArray value="AurielSacredSweepNonHeroCenterDamage" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
   </CEffectSet>
   <CEffectApplyBehavior id="AurielSacredSweepBlindingFlashApplyBlind" parent="StormBlindApply">
     <Chance value="0" />
@@ -1612,9 +1619,17 @@
     <ValidatorArray value="AurielSacredSweepBlindingFlashTargetNotVehicle" />
     <ValidatorArray value="AurielSacredSweepBlindingFlashTargetNotStructure" />
   </CEffectApplyBehavior>
+  <CEffectApplyBehavior id="AurielSacredSweepBlindingFlashApplyNonHeroesBlind" parent="StormBlindApply">
+    <Chance value="0" />
+    <WhichUnit Effect="AurielSacredSweepCenterImpactSet" />
+    <Behavior value="AurielSacredSweepBlindingFlashNonHeroesBlind" />
+    <ValidatorArray value="AurielSacredSweepBlindingFlashTargetNotVehicle" />
+    <ValidatorArray value="AurielSacredSweepBlindingFlashTargetNotStructure" />
+  </CEffectApplyBehavior>
   <CEffectSet id="AurielSacredSweepDamageSet">
     <EffectArray value="AurielSacredSweepHeroDamage" />
     <EffectArray value="AurielSacredSweepNonHeroDamage" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
   </CEffectSet>
   <CEffectModifyUnit id="AurielSacredSweepRighteousAssaultModifyCooldown">
     <ImpactUnit Value="Caster" />
@@ -1953,6 +1968,7 @@
     <EffectArray value="AurielDetainmentStrikeApplyKnockbackBehavior" />
     <EffectArray value="AurielDetainmentStrikeDestroyMissileScanPersistent" />
     <EffectArray value="AurielDetainmentStrikeDestroyOffsetPersistent" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
     <EffectArray value="CameraShakeLightTauntingTotemSet" />
   </CEffectSet>
   <CEffectEnumArea id="AurielDetainmentStrikeHeroMissileScan">
@@ -2032,6 +2048,7 @@
     <EffectArray value="AurielDetainmentStrikeApplyKnockbackBehavior" />
     <EffectArray value="AurielDetainmentStrikeDamageSet" />
     <EffectArray value="AurielDetainmentStrikePiercingLashModifyCooldown" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
     <EffectArray value="CameraShakeLightTauntingTotemSet" />
   </CEffectSet>
   <CEffectSwitch id="AurielDetainmentStrikeMissileImpactSwitch">
@@ -2051,7 +2068,7 @@
     </Amount>
     <ImpactLocation Effect="AurielDetainmentStrikeMissileImpactSwitch" Value="TargetUnit" />
     <LaunchLocation Effect="AurielDetainmentStrikeInitialSet" Value="CasterUnit" />
-    <CritValidatorArray index="0" value="AurielDetainmentStrikeRepeatedOffenseComplete" />
+    <Flags index="Crit" value="1" />
   </CEffectDamage>
   <CEffectSet id="AurielDetainmentStrikeDamageSet">
     <EffectArray value="AurielDetainmentStrikeInitialHeroDamage" />
@@ -2152,6 +2169,7 @@
   <CEffectSet id="AurielCrystalAegisDamageSet">
     <EffectArray value="AurielCrystalAegisHeroExplosionDamage" />
     <EffectArray value="AurielCrystalAegisNonHeroExplosionDamage" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
   </CEffectSet>
   <CEffectDamage id="AurielCrystalAegisNonHeroExplosionDamage" parent="AurielDamageVsNonHeroicTargetParent">
     <ValidatorArray value="noMarkers" />
@@ -2180,7 +2198,7 @@
   </CEffectEnumArea>
   <CEffectSet id="AurielCrystalAegisInitialSet">
     <EffectArray value="AurielCrystalAegisApplyStasisBehavior" />
-    <EffectArray value="DismountDecloakTargetSet" />
+    <EffectArray value="DismountDecloakTargetSetNoReveal" />
     <ValidatorArray value="TargetIsGroundMover" />
     <ValidatorArray value="TargetNotSpecialDeathState" />
   </CEffectSet>
@@ -2421,7 +2439,7 @@
     <TalentTreeArray Talent="AurielAngelicFlightTalent" Tier="7" Column="3" />
     <TalentTreeArray Talent="AurielShieldOfHopeTalent" Tier="7" Column="4" />
     <VariationIcon value="Assets\Textures\ui_glues_swatch_whiteeggshell.dds" />
-    <Difficulty value="Medium" />
+    <Difficulty value="Hard" />
     <HeroTierAchievementId value="5216701565553078939" />
     <Gender value="Female" />
     <Universe value="Diablo" />
@@ -2792,6 +2810,7 @@
       <BehaviorArray value="AurielRayOfHeavenReservoirOfHopeQuestToken" />
       <BehaviorArray value="AurielRayOfHeavenReservoirOfHopeBonusEnergy" />
     </RankArray>
+    <QuestData StackBehavior="AurielRayOfHeavenReservoirOfHopeQuestToken" />
     <AbilityModificationArray>
       <Modifications>
         <Type value="FlatModification" />
@@ -2974,6 +2993,13 @@
         <Field value="Chance" />
         <Value value="1.000000" />
       </Modifications>
+      <Modifications>
+        <Type value="FlatModification" />
+        <Catalog value="Effect" />
+        <Entry value="AurielSacredSweepBlindingFlashApplyNonHeroesBlind" />
+        <Field value="Chance" />
+        <Value value="1.000000" />
+      </Modifications>
     </AbilityModificationArray>
   </CTalent>
   <CTalent id="AurielConvergingForceSacredSweepTalent">
@@ -3040,6 +3066,16 @@
   <CTalent id="AurielPiercingLashDetainmentStrikeTalent">
     <Face value="AurielPiercingLashDetainmentStrikeTalent" />
     <Abil value="AurielDetainmentStrike" />
+    <AbilityModificationArray>
+      <Modifications>
+        <Type value="FlatModification" />
+        <Catalog value="Effect" />
+        <Entry value="AurielDetainmentStrikeHeroMissileScan" />
+        <Field value="AreaArray[0].MaxCount" />
+        <FieldIsInteger value="1" />
+        <Value value="14.000000" />
+      </Modifications>
+    </AbilityModificationArray>
   </CTalent>
   <CTalent id="AurielHeavyBurdenDetainmentStrikeTalent">
     <Face value="AurielHeavyBurdenDetainmentStrikeTalent" />
@@ -3505,6 +3541,10 @@
   <CValidatorUnitCompareBehaviorCount id="AurielSacredSweepBlindingFlashTargetNotOccupiedVehicle">
     <WhichUnit Effect="AurielSacredSweepCenterImpactSet" />
     <Behavior value="GenericVehicleBehaviorOccupied" />
+  </CValidatorUnitCompareBehaviorCount>
+  <CValidatorUnitCompareBehaviorCount id="AurielTargetHasBlindingFlashBlind">
+    <Compare value="GT" />
+    <Behavior value="AurielSacredSweepBlindingFlashBlind" />
   </CValidatorUnitCompareBehaviorCount>
   <CValidatorUnitCompareBehaviorCount id="AurielTargetDoesNotHaveBestowHopeProxyBehavior">
     <Behavior value="AurielBestowHopeProxyBehavior" />

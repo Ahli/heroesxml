@@ -9,6 +9,7 @@
     <Cost>
       <Cooldown TimeUse="0.5" />
     </Cost>
+    <ParentAbil value="MurkyMarchoftheMurlocs" />
   </CAbilEffectInstant>
   <CAbilEffectTarget id="MurkyMarchoftheMurlocsNeverEndingMurlocsTalent">
     <Activity value="Abil/MurkyMarchOfTheMurlocs/Activity" />
@@ -133,6 +134,7 @@
     </Cost>
     <Placeholder value="MurkyPufferfish" />
     <Range value="7" />
+    <RangeSlop value="5" />
     <Arc value="360" />
     <CastIntroTime value="0.125" />
     <UninterruptibleArray index="Cast" value="1" />
@@ -520,20 +522,24 @@
   </CActorUnit>
   <CActorSound id="MurkyMountedSound" parent="SoundOneShot" />
   <CActorModel id="MurkyOctoGrabDamageImpact" parent="StormModelAnimationStyleOneShotUnit">
+    <VisibilityShape Shape="MurkyOctograbVisibilityShape" />
     <On Terms="Effect.OctoGrabDamageSwitch.Start; At Target" Send="Create" />
     <HostSiteOps Ops="SOpAttachCenter" />
     <Inherits index="CloakEffect" value="0" />
   </CActorModel>
   <CActorSound id="MurkyOctoGrabLaunchSound" parent="SoundOneShot">
+    <VisibilityShape Shape="MurkyOctograbVisibilityShape" />
     <On Terms="Effect.MurkyOctoGrabSwitch.Start" Send="Create" />
     <On Terms="Effect.OctoGrabFinalSet.Start" Send="Destroy" />
     <Sound value="Murky_OctoGrab_Launch" />
   </CActorSound>
   <CActorSound id="MurkyOctoGrabNetSound" parent="SoundOneShot">
+    <VisibilityShape Shape="MurkyOctograbVisibilityShape" />
     <On Terms="Behavior.OctoGrabVisual.On" Send="Create" />
     <Sound value="Murky_OctoGrab_Impact" />
   </CActorSound>
   <CActorSound id="MurkyOctoGrabPokeSound" parent="SoundOneShot">
+    <VisibilityShape Shape="MurkyOctograbVisibilityShape" />
     <On Terms="Effect.OctoGrabPokeDamage.Start" Send="Create" />
     <Sound value="Murky_OctoGrab_Damage" />
   </CActorSound>
@@ -682,6 +688,16 @@
     <On Terms="Behavior.MurkySafetyBubble.Off" Send="Destroy" />
     <HostSiteOps Ops="SOpAttachCenterSoft" HoldRotation="1" />
   </CActorModel>
+  <CActorRange id="MurkyFishEyeRangeIndicator">
+    <Filter index="All" value="1" />
+    <VisibleTo index="Self" value="1" />
+    <Inherits index="TeamColor" value="1" />
+    <Icon value="Assets\Textures\storm_watchtowerradius.dds" />
+    <On Terms="UnitBirth.MurkyRespawnEgg; ValidatePlayer MurkyHasFishEyeTalent" Send="Create" />
+    <On Terms="UnitDeath.MurkyRespawnEgg" Send="Destroy" />
+    <IconArcLength value="5.000000" />
+    <Range value="23.500000" />
+  </CActorRange>
   <CActorUnit id="MurkyRespawnEgg" parent="StormMinionStandard" unitName="MurkyRespawnEgg">
     <Aliases value="_Hero" />
     <On Terms="UnitBirth" Send="Create MurkyRespawnEggBirthSound" />
@@ -857,12 +873,14 @@
     <On Terms="Effect.MurkyPufferfishSearchAreaUnnamed.Start; At Effect" Send="Create" />
   </CActorModel>
   <CActorModel id="Storm_Effect_Murky_Base_Squid" parent="StormModelAddition">
+    <VisibilityShape Shape="MurkyOctograbVisibilityShape" />
     <On Terms="Behavior.OctoGrabVisual.On" Send="Create" />
     <On Terms="Behavior.OctoGrabVisual.Off" Send="AnimBracketStop BSD" />
     <HostSiteOps Ops="SOpPointSouthWorld" HoldRotation="1" />
     <Inherits index="CloakEffect" value="0" />
   </CActorModel>
   <CActorModel id="Storm_Effect_Murky_Base_Squid_Cast" parent="StormModelAddition">
+    <VisibilityShape Shape="MurkyOctograbVisibilityShape" />
     <On Terms="Behavior.MurkyOctoGrabTravelBehavior.On" Send="Create" />
     <On Terms="Behavior.MurkyOctoGrabTravelBehavior.Off" Send="AnimBracketStop BSD" />
     <ModelFlags index="AllowHitTest" value="0" />
@@ -960,7 +978,7 @@
   </CBehaviorBuff>
   <CBehaviorBuff id="MurkyBigTunaKahunaCarry" parent="CarryBehaviorParent">
     <Modification>
-      <VitalMaxAdditiveMultiplierArray index="Life" value="1" />
+      <VitalMaxFractionArray index="Life" value="1" />
     </Modification>
   </CBehaviorBuff>
   <CBehaviorBuff id="MurkyPufferfishCompressedAirTalentMarker">
@@ -1104,9 +1122,6 @@
   <CBehaviorBuff id="MurkyDeadEggReveal" parent="StormReveal">
     <InfoIcon value="Assets\Textures\storm_ui_icon_murky_trait_spawnegg.dds" />
     <Duration value="15" />
-    <Period value="0.5" />
-    <PeriodCount value="19" />
-    <PeriodicEffect value="MurkyRevealedPersistentDeadEgg" />
   </CBehaviorBuff>
   <CBehaviorBuff id="MurkyEggActivelyRessing">
     <Duration value="5" />
@@ -1152,15 +1167,7 @@
     <Duration value="1.6875" />
     <FinalEffect value="MurkyMarchoftheMurlocsSetCCInterruption" />
   </CBehaviorBuff>
-  <CBehaviorBuff id="MurkyEggHuntStructureDeath">
-    <DamageResponse Chance="1" Handled="StormSuicide">
-      <UnitDamageType index="Hero" value="0" />
-      <UnitDamageType index="Merc" value="0" />
-      <UnitDamageType index="Monster" value="0" />
-      <UnitDamageType index="Summon" value="0" />
-      <UnitDamageType index="Minion" value="0" />
-    </DamageResponse>
-  </CBehaviorBuff>
+  <CBehaviorBuff id="MurkyEggHuntStructureDeath" />
   <CBehaviorBuff id="MurkyMarchoftheMurlocsDoT">
     <Alignment value="Negative" />
     <InfoIcon value="Assets\Textures\storm_temp_war3_btnmurlocnightcrawler.dds" />
@@ -1312,6 +1319,9 @@
     <InitialEffect value="OctoGrabApplyVisualBuff" />
     <FinalEffect value="OctoGrabRemoveVisualBuff" />
     <BehaviorCategories index="Unreducible" value="1" />
+    <Modification>
+      <ModifyFlags index="Reveal" value="1" />
+    </Modification>
   </CBehaviorBuff>
   <CBehaviorBuff id="OctoGrabVisual">
     <RemoveValidatorArray value="TargetNotDead" />
@@ -1501,6 +1511,7 @@
     <ValidatorArray value="TargetMinion" />
     <ValidatorArray value="TargetIsNotAMonster" />
     <ValidatorArray value="SourceNotMerc" />
+    <ValidatorArray value="SylvanasTargetUnPossessed" />
     <Behavior value="MurkyAFishyDealDebuff" />
   </CEffectApplyBehavior>
   <CEffectRemoveBehavior id="MurkyMarchoftheMurlocsNeverEndingMurlocsRemoveChannelingBehavior">
@@ -1589,7 +1600,7 @@
   <CEffectDamage id="MurkyTimetoKrillDoTDamage" parent="StormSpellDot">
     <Amount value="7" />
     <SourceButtonFace value="MurkyTimetoKrill" />
-    <LeechValidator index="Life" value="SourceHasMurkyFishtankTalent" />
+    <LeechValidator index="Life" value="CasterHasMurkyFistankTalent" />
     <LeechFraction index="Life" value="0.25" />
   </CEffectDamage>
   <CEffectApplyBehavior id="MurkyTimetoKrillApplyDoT">
@@ -1691,6 +1702,7 @@
   <CEffectSet id="MurkySlimeEggHuntTalentImpactSet">
     <EffectArray value="MurkySlimeEggHuntTalentDamageSwitch" />
     <EffectArray value="MurkySlimeApplySlowBehaviorUnnamed" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
     <EffectArray value="SlimeApplyDamageBonusBehavior" />
   </CEffectSet>
   <CEffectApplyBehavior id="MurkyLivingTheDreamApplyBehavior">
@@ -2520,8 +2532,8 @@
     <Behavior value="MurkyOctoGrabTravelBehavior" />
   </CEffectApplyBehavior>
   <CEffectSet id="MurkyOctoGrabDamageImpactSet">
-    <EffectArray value="StormGenericTargetUnitRevealerPersistent" />
     <EffectArray value="OctoGrabDamageSwitch" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
   </CEffectSet>
   <CEffectModifyUnit id="MurkyOctoGrabModifyUnit">
     <ImpactUnit Effect="OctoGrabInitialSet" Value="Caster" />
@@ -2613,6 +2625,7 @@
     <EffectArray value="MurkyAFishyDealApplyMinionDebuff" />
     <EffectArray value="MurkyPufferfishDamage" />
     <EffectArray value="PufferfishWrathofCodTalentApplyDoT" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
   </CEffectSet>
   <CEffectLaunchMissile id="MurkyPufferfishLaunchMissile">
     <ImpactEffect value="MurkyPufferfishLMImpact" />
@@ -2689,6 +2702,7 @@
     <RevealFlags index="Unfog" value="1" />
   </CEffectCreatePersistent>
   <CEffectCreateHealer id="MurkySafetyBubbleCreateRejuvenatingBubbleMasteryHealer" parent="StormSelfOnlyHealingSpellPercent">
+    <SourceButtonFace value="MurkyRejuvenatingBubbleTalent" />
     <Chance value="0" />
     <RechargeVitalFraction value="0.1" />
     <ImpactUnit Value="Caster" />
@@ -2696,6 +2710,7 @@
   </CEffectCreateHealer>
   <CEffectSet id="MurkySlimeImpactSet">
     <EffectArray value="MurkySlimeDamageSwitch" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
     <EffectArray value="MurkySlimeApplySlowBehaviorUnnamed" />
     <EffectArray value="MurkySlimeSlimeTimeModifyTokenCount" />
     <EffectArray value="SlimeApplyDamageBonusBehavior" />
@@ -2733,6 +2748,7 @@
     <EffectArray value="MurkyFishTankApplyBuff" />
     <EffectArray value="MurkyToxicBuildupSwitch" />
     <EffectArray value="MurkyTimetoKrillApplyBehaviorsSet" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectLaunchMissile id="MurkyWeaponLaunchMissile">
     <ValidatorArray index="0" value="TargetNotDead" />
@@ -2754,7 +2770,6 @@
     <EffectArray value="OctoGrabApplyActiveBehavior" />
     <EffectArray value="OctoGrabApplyStun" />
     <EffectArray value="MurkyOctoGrabRemoveTravelBehavior" />
-    <EffectArray value="MurkyOctoGrabStunRevealerPersistent" />
   </CEffectSet>
   <CEffectApplyBehavior id="OctoGrabApplyStun">
     <Behavior value="OctoGrabStun" />
@@ -2802,6 +2817,7 @@
   </CEffectSet>
   <CEffectSet id="OctoGrabInitialSet">
     <EffectArray value="MurkyOctoGrabSwitch" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
   </CEffectSet>
   <CEffectLaunchMissileAdvanced id="OctoGrabLaunchMissile">
     <LaunchLocation Value="CasterUnit" />
@@ -2815,6 +2831,7 @@
     <DeathType value="Unknown" />
     <FinishEffect value="HeroGenericMissileInterruptLaunchMissile" />
     <LaunchEffect value="MurkyOctoGrabApplyTravelBehavior" />
+    <InterruptEffect value="OctoGrabMissileRefundSet" />
     <PeriodicValidator value="MurkyOctoGrabTargetRangeLT7" />
     <ImpactRange value="1.75" />
   </CEffectLaunchMissileAdvanced>
@@ -2828,6 +2845,13 @@
   </CEffectDamage>
   <CEffectSet id="OctoGrabRefundSet">
     <ValidatorArray value="TargetIsNotOctoGrabStunned" />
+    <EffectArray value="MurkyOctoGrabModifyUnit" />
+    <EffectArray value="OctoGrabRemoveActiveBehavior" />
+    <EffectArray value="OctoGrabDestroyPersistent" />
+  </CEffectSet>
+  <CEffectSet id="OctoGrabMissileRefundSet">
+    <ValidatorArray value="TargetIsNotOctoGrabStunned" />
+    <EffectArray value="MurkyOctoGrabRemoveTravelBehavior" />
     <EffectArray value="MurkyOctoGrabModifyUnit" />
     <EffectArray value="OctoGrabRemoveActiveBehavior" />
     <EffectArray value="OctoGrabDestroyPersistent" />
@@ -3358,6 +3382,10 @@
   <CRewardHeroMastery id="MurkyMasteryRing3">
     <License value="52240" />
   </CRewardHeroMastery>
+  <CShapeArc id="MurkyOctograbVisibilityShape">
+    <Arc value="360" />
+    <Radius value="3" />
+  </CShapeArc>
   <CTalent id="MurkyBigTunaKahuna">
     <Face value="MurkyBigTunaKahuna" />
     <Abil value="MurkyRespawnEgg" />
@@ -3949,6 +3977,11 @@
   </CValidatorUnitCompareTokenCount>
   <CValidatorPlayerTalent id="SourceHasMurkyFishtankTalent">
     <WhichPlayer Value="Source" />
+    <Find value="1" />
+    <Value value="MurkyFishTank" />
+  </CValidatorPlayerTalent>
+  <CValidatorPlayerTalent id="CasterHasMurkyFistankTalent">
+    <WhichPlayer Value="Caster" />
     <Find value="1" />
     <Value value="MurkyFishTank" />
   </CValidatorPlayerTalent>

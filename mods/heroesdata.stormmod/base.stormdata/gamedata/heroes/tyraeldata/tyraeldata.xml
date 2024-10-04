@@ -142,6 +142,7 @@
       <Cooldown TimeUse="12" />
     </Cost>
     <Range value="9" />
+    <RangeSlop value="5" />
     <CursorEffect value="ElDruinsMightImpactSearch" />
     <CmdButtonArray index="Execute" DefaultButtonFace="TyraelElDruinsMight" />
     <CastIntroTime value="0.15" />
@@ -210,16 +211,26 @@
     <TokenId value="TyraelRighteousMasterTokenCounter" />
     <Scale value="3.2" />
   </CAccumulatorToken>
+  <CAccumulatorToken id="TyraelLawAndOrderForwardTokenCountAccumulator" parent="BaseTokenAccumulator">
+    <ApplicationRule value="Add" />
+    <TokenId value="TyraelLawAndOrderTokenCounter" />
+  </CAccumulatorToken>
   <CAccumulatorToken id="TyraelLawAndOrderSmiteDamageAccumulator" parent="BaseTokenAccumulator">
     <MinAccumulation value="0" />
     <MaxAccumulation value="3.5" />
-    <TokenId value="TyraelLawAndOrderTokenCounter" />
+    <TokenId value="TyraelLawAndOrderTemporaryTokenCounter" />
     <Scale value="0.35" />
   </CAccumulatorToken>
   <CAccumulatorToken id="TyraelZealotryDurationAccumulator" parent="BaseAccumulator">
     <MaxAccumulation value="2.5" />
     <TokenId value="TyraelRighteousnessZealotryTalentTokenCounter" />
     <Scale value="0.25" />
+  </CAccumulatorToken>
+  <CAccumulatorToken id="TyraelBoundByLawHeroHitCounterAccumulator" parent="BaseAccumulator">
+    <MaxAccumulation value="15" />
+    <TokenId value="TyraelBoundByLawHeroHitCounter" />
+    <Scale value="1" />
+    <Offset value="-1" />
   </CAccumulatorToken>
   <CActorModel id="JudgementImpactFX" parent="StormModelAnimationStyleOneShot">
     <On Terms="Effect.JudgementImpactKnockbackSearch.Start" Send="Create" />
@@ -832,6 +843,7 @@
     <InfoFlags index="Hidden" value="1" />
   </CBehaviorTokenCounter>
   <CBehaviorBuff id="TyraelSmiteSwiftRetributionAttackSpeed">
+    <BehaviorCategories index="BuffAutoattackDPS" value="1" />
     <Alignment value="Positive" />
     <InfoIcon value="Assets\Textures\storm_ui_icon_tyrael_smite_a.dds" />
     <Duration value="2" />
@@ -853,6 +865,9 @@
   </CBehaviorBuff>
   <CBehaviorTokenCounter id="TyraelEldruinsMightBoundByLawTokenCounter" parent="StormGenericToken">
     <Max value="4" />
+  </CBehaviorTokenCounter>
+  <CBehaviorTokenCounter id="TyraelBoundByLawHeroHitCounter" parent="StormGenericToken">
+    <Max value="15" />
   </CBehaviorTokenCounter>
   <CBehaviorBuff id="TyraelElDruinsMightSwordOfJusticeTalentMarker" />
   <CBehaviorBuff id="TyraelDefenseOfTheAngels" parent="StormArmor">
@@ -878,6 +893,7 @@
     <Max value="4" />
   </CBehaviorTokenCounter>
   <CBehaviorBuff id="TyraelSealOfElDruin">
+    <BehaviorCategories index="BuffAutoattackDPS" value="1" />
     <Duration value="3" />
     <Modification>
       <AdditiveAttackSpeedFactor value="0.5" />
@@ -898,7 +914,7 @@
     </ArmorModification>
   </CBehaviorBuff>
   <CBehaviorBuff id="TyraelBurningHalo">
-    <Face value="GenericBurningRageTalent" />
+    <Face value="TyraelBurningHalo" />
     <Alignment value="Positive" />
     <BehaviorFlags index="Permanent" value="1" />
     <BehaviorFlags index="EnabledWhileDead" value="1" />
@@ -1221,8 +1237,10 @@
       <Priority value="12" />
       <Fatal value="1" />
       <RecordBehaviorShieldDamage value="1" />
+      <RestoreLifeAfterFatal value="1" />
       <ModifyFraction value="0" />
       <ModifyMinimumDamage value="1" />
+      <ModifyScoreArray Value="DeadHeroDamagePreventedByAbsorb" />
     </DamageResponse>
   </CBehaviorBuff>
   <CBehaviorBuff id="TyraelArchangelsWrathDeathActiveBuff" parent="StormSpecialDeathState">
@@ -1324,7 +1342,7 @@
     <Icon value="Assets\Textures\storm_ui_icon_talent_autoattack_speed.dds" />
   </CButton>
   <CButton id="TyraelBurningHalo" parent="StormButtonParent">
-    <Icon value="Assets\Textures\storm_ui_icon_tyrael_eldruinsmight_b.dds" />
+    <Icon value="Assets\Textures\storm_ui_icon_Talent_BurningRage.dds" />
     <HotkeyAlias value="GenericBurningRageTalent" />
   </CButton>
   <CButton id="TyraelSmiteTheWicked" parent="StormButtonParent">
@@ -1384,7 +1402,7 @@
     <Icon value="Assets\Textures\storm_ui_icon_tyrael_eldruinsmight_a.dds" />
   </CButton>
   <CButton id="TyraelElDruinsMightHoradricReforgingTalent" parent="StormButtonParent">
-    <Icon value="Assets\Textures\storm_ui_icon_tyrael_eldruinsmight_a.dds" />
+    <Icon value="Assets\Textures\storm_ui_icon_talent_autoattack_cooldown.dds" />
   </CButton>
   <CButton id="TyraelRighteousnessAngelicAbsorptionTalent" parent="StormButtonParent">
     <Icon value="Assets\Textures\storm_ui_icon_tyrael_righteousness.dds" />
@@ -1468,11 +1486,23 @@
     <ValidatorArray value="TyraelHasArdentRestorationTalent" />
     <TokenId value="TyraelArdentRestorationGlobeQuestHealingTokenCounter" />
   </CEffectModifyTokenCount>
+  <CEffectModifyTokenCount id="TyraelBoundByLawHeroHitIncrementTokenCount" parent="BaseEffectModifyTokenCount">
+    <ValidatorArray value="TargetIsHero" />
+    <ValidatorArray value="TyraelHasBoundByLawTalent" />
+    <TokenId value="TyraelBoundByLawHeroHitCounter" />
+  </CEffectModifyTokenCount>
+  <CEffectModifyTokenCount id="TyraelBoundByLawHeroHitResetTokens">
+    <TokenId value="TyraelBoundByLawHeroHitCounter" />
+    <ContextUnit Value="Caster" />
+    <Operation value="Set" />
+  </CEffectModifyTokenCount>
   <CEffectCreateHealer id="TyraelElDruinsMightBoundByLawCreateHealer" parent="StormSelfOnlyHealingSpellPercent">
     <ValidatorArray value="TyraelHasBoundByLawTalent" />
-    <ValidatorArray value="TargetIsHero" />
+    <ValidatorArray value="TyraelCasterHasGE1BoundByLawHeroHit" />
     <ImpactUnit Value="Caster" />
-    <RechargeVitalFraction value="0.03" />
+    <RechargeVitalFraction value="0.03">
+      <AccumulatorArray value="TyraelBoundByLawHeroHitCounterAccumulator" />
+    </RechargeVitalFraction>
   </CEffectCreateHealer>
   <CEffectModifyBehaviorBuffDuration id="TyraelDefenseoftheAngelsBasicAttackModifyDuration">
     <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
@@ -1495,6 +1525,7 @@
   <CEffectCreateHealer id="RighteousnessSalvationCreateHealer" parent="StormSelfOnlyHealingSpell">
     <Chance value="0" />
     <RechargeVitalRate value="140" />
+    <SourceButtonFace value="TyraelSalvation" />
   </CEffectCreateHealer>
   <CEffectSet id="TyraelArdentRestorationImpactSet">
     <EffectArray value="TyraelArdentRestorationApplyHealBehavior" />
@@ -1543,12 +1574,14 @@
   </CEffectApplyBehavior>
   <CEffectModifyBehaviorBuffDuration id="TyraelBoundByLawIncreaseEldruinsMightSlowDuration">
     <ValidatorArray value="TyraelTargetDoesNotHaveMaxBoundByLawTokens" />
+    <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
     <Chance value="0" />
     <WhichUnit Value="Target" />
     <Behavior value="ElDruinsMightSlow" />
     <Value value="1" />
   </CEffectModifyBehaviorBuffDuration>
   <CEffectModifyTokenCount id="TyraelEldruinsMightBoundByLawIncrementTokenCounter" parent="BaseEffectModifyTokenCount">
+    <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
     <WhichUnit Value="Target" />
     <TokenId value="TyraelEldruinsMightBoundByLawTokenCounter" />
   </CEffectModifyTokenCount>
@@ -1623,6 +1656,27 @@
     <Operation value="Set" />
     <Value value="0" />
   </CEffectModifyTokenCount>
+  <CEffectSet id="TyraelLawAndOrderApplyModifierSet">
+    <ValidatorArray value="TyraelHasLawAndOrder" />
+    <EffectArray value="TyraelLawAndOrderForwardTokenToTemporary" />
+    <EffectArray value="TyraelRighteousnessLawAndOrderTalentResetTokenCount" />
+  </CEffectSet>
+  <CEffectCreatePersistent id="TyraelLawAndOrderForwardTokenToTemporary">
+    <ValidatorArray value="TyraelHasLawAndOrder" />
+    <PeriodCount value="0">
+      <AccumulatorArray value="TyraelLawAndOrderForwardTokenCountAccumulator" />
+    </PeriodCount>
+    <PeriodicEffectArray value="TyraelLawAndOrderAddTemporaryToken" />
+  </CEffectCreatePersistent>
+  <CEffectModifyTokenCount id="TyraelLawAndOrderAddTemporaryToken" parent="BaseEffectModifyTokenCount">
+    <TokenId value="TyraelLawAndOrderTemporaryTokenCounter" />
+  </CEffectModifyTokenCount>
+  <CEffectModifyTokenCount id="TyraelRighteousnessLawAndOrderTalentResetTemporaryTokenCount" parent="BaseEffectModifyTokenCount">
+    <ValidatorArray value="TyraelHasLawAndOrder" />
+    <TokenId value="TyraelLawAndOrderTemporaryTokenCounter" />
+    <Operation value="Set" />
+    <Value value="0" />
+  </CEffectModifyTokenCount>
   <CEffectApplyBehavior id="TyraelSealOfElDruinApplyBuff">
     <ValidatorArray index="0" value="TyraelHasSealOfElDruinTalent" />
     <WhichUnit Value="Caster" />
@@ -1630,7 +1684,11 @@
   </CEffectApplyBehavior>
   <CEffectSet id="TyraelSmiteInitialSet">
     <EffectArray value="TyraelPostAbilityFacingLockSet" />
+    <EffectArray value="TyraelLawAndOrderApplyModifierSet" />
     <EffectArray value="TyraelSealOfElDruinApplyBuff" />
+  </CEffectSet>
+  <CEffectSet id="TyraelSmiteFinalSet">
+    <EffectArray value="TyraelRighteousnessLawAndOrderTalentResetTemporaryTokenCount" />
   </CEffectSet>
   <CEffectModifyUnit id="TyraelSmiteLawAndOrderTalentModifyCooldown">
     <ValidatorArray value="TargetIsHero" />
@@ -1652,6 +1710,7 @@
     <Flags index="NoVitalLeechEnergy" value="1" />
     <Amount value="18" />
     <MultiplicativeModifierArray index="BurningHalo" Validator="TyraelHasBurningHaloBonusDamageCarryBehavior" Modifier="1.5" Crit="1" />
+    <CritValidatorArray index="0" removed="1" />
   </CEffectDamage>
   <CEffectApplyBehavior id="TyraelArdentRestorationApplyHealBehavior">
     <WhichUnit Value="Caster" />
@@ -2204,7 +2263,7 @@
   </CEffectRemoveBehavior>
   <CEffectSet id="ElDruinsMightSearchSet">
     <EffectArray value="ElDruinsMightDamage" />
-    <EffectArray value="TyraelElDruinsMightBoundByLawCreateHealer" />
+    <EffectArray value="TyraelBoundByLawHeroHitIncrementTokenCount" />
     <EffectArray value="ElDruinsMightApplySlow" />
     <EffectArray value="CameraShakeLightTauntingTotemSet" />
     <EffectArray value="ApplyAbilityImpactReveal" />
@@ -2255,6 +2314,7 @@
     <EffectArray value="ArchangelsWrathDamage" />
     <EffectArray value="ArchangelsWrathApplyFlashbangBehavior" />
     <EffectArray value="CameraShakeMediumTauntingTotemSet" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
   </CEffectSet>
   <CEffectEnumArea id="ArchangelsWrathSearchAreaEnemyHeroes">
     <SearchFilters value="Heroic;Player,Ally,Neutral,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
@@ -2279,6 +2339,7 @@
     <EffectArray value="TyraelBoundByLawIncreaseEldruinsMightSlowDuration" />
     <EffectArray value="TyraelEldruinsMightBoundByLawIncrementTokenCounter" />
     <EffectArray value="UniversalWeaponLaunchSet" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectApplyBehavior id="AttackApplySwordOut">
     <WhichUnit Value="Caster" />
@@ -2365,6 +2426,8 @@
     <EffectArray value="ElDruinsMightApplySwordOutBehavior" />
     <EffectArray value="TyraelElDruinsMightApplySwordOfJusticeTalentMarker" />
     <EffectArray value="TyraelElDruinsMightApplyStalwartAngelTalentSwordActiveBuff" />
+    <EffectArray value="TyraelElDruinsMightBoundByLawCreateHealer" />
+    <EffectArray value="TyraelBoundByLawHeroHitResetTokens" />
     <EffectArray value="CameraShakeLightCasterDummySet" />
     <EffectArray value="SuicideRemove" />
     <TargetLocationType value="Point" />
@@ -2431,7 +2494,7 @@
       <MatchFlags index="Id" value="1" />
     </Marker>
     <InitialEffect value="TyraelSmiteInitialSet" />
-    <FinalEffect value="TyraelRighteousnessLawAndOrderTalentResetTokenCount" />
+    <FinalEffect value="TyraelSmiteFinalSet" />
     <OffsetVectorStartLocation Value="OriginPoint" />
     <AINotifySettings AreaEffect="TyraelSmiteSearchArea">
       <Flags index="Disabled" value="1" />
@@ -2501,7 +2564,7 @@
     <DefaultMount value="HorseCommon" />
     <VariationArray value="TyraelBlue" />
     <VariationArray value="TyraelWhite" />
-    <Difficulty value="Medium" />
+    <Difficulty value="Hard" />
     <TalentTreeArray Talent="TyraelSalvation" Tier="1" Column="1" />
     <TalentTreeArray Talent="TyraelJusticeForAll" Tier="1" Column="2" />
     <TalentTreeArray Talent="TyraelArdentRestoration" Tier="1" Column="3" />
@@ -3007,6 +3070,9 @@
   <CTalent id="TyraelElDruinsMightBoundByLaw">
     <Face value="TyraelElDruinsMightBoundByLawTalent" />
     <Abil value="TyraelElDruinsMight" />
+    <RankArray>
+      <BehaviorArray value="TyraelBoundByLawHeroHitCounter" />
+    </RankArray>
     <AbilityModificationArray>
       <Modifications>
         <Type value="FlatModification" />
@@ -3044,6 +3110,7 @@
   </CTalent>
   <CTalent id="TyraelBurningHalo">
     <Face value="TyraelBurningHalo" />
+    <Abil value="TyraelElDruinsMight" />
     <RankArray>
       <BehaviorArray value="TyraelBurningHalo" />
     </RankArray>
@@ -3063,7 +3130,6 @@
         <Value value="1.000000" />
       </Modifications>
     </AbilityModificationArray>
-    <Abil value="TyraelElDruinsMight" />
   </CTalent>
   <CTalent id="TyraelSmiteTheWicked">
     <Face value="TyraelSmiteTheWicked" />
@@ -3195,6 +3261,7 @@
     <Face value="TyraelRighteousnessLawAndOrderTalent" />
     <RankArray>
       <BehaviorArray value="TyraelLawAndOrderTokenCounter" />
+      <BehaviorArray value="TyraelLawAndOrderTemporaryTokenCounter" />
     </RankArray>
   </CTalent>
   <CTalent id="TyraelMasteryPurgeEvil">
@@ -3573,6 +3640,12 @@
     <Value value="4" />
     <TokenId value="TyraelEldruinsMightBoundByLawTokenCounter" />
   </CValidatorUnitCompareTokenCount>
+  <CValidatorUnitCompareTokenCount id="TyraelCasterHasGE1BoundByLawHeroHit">
+    <WhichUnit Value="Caster" />
+    <Compare value="GE" />
+    <Value value="1" />
+    <TokenId value="TyraelBoundByLawHeroHitCounter" />
+  </CValidatorUnitCompareTokenCount>
   <CValidatorUnitCompareBehaviorCount id="HasRighteousness" />
   <CValidatorPlayerTalent id="TyraelPlayerOriginHasDefenseOfTheAngelsTalent">
     <Find value="1" />
@@ -3602,7 +3675,7 @@
     <WhichUnit Value="Caster" />
     <Compare value="GE" />
     <Value value="1" />
-    <TokenId value="TyraelLawAndOrderTokenCounter" />
+    <TokenId value="TyraelLawAndOrderTemporaryTokenCounter" />
   </CValidatorUnitCompareTokenCount>
   <CValidatorPlayerTalent id="TyraelHasDivineVigorTalent">
     <WhichPlayer Value="Caster" />

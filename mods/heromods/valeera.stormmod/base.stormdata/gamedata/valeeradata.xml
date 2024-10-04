@@ -56,6 +56,7 @@
       <Cooldown TimeUse="1" />
     </Cost>
     <CmdButtonArray index="Execute" DefaultButtonFace="ValeeraCancelStealth" Requirements="ValeeraHasVanishStealth" />
+    <ParentAbil value="ValeeraStealth" />
   </CAbilEffectInstant>
   <CAbilEffectTarget id="ValeeraSinisterStrike" parent="StormSkillshotDashParent">
     <Effect value="ValeeraSinisterStrikePersistent" />
@@ -1049,6 +1050,10 @@
   <CBehaviorBuff id="ValeeraCheapShotBlind" parent="StormBlind">
     <Duration value="2" />
   </CBehaviorBuff>
+  <CBehaviorBuff id="ValeeraCheapShotNonHeroesBlind" parent="StormBlindNonHeroes">
+    <RemoveValidatorArray value="ValeeraTargetHasCheapShotBlind" />
+    <Duration value="2" />
+  </CBehaviorBuff>
   <CBehaviorBuff id="ValeeraFatalFinesse">
     <DisableValidatorArray value="ValeeraHas2StacksOfFatalFinesseTracker" />
     <Duration value="0.125" />
@@ -1235,11 +1240,12 @@
     <FinalEffect value="ValeeraStealthReduceStealthRangesModifyPlayer" />
   </CBehaviorBuff>
   <CBehaviorBuff id="ValeeraEnteringDeepShadowsTimer">
+    <BuffFlags index="Countdown" value="0" />
+    <BuffFlags index="UpdateDurationWhileDisabled" value="1" />
     <InfoFlags index="Hidden" value="0" />
     <InfoIcon value="Assets\Textures\storm_ui_temp_icon_stealthmastery_2.dds" />
     <BehaviorCategories index="Restorable" value="1" />
     <RemoveValidatorArray value="ValeeraIsStealthedCombine" />
-    <BuffFlags index="UpdateDurationWhileDisabled" value="1" />
     <Duration value="3" />
     <ExpireEffect value="ValeeraDeepStealthBonusApply" />
   </CBehaviorBuff>
@@ -1283,6 +1289,10 @@
     <ArmorModification>
       <AllArmorBonus value="60" />
     </ArmorModification>
+  </CBehaviorBuff>
+  <CBehaviorBuff id="ValeeraSmokeBombTimer">
+    <Duration value="5" />
+    <TimeScaleSource Value="Global" />
   </CBehaviorBuff>
   <CButton id="ValeeraAmbush" parent="StormButtonParent">
     <Icon value="Assets\Textures\storm_ui_icon_valeera_ambush.dds" />
@@ -1626,6 +1636,7 @@
     <EffectArray value="ValeeraWeaponDamageSwitch" />
     <EffectArray value="ValeeraGarroteRuptureRefresh" />
     <EffectArray value="ValeeraSliceAndDiceEnergyRestore" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
     <ValidatorArray value="ValeeraDoesNotHaveVanish" />
   </CEffectSet>
   <CEffectRemoveBehavior id="ValeeraStealthCloakRemove">
@@ -1696,6 +1707,7 @@
     <EffectArray value="ValeeraCombatReadinessComboPointSwitch" />
     <EffectArray value="ValeeraComboPointsResetToken" />
     <EffectArray value="ValeeraComboPointsRemove" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
   </CEffectSet>
   <CEffectSet id="ValeeraEviscerate3CPImpactSet">
     <ValidatorArray value="ValeeraHas3CP" />
@@ -1715,6 +1727,7 @@
     <EffectArray value="ValeeraAmbushReduceArmorSwitch" />
     <EffectArray value="DecloakCasterSet" />
     <EffectArray value="ValeeraInitiativeMoveSpeedApply" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
   </CEffectSet>
   <CEffectSwitch id="ValeeraAmbushSwitch">
     <CaseArray Validator="ValeeraHasDeepStealthBonus" Effect="ValeeraAmbushTeleportInitialSet" />
@@ -1733,6 +1746,7 @@
     <EffectArray value="ValeeraAbilityUseIssueAttackOrder" />
     <EffectArray value="DecloakCasterSet" />
     <EffectArray value="ValeeraInitiativeMoveSpeedApply" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
   </CEffectSet>
   <CEffectSet id="ValeeraCheapShotImpactSet">
     <EffectArray value="ValeeraModifyWeaponCooldown" />
@@ -1872,6 +1886,7 @@
   <CEffectSet id="ValeeraSinisterStrikeImpactSet">
     <ValidatorArray value="noMarkers" />
     <EffectArray value="ValeeraSinisterStrikeDamage" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
   </CEffectSet>
   <CEffectSwitch id="ValeeraSinisterStrikeImpactSwitch">
     <CaseArray Validator="TargetIsHero" Effect="ValeeraSinisterStrikeHeroImpactSet" />
@@ -1887,6 +1902,7 @@
     <EffectArray value="ValeeraSinisterStrikeModifyCooldown" />
     <EffectArray value="ValeeraMutilateApply" />
     <EffectArray value="ValeeraSinisterStrikeCancelMoveOrder" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
   </CEffectSet>
   <CEffectSet id="ValeeraGeneralHeroImpactSetHeavy">
     <EffectArray value="ValeeraComboPointsModifyToken" />
@@ -1923,16 +1939,24 @@
     <AreaArray Effect="ValeeraBladeFlurryTargetSwitch">
       <Radius value="3" />
     </AreaArray>
+    <RevealerParams Duration="0.75" ShapeExpansion="1">
+      <RevealFlags index="Unfog" value="1" />
+    </RevealerParams>
   </CEffectEnumArea>
   <CEffectSwitch id="ValeeraBladeFlurryTargetSwitch">
     <CaseArray Validator="TargetIsHero" Effect="ValeeraBladeFlurryHeroImpactSet" />
-    <CaseDefault value="ValeeraBladeFlurryDamage" />
+    <CaseDefault value="ValeeraBladeFlurryNonHeroImpactSet" />
   </CEffectSwitch>
   <CEffectSet id="ValeeraBladeFlurryHeroImpactSet">
     <EffectArray value="ValeeraComboPointsModifyToken" />
     <EffectArray value="ValeeraComboPointsApply" />
     <EffectArray value="ValeeraBladeFlurryDamage" />
     <EffectArray value="ValeeraFatalFinesseQuestModifyToken" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
+  </CEffectSet>
+  <CEffectSet id="ValeeraBladeFlurryNonHeroImpactSet">
+    <EffectArray value="ValeeraBladeFlurryDamage" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
   </CEffectSet>
   <CEffectDamage id="ValeeraBladeFlurryDamage" parent="StormSpell">
     <Amount value="130">
@@ -1970,14 +1994,29 @@
   <CEffectApplyBehavior id="ValeeraCripplingPoisonApply" parent="StormSlowApply">
     <Behavior value="ValeeraCripplingPoison" />
   </CEffectApplyBehavior>
+  <CEffectSwitch id="ValeeraWoundPoisonApplySwitch">
+    <ValidatorArray value="TargetIsHero" />
+    <CaseArray Validator="ValeeraTargetHasWoundPoison" Effect="ValeeraWoundPoisonRefreshDuration" />
+    <CaseDefault value="ValeeraWoundPoisonApply" />
+  </CEffectSwitch>
   <CEffectApplyBehavior id="ValeeraWoundPoisonApply">
     <Behavior value="ValeeraWoundPoison" />
   </CEffectApplyBehavior>
+  <CEffectModifyBehaviorBuffDuration id="ValeeraWoundPoisonRefreshDuration">
+    <WhichUnit Value="Target" />
+    <Behavior value="ValeeraWoundPoison" />
+    <Operation value="Set" />
+    <Value value="4" />
+  </CEffectModifyBehaviorBuffDuration>
   <CEffectSet id="ValeeraBlindImpactSet">
     <EffectArray value="ValeeraBlindApply" />
+    <EffectArray value="ValeeraBlindApplyNonHeroes" />
   </CEffectSet>
   <CEffectApplyBehavior id="ValeeraBlindApply" parent="StormBlindApply">
     <Behavior value="ValeeraCheapShotBlind" />
+  </CEffectApplyBehavior>
+  <CEffectApplyBehavior id="ValeeraBlindApplyNonHeroes" parent="StormBlindApply">
+    <Behavior value="ValeeraCheapShotNonHeroesBlind" />
   </CEffectApplyBehavior>
   <CEffectSet id="ValeeraFatalFinesseSet">
     <EffectArray value="ValeeraFatalFinesseApply" />
@@ -2050,6 +2089,7 @@
     <EffectArray value="ValeeraAbilityUseIssueAttackOrder" />
     <EffectArray value="DecloakCasterSet" />
     <EffectArray value="ValeeraInitiativeMoveSpeedApply" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
   </CEffectSet>
   <CEffectSet id="ValeeraGarroteImpactSet">
     <EffectArray value="ValeeraGarroteRuptureRemoveTokenCounter" />
@@ -2092,6 +2132,7 @@
     <ImpactLocation Value="SourceUnit" />
     <Amount value="20" />
     <MultiplicativeModifierArray index="ValeeraGarroteRuptureBonusDamage" Validator="ValeeraHasRupture" Modifier="1" />
+    <SourceButtonFace value="ValeeraGarrote" />
   </CEffectDamage>
   <CEffectModifyUnit id="ValeeraThistleTeaModify">
     <ImpactUnit Value="Caster" />
@@ -2190,6 +2231,7 @@
   <CEffectSet id="ValeeraSmokeBombInitialSet">
     <EffectArray value="ValeeraSmokeBombCreatePersistent" />
     <EffectArray value="ValeeraSmokeBombApplyResistant" />
+    <EffectArray value="ValeeraSmokeBombApplyTimer" />
     <TargetLocationType value="Point" />
   </CEffectSet>
   <CEffectCreatePersistent id="ValeeraSmokeBombCreatePersistent">
@@ -2217,6 +2259,10 @@
   <CEffectApplyBehavior id="ValeeraSmokeBombApplyResistant">
     <WhichUnit Value="Caster" />
     <Behavior value="ValeeraSmokeBombArmorIncrease" />
+  </CEffectApplyBehavior>
+  <CEffectApplyBehavior id="ValeeraSmokeBombApplyTimer">
+    <WhichUnit Value="Caster" />
+    <Behavior value="ValeeraSmokeBombTimer" />
   </CEffectApplyBehavior>
   <CEffectApplyBehavior id="ValeeraSmokeBombApplyUnrevealable">
     <WhichUnit Value="Caster" />
@@ -2254,7 +2300,7 @@
   </CEffectApplyBehavior>
   <CEffectSet id="ValeeraWoundPoisonImpactSet">
     <EffectArray value="ValeeraWoundPoisonModifyCooldown" />
-    <EffectArray value="ValeeraWoundPoisonApply" />
+    <EffectArray value="ValeeraWoundPoisonApplySwitch" />
     <EffectArray value="ValeeraWoundPoisonApplyActiveBehavior" />
   </CEffectSet>
   <CEffectApplyBehavior id="ValeeraWoundPoisonApplyRemoveWeapon">
@@ -2536,6 +2582,7 @@
     <HeroSpecificUIArray Location="BackgroundStatus" DescName="Valeera/ValeeraBackplateFrame" />
     <HeroSpecificUIArray Location="FullscreenStatus" DescName="Valeera/ValeeraSmokeFrame" />
     <HeroSpecificUIArray Location="HeroSpecificStackingBuffsStatus" DescName="Valeera/ValeeraStacksFrameContainer" />
+    <HeroSpecificUIArray Location="CommandButton03Status" DescName="Valeera/ValeeraSmokeBombButtonOverride" />
     <Gender value="Female" />
     <ReleaseDate Day="24" Year="2017" />
     <HeroTierAchievementId value="5216701565557929694" />
@@ -2545,7 +2592,7 @@
     <VoiceLineArray value="ValeeraBase_VoiceLine04" />
     <VoiceLineArray value="ValeeraBase_VoiceLine05" />
     <Melee value="1" />
-    <Difficulty value="Hard" />
+    <Difficulty value="VeryHard" />
     <Ratings>
       <Damage value="5" />
       <Utility value="8" />
@@ -2777,6 +2824,13 @@
         <Type value="FlatModification" />
         <Catalog value="Behavior" />
         <Entry value="ValeeraCheapShotBlind" />
+        <Field value="Duration" />
+        <Value value="2.500000" />
+      </Modifications>
+      <Modifications>
+        <Type value="FlatModification" />
+        <Catalog value="Behavior" />
+        <Entry value="ValeeraCheapShotNonHeroesBlind" />
         <Field value="Duration" />
         <Value value="2.500000" />
       </Modifications>
@@ -3137,6 +3191,9 @@
     <WhichUnit Value="Source" />
     <Behavior value="ValeeraWoundPoisonActive" />
   </CValidatorUnitCompareBehaviorCount>
+  <CValidatorUnitHasBehavior id="ValeeraTargetHasWoundPoison">
+    <Behavior value="ValeeraWoundPoison" />
+  </CValidatorUnitHasBehavior>
   <CValidatorUnitCompareBehaviorCount id="ValeeraHasNotInCombat">
     <WhichUnit Value="Caster" />
     <Behavior value="ValeeraInCombatComboPoints" />
@@ -3422,6 +3479,10 @@
     <Find value="1" />
     <Value value="ValeeraCloakOfShadowsEnvelopingShadows" />
   </CValidatorPlayerTalent>
+  <CValidatorUnitCompareBehaviorCount id="ValeeraTargetHasCheapShotBlind">
+    <Compare value="GT" />
+    <Behavior value="ValeeraCheapShotBlind" />
+  </CValidatorUnitCompareBehaviorCount>
   <CValidatorUnitCompareBehaviorCount id="ValeeraHasInitiativeBonus">
     <WhichUnit Value="Caster" />
     <Behavior value="ValeeraInitiativeBonus" />
@@ -3492,6 +3553,7 @@
   <CValidatorCombine id="ValeeraSealFateTargetIsDisabled">
     <CombineArray value="ValeeraHasSealFate" />
     <CombineArray value="ValeeraSealFateDisableParameters" />
+    <CombineArray value="TargetIsHero" />
     <Type value="And" />
   </CValidatorCombine>
   <CValidatorCombine id="ValeeraSealFateDisableParameters">

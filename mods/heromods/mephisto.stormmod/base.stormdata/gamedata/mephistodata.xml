@@ -16,6 +16,7 @@
     <InterruptArray index="Cast" value="1" />
     <InterruptArray index="Channel" value="1" />
     <Range value="7.5" />
+    <RangeSlop value="5" />
     <Arc value="360" />
     <CastIntroTime value="0.125" />
     <UninterruptibleArray index="Cast" value="1" />
@@ -1702,6 +1703,7 @@
     <EffectArray value="UniversalWeaponImpactSet" />
     <EffectArray value="MephistoAngerCDRSet" />
     <EffectArray value="MephistoWeaponShardOfHateDamage" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectSet id="MephistoWeaponInitialSet">
     <Marker>
@@ -1716,6 +1718,7 @@
     <EffectArray value="MephistoAngerCDRSet" />
     <EffectArray value="MephistoWeaponDamage" />
     <EffectArray value="MephistoWeaponShardOfHateSearch" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectDamage id="MephistoWeaponDamage" parent="StormWeapon">
     <Amount value="66" />
@@ -2220,7 +2223,11 @@
     <EffectArray value="MephistoShadeOfMephistoApplyShadeTimedLife" />
     <EffectArray value="MephistoShadeOfMephistoAddTrackedUnit" />
     <EffectArray value="MephistoShadeOfMephistoSetFacing" />
+    <EffectArray value="MephistoShadeOfMephistoApplyLightningReactionSearchBehavior" />
   </CEffectSet>
+  <CEffectApplyBehavior id="MephistoShadeOfMephistoApplyLightningReactionSearchBehavior">
+    <Behavior value="MephistoSkullMissileLightningReactionSkullMissileSearchBehavior" />
+  </CEffectApplyBehavior>
   <CEffectModifyUnit id="MephistoShadeOfMephistoSetFacing">
     <FacingLocation Effect="MephistoShadeOfMephistoInitialSet" Value="CasterUnit" />
   </CEffectModifyUnit>
@@ -2261,7 +2268,7 @@
   </CEffectModifyPlayer>
   <CEffectEnumArea id="MephistoWeaponShardOfHateSearch">
     <Chance value="0" />
-    <SearchFilters value="-;Player,Ally,Neutral,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
+    <SearchFilters value="-;Self,Player,Ally,Neutral,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
     <AreaArray Effect="MephistoWeaponShardOfHateImpactSet">
       <Radius value="3.5" />
     </AreaArray>
@@ -2269,6 +2276,7 @@
       <RevealFlags index="Unfog" value="1" />
     </RevealerParams>
     <LaunchLocation Value="TargetUnit" />
+    <ExcludeArray Value="Target" />
   </CEffectEnumArea>
   <CEffectSet id="RegenGlobePickupPercentModifyPeriodicSet">
     <EffectArray value="MephistoSpiteCDRSet" />
@@ -2357,7 +2365,7 @@
     </TalentTreeArray>
     <TalentTreeArray Talent="MephistoLightningNovaMimic" Tier="7" Column="3" />
     <TalentTreeArray Talent="MephistoShadeOfMephistoShadeLord" Tier="7" Column="4" />
-    <Difficulty value="Medium" />
+    <Difficulty value="Hard" />
     <Universe value="Diablo" />
     <UniverseIcon value="Assets\Textures\ui_glues_store_gameicon_d3.dds" />
     <ProductId value="41449" />
@@ -4316,7 +4324,6 @@
     <FlagArray index="Untargetable" value="1" />
     <Sight value="1.5" />
     <BehaviorArray Link="HallOfStormsKnockbackImmunity" />
-    <BehaviorArray Link="MephistoSkullMissileLightningReactionSkullMissileSearchBehavior" />
     <Radius value="1.5" />
     <SeparationRadius value="0.125" />
     <InnerRadius value="1.5" />
@@ -4580,16 +4587,16 @@
     <CombineArray value="MephistoSourceHasDuranceOfHatePrimaryRootBehaviorUnspeakableHorror" />
     <CombineArray value="MephistoSourceHasDuranceOfHateSecondaryRootBehaviorUnspeakableHorror" />
   </CValidatorCombine>
-  <CValidatorUnitCompareBehaviorCount id="MephistoSourceHasDuranceOfHatePrimaryRootBehaviorUnspeakableHorror">
+  <CValidatorUnitHasBehavior id="MephistoSourceHasDuranceOfHatePrimaryRootBehaviorUnspeakableHorror">
     <WhichUnit Value="Source" />
-    <Value value="1" />
     <Behavior value="MephistoDuranceOfHatePrimaryRootBehavior" />
-  </CValidatorUnitCompareBehaviorCount>
-  <CValidatorUnitCompareBehaviorCount id="MephistoSourceHasDuranceOfHateSecondaryRootBehaviorUnspeakableHorror">
+    <IncludeDisabled value="1" />
+  </CValidatorUnitHasBehavior>
+  <CValidatorUnitHasBehavior id="MephistoSourceHasDuranceOfHateSecondaryRootBehaviorUnspeakableHorror">
     <WhichUnit Value="Source" />
-    <Value value="1" />
     <Behavior value="MephistoDuranceOfHateSecondaryRootBehavior" />
-  </CValidatorUnitCompareBehaviorCount>
+    <IncludeDisabled value="1" />
+  </CValidatorUnitHasBehavior>
   <CValidatorUnitCompareTokenCount id="MephistoUnyieldingPowerDoesNotHaveMaxTokens">
     <WhichUnit Value="Caster" />
     <Compare value="LT" />

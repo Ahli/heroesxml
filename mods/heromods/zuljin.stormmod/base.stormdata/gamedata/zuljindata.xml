@@ -74,6 +74,7 @@
     <Flags index="Transient" value="1" />
     <ShowProgressArray index="Channel" value="0" />
     <CmdButtonArray index="Execute" ShowValidator="ZuljinHasForestMedicine" />
+    <ParentAbil value="ZuljinRegeneration" />
   </CAbilEffectInstant>
   <CAbilEffectInstant id="ZuljinCancelRegeneration">
     <ParentAbil value="ZuljinRegeneration" />
@@ -99,6 +100,7 @@
       <Cooldown TimeUse="0.5" />
     </Cost>
     <CmdButtonArray index="Execute" DefaultButtonFace="ZuljinCancelBerserker" ShowValidator="ZuljinBerserkerCasterHasBerserkerBuff" />
+    <ParentAbil value="ZuljinBerserker" />
   </CAbilEffectInstant>
   <CAbilEffectInstant id="ZuljinTazdingo">
     <PrepEffect value="DismountDecloakCasterSet" />
@@ -1212,7 +1214,7 @@
     <Face value="ZuljinRecklessness" />
     <Alignment value="Positive" />
     <InfoFlags index="Hidden" value="0" />
-    <SortIndex value="100" />
+    <SortIndex value="10" />
     <DisableValidatorArray value="CasterLifeLT75Percent" />
     <Modification>
       <HealDealtAdditiveMultiplier index="Life" value="0.1" />
@@ -1310,7 +1312,7 @@
     <Modification>
       <DamageDealtFraction index="Basic" value="0.15" />
     </Modification>
-    <SortIndex value="100" />
+    <SortIndex value="10" />
   </CBehaviorBuff>
   <CBehaviorBuff id="ZuljinLetTheKillingBeginStack">
     <Alignment value="Positive" />
@@ -1594,12 +1596,16 @@
   <CEffectSet id="ZuljinHeroWeaponASurpriseForYaInitialSet">
     <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
     <Chance value="0" />
-    <EffectArray value="ZuljinHeroWeaponASurpriseForYaTargetSearch" />
+    <EffectArray value="ZuljinHeroWeaponASurpriseForYaSwitch" />
   </CEffectSet>
+  <CEffectSwitch id="ZuljinHeroWeaponASurpriseForYaSwitch">
+    <CaseArray Validator="TargetIsBenign" Effect="ZuljinHeroWeaponASurpriseForYaTargetSearchIncludeBenign" />
+    <CaseDefault value="ZuljinHeroWeaponASurpriseForYaTargetSearch" />
+  </CEffectSwitch>
   <CEffectEnumArea id="ZuljinHeroWeaponASurpriseForYaTargetSearch">
     <ImpactLocation Value="TargetUnit" />
     <ExcludeArray Effect="ZuljinHeroWeaponASurpriseForYaInitialSet" Value="Target" />
-    <SearchFilters value="-;Player,Ally,Neutral,ImmuneToAOE,Item,Stasis,Dead,Invulnerable" />
+    <SearchFilters value="Visible;Self,Player,Ally,Neutral,Missile,Item,Stasis,Dead,Hidden,Invulnerable,Benign" />
     <TargetSorts RequestCount="1" RequestPercentage="1">
       <SortArray value="TSHeroic" />
       <SortArray value="TSRandom" />
@@ -1608,11 +1614,14 @@
       <Radius value="5" />
     </AreaArray>
   </CEffectEnumArea>
+  <CEffectEnumArea id="ZuljinHeroWeaponASurpriseForYaTargetSearchIncludeBenign" parent="ZuljinHeroWeaponASurpriseForYaTargetSearch">
+    <SearchFilters value="Visible;Self,Player,Ally,Neutral,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
+  </CEffectEnumArea>
   <CEffectLaunchMissile id="ZuljinHeroWeaponASurpriseForYaLaunchMissile">
     <ValidatorArray index="0" value="noMarkers" />
     <ValidatorArray value="NotCloakedOrIsRevealed" />
     <LaunchLocation Effect="ZuljinWeaponImpactSet" Value="TargetUnit" />
-    <ImpactEffect value="ZuljinASurpriseForYaWeaponDamage" />
+    <ImpactEffect value="ZuljinASurpriseForYaImpactSet" />
     <SharedFlags index="ValidateWeapon" value="0" />
     <AmmoUnit value="ZuljinWeaponASurpriseForYaAttackMissile" />
     <Movers Link="HeroMissileSpeed22Ribbon" />
@@ -1632,7 +1641,6 @@
     <EffectArray value="ZuljinAmaniRageHealBuffApplyBehavior" />
   </CEffectSet>
   <CEffectCreateHealer id="ZuljinAmaniRageCreateHealer" parent="StormSelfOnlyHealingSpellPercent">
-    <LaunchUnit History="Healing" />
     <ImpactUnit Value="Source" />
   </CEffectCreateHealer>
   <CEffectModifyUnit id="ZuljinAmaniRageModifyCasterHealth">
@@ -1884,7 +1892,6 @@
     <Behavior value="ZuljinTazdingoAmaniResilienceHealPreviewTracker" />
   </CEffectApplyBehavior>
   <CEffectCreateHealer id="ZuljinTazdingoAmaniResilienceCreateHealer" parent="StormSelfOnlyHealingSpellPercent">
-    <CasterHistory value="Healing" />
     <SourceButtonFace value="ZuljinAmaniResilience" />
     <Flags index="IgnoreBehaviorDealtMultipliers" value="1" />
   </CEffectCreateHealer>
@@ -1929,6 +1936,7 @@
     <EffectArray value="GuillotineBuzzsawApplyBehavior" />
     <EffectArray value="ZuljinLetTheKillingBeginApplyDebuffBehavior" />
     <EffectArray value="ZuljinGuillotineBuzzsawDamage" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
   </CEffectSet>
   <CEffectCreatePersistent id="ZuljinGuillotineBuzzsawInitialPersistent">
     <Chance value="0" />
@@ -1987,6 +1995,7 @@
     <EffectArray value="ZuljinLetTheKillingBeginApplyDebuffBehavior" />
     <EffectArray value="ZuljinGuillotineDamage" />
     <EffectArray value="ZuljinGuillotineImpactCameraShakeSet" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
   </CEffectSet>
   <CEffectCreatePersistent id="ZuljinGuillotineImpactPersistent">
     <OffsetVectorStartLocation Value="CasterPoint" />
@@ -2177,6 +2186,7 @@
     <EffectArray value="ZuljinTwinCleaveLacerateApplyBehavior" />
     <EffectArray value="ZuljinTwinCleaveWrongPlaceWrongTimeApplySoundDummyBehavior" />
     <EffectArray value="ZuljinTwinCleaveWrongPlaceWrongTimeModifyToken" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
   </CEffectSet>
   <CEffectEnumArea id="ZuljinTwinCleaveWrongPlaceWrongTimeSearch">
     <SearchFilters value="-;Player,Ally,Neutral,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
@@ -2230,6 +2240,7 @@
     <EffectArray value="ZuljinTwinCleaveApplySlowSwitch" />
     <EffectArray value="ZuljinTwinCleaveLacerateApplySlowSwitch" />
     <EffectArray value="ZuljinTwinCleaveArcaniteAxesModifyToken" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
   </CEffectSet>
   <CEffectCreatePersistent id="ZuljinTwinCleaveLeftDamagePersistent">
     <PeriodicEffectArray value="ZuljinTwinCleaveLeftDamageSearch" />
@@ -2339,6 +2350,7 @@
     <EffectArray value="ZuljinTwinCleaveApplySlowSwitch" />
     <EffectArray value="ZuljinTwinCleaveLacerateApplySlowSwitch" />
     <EffectArray value="ZuljinTwinCleaveArcaniteAxesModifyToken" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
   </CEffectSet>
   <CEffectCreatePersistent id="ZuljinTwinCleaveRightDamagePersistent">
     <PeriodicEffectArray value="ZuljinTwinCleaveRightDamageSearch" />
@@ -2473,6 +2485,7 @@
     <EffectArray value="ZuljinHeroWeaponNoMercyTalentPercentDamage" />
     <EffectArray value="ZuljinGrievousThrowRemoveAttackStackBehavior" />
     <EffectArray value="UniversalWeaponImpact" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectApplyKinetic id="ZuljinTwinCleaveSwirlingDeathRightApplyKinetic">
     <Kinetic value="ZuljinTwinCleaveSwirlingDeathRotateRight" />
@@ -2515,6 +2528,10 @@
     <MultiplicativeModifierArray index="LaunchedWithBerserker" Validator="ZuljinSourceHasBerserkerThrownAxe" Modifier="0.25" />
     <MultiplicativeModifierArray index="GrievousThrowDebuffCheck" Validator="ZuljinGrievousThrowTargetHasAttackStacks" Accumulator="ZuljinGrievousThrowViciousAssaultAccumulator" Modifier="0.5" />
   </CEffectDamage>
+  <CEffectSet id="ZuljinASurpriseForYaImpactSet">
+    <EffectArray value="ZuljinASurpriseForYaWeaponDamage" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
+  </CEffectSet>
   <CEffectDamage id="ZuljinASurpriseForYaWeaponDamage" parent="StormWeapon">
     <MultiplicativeModifierArray index="LaunchedWithBerserker" Validator="ZuljinBerserkerCasterHasBerserkerBuff" Modifier="0.25" />
     <FlatModifierArray index="ZuljinYouWantAxeASurpriseForYa" Accumulator="ZuljinYouWantAxeASurpriseForYaWeaponDamage" />
@@ -2551,6 +2568,7 @@
     <EffectArray value="ZuljinGrievousThrowResetAttackStackBehavior" />
     <EffectArray value="ZuljinGrievousThrowApplyAttackStackSet" />
     <EffectArray value="ZuljinGrievousThrowDummyMarkerImpact" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
   </CEffectSet>
   <CEffectSet id="ZuljinGrievousThrowInitialSet">
     <EffectArray value="ZuljinGrievousThrowLaunchMissile" />

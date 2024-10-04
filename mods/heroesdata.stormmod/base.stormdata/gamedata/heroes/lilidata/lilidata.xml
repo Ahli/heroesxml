@@ -41,6 +41,7 @@
       <Cooldown TimeUse="0.75" />
     </Cost>
     <Range value="7" />
+    <RangeSlop value="5" />
     <CmdButtonArray index="Execute" DefaultButtonFace="LiLiCloudSerpentAttack" />
     <Arc value="360" />
     <CastIntroTime value="0.25" />
@@ -94,7 +95,7 @@
     <PrepEffect value="DismountDecloakCasterSet" />
   </CAbilEffectInstant>
   <CAbilEffectInstant id="LiLiCancelJugof1000Cups">
-    <ParentAbil value="DiabloLightningBreath" />
+    <ParentAbil value="LiLiJugof1000Cups" />
     <Effect value="LiLiJugOf1000CupsDestroyPersistent" />
     <Flags index="Transient" value="1" />
     <Cost>
@@ -974,6 +975,10 @@
   <CBehaviorBuff id="LiLiBlindingWindBlindBuff" parent="StormBlind">
     <Duration value="1.5" />
   </CBehaviorBuff>
+  <CBehaviorBuff id="LiLiBlindingWindBlindNonHeroesBuff" parent="StormBlindNonHeroes">
+    <RemoveValidatorArray value="LiLiTargetHasBlindingWind" />
+    <Duration value="1.5" />
+  </CBehaviorBuff>
   <CButton id="LiLiFreeDrinks" parent="StormButtonParent">
     <Icon value="Assets\Textures\storm_ui_icon_Lili_HealingBrew.dds" />
   </CButton>
@@ -1193,7 +1198,7 @@
     <Movers Link="LiLiCloudSerpentAttackMissile" IfRangeLTE="500" />
   </CEffectLaunchMissile>
   <CEffectEnumArea id="NewLightningSerpentHop1Search">
-    <SearchFilters value="Visible;Player,Ally,Neutral,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable,Benign,Passive" />
+    <SearchFilters value="Visible;Self,Player,Ally,Neutral,Missile,Item,Stasis,Dead,Hidden,Invulnerable,Benign" />
     <TargetSorts>
       <SortArray value="TSEngaged" />
       <SortArray value="TSNoBounce" />
@@ -1205,7 +1210,7 @@
     </AreaArray>
   </CEffectEnumArea>
   <CEffectEnumArea id="NewLightningSerpentHop2Search">
-    <SearchFilters value="Visible;Player,Ally,Neutral,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable,Benign,Passive" />
+    <SearchFilters value="Visible;Self,Player,Ally,Neutral,Missile,Item,Stasis,Dead,Hidden,Invulnerable,Benign" />
     <TargetSorts>
       <SortArray value="TSEngaged" />
       <SortArray value="TSNoBounce" />
@@ -1217,7 +1222,7 @@
     </AreaArray>
   </CEffectEnumArea>
   <CEffectEnumArea id="NewLightningSerpentHop3Search">
-    <SearchFilters value="Visible;Player,Ally,Neutral,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable,Benign,Passive" />
+    <SearchFilters value="Visible;Self,Player,Ally,Neutral,Missile,Item,Stasis,Dead,Hidden,Invulnerable,Benign" />
     <TargetSorts>
       <SortArray value="TSEngaged" />
       <SortArray value="TSNoBounce" />
@@ -1465,7 +1470,7 @@
     <TargetLocationType value="UnitOrPoint" />
   </CEffectSet>
   <CEffectCreateHealer id="JugOf1000CupsHeal" parent="StormHealingSpell">
-    <RechargeVitalRate value="66" />
+    <RechargeVitalRate value="75" />
     <ValidatorArray value="JugOf1000CupsUserCategoryNoSpecialDeathStateTarget" />
     <ImpactUnit Effect="JugOf1000CupsSwitchforLaunchMissile" />
   </CEffectCreateHealer>
@@ -1483,9 +1488,14 @@
     <Behavior value="LiLiBlindingWindBlindBuff" />
     <ValidatorArray value="TargetIsHero" />
   </CEffectApplyBehavior>
+  <CEffectApplyBehavior id="BlindingWindApplyBehaviorNonHeroesBlind" parent="StormBlindApply">
+    <Behavior value="LiLiBlindingWindBlindNonHeroesBuff" />
+    <ValidatorArray value="TargetIsHero" />
+  </CEffectApplyBehavior>
   <CEffectSet id="BlindingWindImpactSet">
     <EffectArray value="LiLiBlindingWindDamage" />
     <EffectArray value="BlindingWindApplyBehaviorBlind" />
+    <EffectArray value="BlindingWindApplyBehaviorNonHeroesBlind" />
     <EffectArray value="BlindingWindApplyBehaviorSlow" />
     <ValidatorArray value="TargetNotTimeStopped" />
   </CEffectSet>
@@ -1838,6 +1848,7 @@
     <EffectArray value="Jugof1000CupsApplyBehaviorMarker" />
   </CEffectSet>
   <CEffectModifyUnit id="LiLiJugof1000CupsModifyCooldown">
+    <ValidatorArray value="CasterNotStasis" />
     <ImpactUnit Value="Caster" />
     <Cost Abil="LiLiJugof1000Cups,Execute" CooldownOperation="Add" CooldownTimeUse="2" />
   </CEffectModifyUnit>
@@ -2088,6 +2099,7 @@
     <EffectArray value="UniversalWeaponImpact" />
     <EffectArray value="LiLiHeroWeaponMistweaverTalentModifyPlayerCooldown" />
     <EffectArray value="LiLiHeroWeaponDamage" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectLaunchMissile id="LiLiWeaponLaunchMissile">
     <ValidatorArray index="0" value="TargetNotDead" />
@@ -2918,6 +2930,13 @@
         <Type value="FlatModification" />
         <Catalog value="Behavior" />
         <Entry value="LiLiBlindingWindBlindBuff" />
+        <Field value="Duration" />
+        <Value value="0.750000" />
+      </Modifications>
+      <Modifications>
+        <Type value="FlatModification" />
+        <Catalog value="Behavior" />
+        <Entry value="LiLiBlindingWindBlindNonHeroesBuff" />
         <Field value="Duration" />
         <Value value="0.750000" />
       </Modifications>

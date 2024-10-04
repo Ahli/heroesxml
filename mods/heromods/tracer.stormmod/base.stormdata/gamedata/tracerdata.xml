@@ -5,6 +5,7 @@
     <Name value="Abil/Name/TracerAttack" />
     <TargetMessage value="Abil/TargetMessage/TracerAttack" />
     <AcquireFilters value="-;Player,Ally,Dead,Hidden,Invulnerable" />
+    <ParentAbil value="attack" />
   </CAbilAttack>
   <CAbilEffectTarget id="TracerBlink" parent="StormSkillshotDashParent">
     <Effect value="TracerBlinkCastSet" />
@@ -78,6 +79,7 @@
       <Flags index="AllowMinimap" value="0" />
       <Flags index="Continuous" value="0" />
     </CmdButtonArray>
+    <ParentAbil value="TracerReload" />
   </CAbilEffectInstant>
   <CAbilMove id="TracerMove">
     <OrderArray index="0">
@@ -499,9 +501,6 @@
     <On Terms="WeaponStop.*.AttackStop; !ValidateUnit Mounted" Send="AnimClear Ready" />
     <On Terms="WeaponStop.*.AttackStop; !ValidateUnit Mounted" Send="TimerKill StandReadyOutroDuration" />
     <On Terms="WeaponStop.*.AttackStop; !ValidateUnit Mounted" Send="TimerSet 5.000000 StandReadyOutroDuration" />
-    <On Terms="AnimPlay; AnimName Spell" Send="AnimClear Dance" />
-    <On Terms="AnimPlay; AnimName Attack" Send="AnimClear Dance" />
-    <On Terms="UnitMovementUpdate.*.Walk" Send="AnimClear Dance" />
     <On Terms="Signal.*.GameWon" Send="Signal TracerGameWon" />
     <On Terms="Signal.*.GameLost" Send="Signal TracerGameLost" />
     <On Terms="Signal.*.TracerGameWon" Target="TracerWeaponLaunchFXRight" Send="AnimBracketStop BSD" />
@@ -555,6 +554,30 @@
     <DeathArray index="Normal" SoundLink="TracerBase_Death" />
     <WalkAnimMoveSpeed value="4.7968" />
   </CActorUnit>
+  <CActorModel id="ConfirmationLocalGroundAttack">
+    <On Terms="Confirmation.*.Start; Game Local; AbilCmd TracerTargetingAttackClick" Send="Create" />
+  </CActorModel>
+  <CActorModel id="ConfirmationSyncGroundAttack">
+    <On Terms="Confirmation.*.Start; Game Sync; AbilCmd TracerTargetingAttackClick" Send="Create" />
+  </CActorModel>
+  <CActorModel id="ConfirmationLocalGroundTracer" parent="Confirmation">
+    <On Terms="Confirmation.*.Start; Game Local; !AbilCmd TracerTargetingAttackClick; ValidateUnit TracerIsCaster" Send="Create" />
+    <On Terms="ActorCreation" Send="SetTintColor 0,255,0" />
+    <ModelFlags index="AllowHitTest" value="0" />
+    <Model value="ConfirmationLocalGround" />
+    <ModelAspectSets>
+      <Aspects Person="Observer" RegardsAs="NotSelf" Model="Invisible" />
+    </ModelAspectSets>
+  </CActorModel>
+  <CActorModel id="ConfirmationSyncGroundTracer" parent="Confirmation">
+    <On Terms="Confirmation.*.Start; Game Sync; !AbilCmd TracerTargetingAttackClick; ValidateUnit TracerIsCaster" Send="Create" />
+    <On Terms="ActorCreation" Send="SetTintColor 0,255,0" />
+    <ModelFlags index="AllowHitTest" value="0" />
+    <Model value="ConfirmationLocalGround" />
+    <ModelAspectSets>
+      <Aspects Person="Observer" RegardsAs="NotSelf" Model="Invisible" />
+    </ModelAspectSets>
+  </CActorModel>
   <CActorModel id="TracerRecallPoseUnit" parent="StormModelAnimationStyleOneShot">
     <Model value="HeroTracer" />
     <ModelFlags index="AutomateGlobalLoops" value="0" />
@@ -1209,12 +1232,14 @@
     </DamageResponse>
   </CBehaviorBuff>
   <CBehaviorBuff id="TracerMeleeHeavyHandedTalentArmorDebuff" parent="StormArmor">
+    <BehaviorCategories index="DebuffVulnerable" value="1" />
     <Duration value="4" />
     <ArmorModification>
       <AllArmorBonus value="-15" />
     </ArmorModification>
   </CBehaviorBuff>
   <CBehaviorBuff id="TracerPulseBombPulseGeneratorTalentBuff">
+    <Face value="TracerPulseGenerator" />
     <Duration value="1.5" />
     <Period value="0.25" />
     <PeriodCount value="6" />
@@ -1385,7 +1410,7 @@
     <Period value="0.0625" />
     <PeriodCount value="1" />
     <PeriodicEffect value="TracerReloadModifyCooldown" />
-    <FinalEffect value="TracerReloadModifyCharges" />
+    <FinalEffect value="TracerReloadFinalSet" />
   </CBehaviorBuff>
   <CBehaviorBuff id="TracerMeleeBulletSprayPulseBombChargeLimiter">
     <Duration value="0.25" />
@@ -1512,7 +1537,7 @@
   <CBehaviorBuff id="TracerReload">
     <BehaviorFlags index="EnabledWhileDead" value="1" />
     <Duration value="0.75" />
-    <FinalEffect value="TracerReloadModifyCharges" />
+    <FinalEffect value="TracerReloadFinalSet" />
     <Period value="0.0625" />
     <PeriodCount value="1" />
     <PeriodicEffect value="TracerReloadModifyCooldown" />
@@ -1609,7 +1634,7 @@
   </CButton>
   <CButton id="TracerJumper" parent="StormButtonParentTrait">
     <TooltipVitalName index="Energy" value="" />
-    <Icon value="Assets\Textures\storm_ui_icon_tracer_blink_d.dds" />
+    <Icon value="Assets\Textures\storm_ui_icon_tracer_blink.dds" />
     <HotkeyAlias value="TracerReload" />
   </CButton>
   <CButton id="TracerIsthataHealthPack" parent="StormButtonParentTrait">
@@ -1726,7 +1751,7 @@
     <Icon value="Assets\Textures\storm_ui_icon_tracer_blink_empty.dds" />
   </CButton>
   <CButton id="TracerUntouchableQuestToken" parent="StormButtonParent">
-    <Icon value="Assets\Textures\storm_ui_icon_tracer_blink_d.dds" />
+    <Icon value="Assets\Textures\storm_ui_icon_tracer_combo_q_trait.dds" />
   </CButton>
   <CEffectLaunchMissile id="HallOfStormsKnockbackLaunchMissile">
     <ValidatorArray value="TracerCasterIsNotTracerRecallUnitCombine" />
@@ -1763,6 +1788,7 @@
   </CEffectCreatePersistent>
   <CEffectModifyUnit id="TracerHeroWeaponTelefragTalentModifyUnit">
     <ValidatorArray value="TargetIsHero" />
+    <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
     <Chance value="0" />
     <ImpactUnit Value="Caster" />
     <Cost Abil="TracerRecall,Execute" CooldownOperation="Add" CooldownTimeUse="-0.1875" />
@@ -1856,6 +1882,7 @@
     <EffectArray value="TracerHeroWeaponCreatePersistent" />
     <EffectArray value="TracerHeroWeaponImpactSet" />
     <EffectArray value="TracerHeroWeaponNewTargetImpactSet" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectModifyPlayer id="TracerBlinkJumperApplyUpgrade">
     <WhichPlayer Value="Caster" />
@@ -1893,6 +1920,8 @@
   </CEffectModifyBehaviorBuffDuration>
   <CEffectCreateHealer id="TracerIsThataHealthPackRegenGlobeHealer" parent="StormHealingSpellPercent">
     <ValidatorArray value="TracerTargetHasIsThataHealthPackTalent" />
+    <ValidatorArray value="TracerTargetIsTracer" />
+    <ValidatorArray value="TracerCasterIsTracer" />
     <RechargeVitalFraction value="0.1" />
     <SourceButtonFace value="TracerIsthataHealthPack" />
   </CEffectCreateHealer>
@@ -1915,6 +1944,7 @@
     <EffectArray value="HeroGenericImmuneToConveyersRemove" />
     <EffectArray value="TracerRecallTelefragTalentSearch" />
     <EffectArray value="TracerRecallTelefragTalentApplyUnkillable" />
+    <EffectArray value="TracerRecallTotalRecallHeal" />
   </CEffectSet>
   <CEffectApplyBehavior id="TracerRecallPartingGiftTalentApplySlow" parent="StormSlowApply">
     <ValidatorArray value="TargetIsHero" />
@@ -1951,6 +1981,7 @@
     <ExpireEffect value="TracerMeleeBulletSprayImpactSet" />
   </CEffectCreatePersistent>
   <CEffectDamage id="TracerPulseBombCompositionBQuantumSpikePercentDamage" parent="StormSpellPercentDamage">
+    <ValidatorArray value="TargetIsHero" />
     <Marker Link="Effect/TracerPulseBombCompositionBQuantumSpikeDamage" />
     <VitalFractionMax index="Life" value="0.03" />
   </CEffectDamage>
@@ -2034,6 +2065,7 @@
     <Behavior value="TracerRecallTelefragTalentUnkillable" />
   </CEffectApplyBehavior>
   <CEffectDamage id="TracerRecallTelefragTalentDamage" parent="StormSpell">
+    <SourceButtonFace value="TracerTelefrag" />
     <Amount value="175" />
   </CEffectDamage>
   <CEffectSet id="TracerRecallTelefragTalentImpactSet">
@@ -2177,6 +2209,10 @@
     <WhichUnit Value="Caster" />
     <Behavior value="TracerFocusFireIncrementCooldown" />
   </CEffectApplyBehavior>
+  <CEffectSet id="TracerFocusFireNonHeroImpactSet">
+    <EffectArray value="TracerHeroWeaponFocusFireMasteryDamage" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
+  </CEffectSet>
   <CEffectDamage id="TracerHeroWeaponFocusFireMasteryDamage" parent="StormWeapon">
     <Amount value="80" />
     <Flags index="Crit" value="1" />
@@ -2184,6 +2220,10 @@
       <AccumulatorArray value="TracerLeechingRoundsTalentHealingAccumulatorV2" />
     </LeechFraction>
   </CEffectDamage>
+  <CEffectSet id="TracerFocusFireHeroImpactSet">
+    <EffectArray value="TracerHeroWeaponFocusFireMasteryDamageHero" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
+  </CEffectSet>
   <CEffectDamage id="TracerHeroWeaponFocusFireMasteryDamageHero" parent="StormWeapon">
     <Amount value="80" />
     <Flags index="Crit" value="1" />
@@ -2242,9 +2282,9 @@
   </CEffectSwitch>
   <CEffectSet id="TracerHeroWeaponRicochetLockedAndLoadedTalentImpactSet">
     <EffectArray value="TracerHeroWeaponHeroDamageSwitch" />
-    <EffectArray value="ApplyAbilityImpactReveal" />
     <EffectArray value="TracerHeroWeaponApplyTracerRoundsMasteryReveal" />
     <EffectArray value="TracerHeroWeaponTelefragTalentModifyUnit" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectCreatePersistent id="TracerHeroWeaponCreateTargetingPersistent">
     <WhichLocation Value="TargetUnit" />
@@ -2252,16 +2292,16 @@
   </CEffectCreatePersistent>
   <CEffectSet id="TracerHeroWeaponRicochetTalentImpactSet">
     <EffectArray value="TracerHeroWeaponHeroDamageSwitch" />
-    <EffectArray value="ApplyAbilityImpactReveal" />
     <EffectArray value="TracerHeroWeaponApplyTracerRoundsMasteryReveal" />
     <EffectArray value="TracerHeroWeaponTelefragTalentModifyUnit" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectCreatePersistent id="TracerBlinkOffsetPersistent">
     <InitialEffect value="TracerBlinkOffsetSet" />
   </CEffectCreatePersistent>
   <CEffectSet id="TracerHeroWeaponRicochetInitialSet">
     <Chance value="0" />
-    <EffectArray value="TracerHeroWeaponRicochetTargetSearch" />
+    <EffectArray value="TracerHeroWeaponRicochetSwitch" />
     <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
   </CEffectSet>
   <CEffectLaunchMissile id="TracerHeroWeaponRicochetLaunchMissile">
@@ -2273,9 +2313,13 @@
     <ValidatorArray value="NotCloakedOrIsRevealed" />
     <SharedFlags index="ValidateWeapon" value="0" />
   </CEffectLaunchMissile>
+  <CEffectSwitch id="TracerHeroWeaponRicochetSwitch">
+    <CaseArray Validator="TargetIsBenign" Effect="TracerHeroWeaponRicochetTargetSearchIncludeBenign" />
+    <CaseDefault value="TracerHeroWeaponRicochetTargetSearch" />
+  </CEffectSwitch>
   <CEffectEnumArea id="TracerHeroWeaponRicochetTargetSearch">
     <ImpactLocation Value="TargetUnit" />
-    <SearchFilters value="-;Player,Ally,Neutral,ImmuneToAOE,Item,Stasis,Dead,Invulnerable" />
+    <SearchFilters value="Visible;Self,Player,Ally,Neutral,Missile,Item,Stasis,Dead,Hidden,Invulnerable,Benign" />
     <TargetSorts RequestCount="1" RequestPercentage="1">
       <SortArray value="TSHeroic" />
       <SortArray value="TSRandom" />
@@ -2284,6 +2328,9 @@
       <Radius value="5" />
     </AreaArray>
     <ExcludeArray Effect="TracerHeroWeaponRicochetInitialSet" Value="Target" />
+  </CEffectEnumArea>
+  <CEffectEnumArea id="TracerHeroWeaponRicochetTargetSearchIncludeBenign" parent="TracerHeroWeaponRicochetTargetSearch">
+    <SearchFilters value="Visible;Self,Player,Ally,Neutral,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
   </CEffectEnumArea>
   <CEffectSet id="TracerHeroWeaponTargetingBehaviorFinalSet">
     <EffectArray value="TracerHeroWeaponDestroyTargetingPersistent" />
@@ -2322,6 +2369,7 @@
     <EffectArray value="TracerMeleeBulletSprayApplyPulseBombChargeLimiter" />
     <EffectArray value="TracerMeleeCreateRevealPersistent" />
     <EffectArray value="TracerPulseBombGetStuffedInitialSet" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
   </CEffectSet>
   <CEffectEnumArea id="TracerMeleeBulletSpraySearch">
     <ImpactLocation Value="CasterUnit" />
@@ -2405,6 +2453,11 @@
     <Behavior value="TracerPulseBombDummyBehavior" />
     <Chance value="0" />
   </CEffectApplyBehavior>
+  <CEffectRemoveBehavior id="TracerPulseBombRemoveDummyBehavior">
+    <BehaviorLink value="TracerPulseBombDummyBehavior" />
+    <RequireCasterUnit Value="Caster" />
+    <Count value="1" />
+  </CEffectRemoveBehavior>
   <CEffectApplyBehavior id="TracerPulseBombGetStuffedApplyKnockbackBehavior">
     <Behavior value="TracerPulseBombGetStuffedKnockback" />
   </CEffectApplyBehavior>
@@ -2457,6 +2510,7 @@
   </CEffectDamage>
   <CEffectSet id="TracerPulseBombCompositionBQuantumSpikeExplosionImpactSet">
     <EffectArray value="TracerPulseBombCompositionBPulseBombAoEDamage" />
+    <EffectArray value="TracerPulseBombCompositionBQuantumSpikePercentDamage" />
   </CEffectSet>
   <CEffectSet id="TracerPulseBombCompositionBQuantumSpikeExplosionCenterImpactSet">
     <EffectArray value="TracerPulseBombCompositionBQuantumSpikeDamage" />
@@ -2524,6 +2578,7 @@
     <EffectArray value="TracerPulseBombGetStuffedDestroyPulseBombUnitPersistent" />
     <EffectArray value="TracerPulseBombGetStuffedDestroyQuantumSpikeUnitPersistent" />
     <EffectArray value="TracerPulseBombGetStuffedInitialPersistentSwitch" />
+    <EffectArray value="TracerPulseBombRemoveDummyBehavior" />
     <ValidatorArray value="TracerTargetHasPulseBombDummyBehavior" />
   </CEffectSet>
   <CEffectApplyForce id="TracerPulseBombGetStuffedKnockback">
@@ -2636,8 +2691,8 @@
     <WhichLocation Value="TargetUnit" />
     <ExpireDelay value="0.25" />
     <PeriodCount value="1" />
-    <PeriodicPeriodArray value="1.5" />
-    <RevealRadius value="5" />
+    <PeriodicPeriodArray value="1.1875" />
+    <RevealRadius value="3.5" />
     <RevealFlags index="Unfog" value="1" />
     <Marker Duration="1.5">
       <MatchFlags index="Id" value="1" />
@@ -2733,7 +2788,7 @@
     <PeriodicEffect value="TracerRecallPartingGiftClusterCreateMissileScanPersistent" />
   </CEffectLaunchMissile>
   <CEffectEnumArea id="TracerRecallPartingGiftClusterMissileScan">
-    <SearchFilters value="-;Self,Player,Ally,Neutral,ImmuneToSkillshots,Missile,Item,Stasis,Dead,Hidden" />
+    <SearchFilters value="-;Self,Player,Ally,Neutral,ImmuneToSkillshots,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
     <AreaArray MaxCount="1" Effect="TracerRecallPartingGiftClusterImpactSet">
       <Radius value="0.5" />
     </AreaArray>
@@ -2786,7 +2841,11 @@
   </CEffectSet>
   <CEffectModifyUnit id="TracerReloadModifyWeaponCooldown">
     <ImpactUnit Value="Caster" />
-    <Weapon Weapon="TracerHeroWeapon" CooldownOperation="Max" CooldownAmount="0.8125" />
+    <Weapon Weapon="TracerHeroWeapon" CooldownOperation="Max" CooldownAmount="0.875" />
+  </CEffectModifyUnit>
+  <CEffectModifyUnit id="TracerWeaponReloadResetCooldown">
+    <ImpactUnit Value="Caster" />
+    <Weapon Weapon="TracerHeroWeapon" CooldownOperation="Set" />
   </CEffectModifyUnit>
   <CEffectRemoveBehavior id="TracerReloadRemoveLockedandLoadedFailBehavior">
     <Chance value="0" />
@@ -3059,7 +3118,7 @@
     <EffectArray value="CasterInvalidforEffectApplyBehavior" />
     <EffectArray value="TracerRecallTeleportDelayPersistent" />
     <EffectArray value="TracerRecallApplyActiveBehavior" />
-    <EffectArray value="TracerReloadModifyCharges" />
+    <EffectArray value="TracerReloadManaRestore" />
     <EffectArray value="TracerReloadModifyCooldown" />
     <EffectArray value="HeroGenericCleanseRemoveCCBehaviorCategoriesExpandedCaster" />
     <TargetLocationType value="Point" />
@@ -3084,12 +3143,23 @@
     <ValidatorArray value="TracerIsNotReloadingCaster" />
     <ValidatorArray value="TracerIsNotLockedandLoadedReloadingCaster" />
   </CEffectSet>
+  <CEffectSet id="TracerReloadFinalSet">
+    <EffectArray value="TracerReloadManaRestore" />
+    <EffectArray value="TracerWeaponReloadResetCooldown" />
+  </CEffectSet>
   <CEffectModifyUnit id="TracerReloadModifyCharges">
     <ImpactUnit Value="Caster" />
     <VitalArray index="Energy">
       <ChangeFraction value="1" />
     </VitalArray>
   </CEffectModifyUnit>
+  <CEffectCreateHealer id="TracerReloadManaRestore" parent="StormManaRestore">
+    <ImpactUnit Value="Caster" />
+    <RechargeVitalFraction value="1" />
+    <Flags index="IgnoreBehaviorDealtMultipliers" value="1" />
+    <Flags index="IgnoreBehaviorTakenMultipliers" value="1" />
+    <MultiplicativeModifierArray index="Crit" Validator="TracerReloadCritCombine" Crit="1" />
+  </CEffectCreateHealer>
   <CEffectModifyTokenCount id="TracerUntouchableQuestIncrementToken" parent="BaseEffectModifyTokenCount">
     <TokenId value="TracerUntouchableQuestToken" />
     <EffectCategory index="Quest" value="1" />
@@ -3126,6 +3196,11 @@
     <BehaviorLink value="TracerRecallUnitAITrackingBehavior" />
     <TrackedUnit Value="Target" />
   </CEffectAddTrackedUnit>
+  <CEffectCreateHealer id="TracerRecallTotalRecallHeal" parent="StormSelfOnlyHealingSpell">
+    <ValidatorArray value="TracerHasTotalRecallTalentRecall" />
+    <SourceButtonFace value="TracerTotalRecallRecall" />
+    <Flags index="IgnoreBehaviorDealtMultipliers" value="1" />
+  </CEffectCreateHealer>
   <CHero id="Tracer">
     <AttributeId value="Tra0" />
     <Role value="Damage" />
@@ -4194,6 +4269,9 @@
     <WhichUnit Value="Caster" />
     <Value value="HeroTracer" />
   </CValidatorUnitType>
+  <CValidatorUnitType id="TracerTargetIsTracer">
+    <Value value="HeroTracer" />
+  </CValidatorUnitType>
   <CValidatorUnitType id="TracerCasterIsNotTracerRecallUnitAITracking">
     <WhichUnit Value="Caster" />
     <Value value="TracerRecallUnitAITracking" />
@@ -4446,6 +4524,27 @@
   <CValidatorUnitCompareBehaviorCount id="DoesNotHaveMountedHeroWeaponCasterTargerFinderDisabler">
     <WhichUnit Value="Caster" />
     <Behavior value="HeroWeaponCasterTargetFinderDisablerMounted" />
+  </CValidatorUnitCompareBehaviorCount>
+  <CValidatorCombine id="TracerReloadCritCombine">
+    <Type value="And" />
+    <CombineArray value="TracerHasLockedAndLoadedActive" />
+    <CombineArray value="TracerDoesNotHaveLockedAndLoadedPrimed" />
+    <CombineArray value="TracerDoesNotHaveLockedandLoadedFailBehavior" />
+  </CValidatorCombine>
+  <CValidatorCombine id="TracerEnergyBarFlashCombine">
+    <Type value="And" />
+    <CombineArray value="TracerCasterIsTracer" />
+    <CombineArray value="TracerReloadCritCombine" />
+    <CombineArray value="TracerIsNotReloadingCaster" />
+    <CombineArray value="TracerIsNotLockedandLoadedReloadingCaster" />
+    <CombineArray value="CasterHasEnergy" />
+  </CValidatorCombine>
+  <CValidatorCombine id="AbilButtonActiveDDamage">
+    <CombineArray value="TracerEnergyBarFlashCombine" />
+  </CValidatorCombine>
+  <CValidatorUnitCompareBehaviorCount id="TracerDoesNotHaveLockedAndLoadedPrimed">
+    <WhichUnit Value="Caster" />
+    <Behavior value="TracerLockedandLoadedPrimed" />
   </CValidatorUnitCompareBehaviorCount>
   <CValidatorUnitCompareBehaviorCount id="TracerHasLockedAndLoadedActive">
     <WhichUnit Value="Caster" />
@@ -4703,6 +4802,7 @@
     <Value value="1" />
     <Behavior value="TracerPulseBombDummyBehavior" />
     <Compare value="GE" />
+    <RequireCasterUnit Value="Caster" />
   </CValidatorUnitCompareBehaviorCount>
   <CValidatorCombine id="TracerTargetHasTargetBehaviorAndTracerHasAmmoAndNotReloading">
     <Type value="And" />

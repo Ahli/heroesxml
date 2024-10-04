@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="us-ascii"?>
 <Catalog>
+  <const id="$AlexstraszaCleansingFlameCastRange" value="20" />
   <CAbilEffectTarget id="AlexstraszaAbundance">
     <CmdButtonArray index="Execute" DefaultButtonFace="AlexstraszaAbundance" />
     <Effect value="AlexstraszaAbundanceCreatePersistent" />
@@ -64,7 +65,6 @@
     <Flags index="ClearLastMoveTarget" value="1" />
     <Flags index="RangeUseCasterRadius" value="0" />
     <Flags index="RequireTargetVision" value="0" />
-    <Flags index="UpdateTarget" value="1" />
     <Cost>
       <Vital index="Energy" value="100" />
       <Cooldown TimeUse="100" />
@@ -73,7 +73,7 @@
     <InterruptCost>
       <Cooldown TimeStart="10" TimeUse="10" />
     </InterruptCost>
-    <Range value="20" />
+    <Range value="$AlexstraszaCleansingFlameCastRange" />
     <Arc value="360" />
     <CastIntroTime value="1.25" />
     <ShowProgressArray index="Cast" value="1" />
@@ -95,7 +95,6 @@
     <Flags index="ClearLastMoveTarget" value="1" />
     <Flags index="RangeUseCasterRadius" value="0" />
     <Flags index="RequireTargetVision" value="0" />
-    <Flags index="UpdateTarget" value="1" />
     <Cost>
       <Vital index="Energy" value="100" />
       <Cooldown Link="Abil/AlexstraszaCleansingFlame" TimeUse="100" />
@@ -104,7 +103,7 @@
     <InterruptCost>
       <Cooldown Link="Abil/AlexstraszaCleansingFlame" TimeStart="10" TimeUse="10" />
     </InterruptCost>
-    <Range value="20" />
+    <Range value="$AlexstraszaCleansingFlameCastRange" />
     <Arc value="360" />
     <UninterruptibleArray index="Cast" value="1" />
     <UninterruptibleArray index="Channel" value="1" />
@@ -578,8 +577,10 @@
     <HostSiteOps Ops="SOpAttachCenter" />
   </CActorModel>
   <CActorModel id="AlexstraszaCleansingFlameShadow" parent="StormModelAnimationStyleOneShot">
-    <On Terms="Effect.AlexstraszaCleansingFlameFireballSearchPersistent.Start" Send="Create" />
+    <On Terms="Effect.AlexstraszaCleansingFlameFireballSearchPersistentTargetPoint.Start" Send="Create" />
+    <On Terms="Effect.AlexstraszaCleansingFlameFireballSearchPersistentMousePoint.Start" Send="Create" />
     <On Terms="ActorCreation" Send="AnimPlay Stand GLstand RandomStartOffset" />
+    <HostSiteOps Ops="SOpShadow" />
   </CActorModel>
   <CActorModelMaterial id="AlexstraszaDragonqueenDragonReplacementGlaze" parent="StormModelAnimationStyleOneShot">
     <Remove Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death ContentPlayOnce" />
@@ -728,6 +729,7 @@
     <On Terms="ActorCreation" Send="Create AlexstraszaCleansingFlameLandingWarningSound" />
     <On Terms="AnimDone; AnimName Birth" Send="AnimPlay Death Death 0 0.000000 0.000000" />
     <On Terms="Effect.AlexstraszaCleansingFlameLandingTeleport.Stop" Send="HostSiteOpsSet ::Host {SOpCasterPoint SOpPointSouthWorld} 1 1" />
+    <On Terms="Effect.AlexstraszaCleansingFlameLandingTeleportMousePoint.Stop" Send="HostSiteOpsSet ::Host {SOpCasterPoint SOpPointSouthWorld} 1 1" />
     <On Terms="AnimDone; AnimName Death" Send="Destroy Immediate" />
     <HostSiteOps Ops="SOpAlexstraszaCleansingFlameClampedCursor" />
     <Scale value="3.100000" />
@@ -866,19 +868,23 @@
     <On Terms="Effect.AlexstraszaCleansingFlameFinalPersistent.Start; At Caster" Send="Create" />
   </CActorSound>
   <CActorSound id="AlexstraszaCleansingFlameFireballImpactSound" parent="SoundOneShot">
-    <On Terms="Effect.AlexstraszaCleansingFlameFireballSearchPersistent" Send="Create" />
+    <On Terms="Effect.AlexstraszaCleansingFlameFireballSearchPersistentTargetPoint" Send="Create" />
+    <On Terms="Effect.AlexstraszaCleansingFlameFireballSearchPersistentMousePoint" Send="Create" />
     <Layers Sound="AlexstraszaCleansingFlameImpactCleanseSound" />
   </CActorSound>
   <CActorSound id="AlexstraszaCleansingFlameFireballLaunchRoarSound" parent="SoundOneShot">
-    <On Terms="Effect.AlexstraszaCleansingFlameFireballSearchPersistent.Start" Send="Create" />
+    <On Terms="Effect.AlexstraszaCleansingFlameFireballSearchPersistentTargetPoint.Start" Send="Create" />
+    <On Terms="Effect.AlexstraszaCleansingFlameFireballSearchPersistentMousePoint.Start" Send="Create" />
   </CActorSound>
   <CActorSound id="AlexstraszaCleansingFlameLandingWarningSound" parent="SoundOneShot" />
   <CActorSound id="AlexstraszaCleansingFlameFireballLaunchSound" parent="SoundOneShot">
-    <On Terms="Effect.AlexstraszaCleansingFlameFireballSearchPersistent.Start" Send="Create" />
+    <On Terms="Effect.AlexstraszaCleansingFlameFireballSearchPersistentTargetPoint.Start" Send="Create" />
+    <On Terms="Effect.AlexstraszaCleansingFlameFireballSearchPersistentMousePoint.Start" Send="Create" />
   </CActorSound>
   <CActorModel id="AlexstraszaCleansingFlameFireballModel" parent="StormModelAnimationStyleOneShot">
-    <On Terms="Effect.AlexstraszaCleansingFlameFireballSearchPersistent.Start" Send="Create" />
-    <HostSiteOps Ops="SOpRotationRandomDisc" />
+    <On Terms="Effect.AlexstraszaCleansingFlameFireballSearchPersistentTargetPoint.Start" Send="Create" />
+    <On Terms="Effect.AlexstraszaCleansingFlameFireballSearchPersistentMousePoint.Start" Send="Create" />
+    <HostSiteOps Ops="SOpShadow SOpRotationRandomDisc" />
     <VisibilityShape Shape="AlexstraszaCleansingFlameVisualShape" />
   </CActorModel>
   <CActorModel id="AlexstraszaCleansingFlameCursorSplatOuter">
@@ -1425,7 +1431,7 @@
     <On Terms="Behavior.AlexstraszaPacifyDamageReduction.Off" Send="Create" />
   </CActorSound>
   <CActorSiteOpClampInsideCircle id="SOpAlexstraszaCleansingFlameClampedCursor">
-    <Radius value="20.000000" />
+    <Radius value="$AlexstraszaCleansingFlameCastRange" />
     <TargetSiteOps Ops="SOpCursor" />
     <CenterActor Subject="_Unit" Scope="Caster" />
     <CenterSiteOps Ops="SOpAttachOrigin" />
@@ -1683,7 +1689,6 @@
     <PeriodCount value="1" />
     <FinalEffect value="AlexstraszaDragonqueenBehaviorFinalEffectSet" />
     <Modification>
-      <VitalMaxArray index="Life" value="500" />
       <AbilLinkDisableArray value="Mount" />
       <AbilLinkDisableArray value="Dismount" />
       <AbilLinkDisableArray value="MountCabooseSmartCommandUnitInteraction" />
@@ -1691,6 +1696,12 @@
     <InitialEffect value="AlexstraszaDragonqueenBehaviorInitialEffectSet" />
     <BuffFlags index="Extend" value="1" />
     <DisableValidatorArray value="AlexstraszaCleansingFlameDoesNotHaveCasterBehavior" />
+  </CBehaviorBuff>
+  <CBehaviorBuff id="AlexstraszaDragonqueenHealthIncrease">
+    <RemoveValidatorArray value="AlexstraszaDragonqueenHasDragonqueenBehavior" />
+    <Modification>
+      <VitalMaxArray index="Life" value="500" />
+    </Modification>
   </CBehaviorBuff>
   <CBehaviorBuff id="AlexstraszaFlameBuffetDoT" parent="StormDot">
     <Duration value="5.5" />
@@ -1964,9 +1975,13 @@
   </CEffectSet>
   <CEffectSet id="AlexstraszaAbundanceImpactSet">
     <EffectArray value="AlexstraszaAbundanceCreateHealer" />
+    <EffectArray value="AlexstraszaAbundanceRemovePreview" />
     <EffectArray value="AlexstraszaSurgeOfVitalityAbundanceApplyBehavior" />
     <EffectArray value="AlexstraszaPacifyLifeUnboundModifyCooldownHealSet" />
   </CEffectSet>
+  <CEffectRemoveBehavior id="AlexstraszaAbundanceRemovePreview">
+    <BehaviorLink value="AlexstraszaAbundanceHoTPreview" />
+  </CEffectRemoveBehavior>
   <CEffectModifyUnit id="AlexstraszaBreathOfLifeModifyWeaponCooldown">
     <ImpactUnit Value="Caster" />
     <Weapon Weapon="AlexstraszaDragonConeWeapon" CooldownOperation="Max" CooldownAmount="0.5" />
@@ -1999,12 +2014,22 @@
   </CEffectModifyPlayer>
   <CEffectSet id="AlexstraszaDragonqueenBehaviorInitialEffectSet">
     <EffectArray value="AlexstraszaDragonqueenLifebinderRangeIncrease" />
+    <EffectArray value="AlexstraszaDragonqueenApplyHealthBuff" />
     <EffectArray value="AlexstraszaGiftOfLifeLifeblossomModifyPlayer" />
   </CEffectSet>
+  <CEffectApplyBehavior id="AlexstraszaDragonqueenApplyHealthBuff">
+    <WhichUnit Value="Caster" />
+    <Behavior value="AlexstraszaDragonqueenHealthIncrease" />
+  </CEffectApplyBehavior>
   <CEffectSet id="AlexstraszaDragonqueenBehaviorFinalEffectSet">
     <EffectArray value="AlexstraszaDragonqueenExpirationStasisSwitch" />
+    <EffectArray value="AlexstraszaDragonqueenRemoveHealthBuff" />
     <EffectArray value="AlexstraszaGiftOfLifeLifeblossomModifyPlayer" />
   </CEffectSet>
+  <CEffectRemoveBehavior id="AlexstraszaDragonqueenRemoveHealthBuff">
+    <WhichUnit Value="Caster" />
+    <BehaviorLink value="AlexstraszaDragonqueenHealthIncrease" />
+  </CEffectRemoveBehavior>
   <CEffectEnumArea id="AlexstraszaDragonqueenDoodadSearchDummy">
     <AreaArray>
       <Radius value="4" />
@@ -2104,13 +2129,30 @@
   </CEffectSet>
   <CEffectModifyUnit id="AlexstraszaCleansingFlameLandingModifyFacing">
     <ImpactUnit Value="Caster" />
-    <FacingLocation Effect="AlexstraszaCleansingFlameFireballPersistent" Value="CasterPoint" />
+    <FacingLocation Value="MousePoint" />
     <FacingType value="LookAt" />
   </CEffectModifyUnit>
   <CEffectSet id="AlexstraszaCleansingFlamePrepSet">
     <EffectArray value="AlexstraszaCleansingFlameApplySuppressTurning" />
     <EffectArray value="DismountDecloakCasterSet" />
   </CEffectSet>
+  <CEffectSwitch id="AlexstraszaCleansingFlamePersistentClampTeleportSwitch">
+    <CaseArray Validator="AlexstrsazaCleansingFlameMousePointGTCastRange" Effect="AlexstraszaCleansingFlameClampOffsetTeleport" />
+    <CaseDefault value="AlexstraszaCleansingFlameLandingTeleportMousePoint" />
+  </CEffectSwitch>
+  <CEffectCreatePersistent id="AlexstraszaCleansingFlameClampOffsetTeleport">
+    <WhichLocation Value="CasterPoint" />
+    <InitialEffect value="AlexstraszaCleansingFlameLandingTeleport" />
+    <InitialOffset Y="$AlexstraszaCleansingFlameCastRange" />
+    <OffsetVectorStartLocation Value="MousePoint" />
+    <OffsetVectorEndLocation Value="CasterPoint" />
+  </CEffectCreatePersistent>
+  <CEffectTeleport id="AlexstraszaCleansingFlameLandingTeleportMousePoint" parent="StormTeleportSelf">
+    <TargetLocation Value="MousePoint" />
+    <PlacementArc value="360" />
+    <PlacementRange value="100" />
+    <Range value="100" />
+  </CEffectTeleport>
   <CEffectTeleport id="AlexstraszaCleansingFlameTeleport" parent="StormTeleportSelf">
     <TargetLocation Value="TargetPoint" />
   </CEffectTeleport>
@@ -2146,13 +2188,14 @@
   <CEffectSet id="AlexstraszaDragonConeWeaponDamageImpactSet">
     <EffectArray value="AlexstraszaDragonConeWeaponDamage" />
     <EffectArray value="AlexstraszaAncientFlameFlameBuffetImpactSet" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
     <ValidatorArray value="noMarkers" />
     <ValidatorArray value="TargetNotInvulnerable" />
   </CEffectSet>
   <CEffectSet id="AlexstraszaDragonConeWeaponHealImpactSet">
     <EffectArray value="AlexstraszaDragonConeWeaponCreateHealer" />
     <EffectArray value="AlexstraszaDragonConeWeaponApplyMarkerDummy" />
-    <EffectArray value="AlexstraszaPacifyLifeUnboundModifyCooldownHealSet" />
+    <EffectArray value="AlexstraszaPacifyLifeUnboundModifyCooldownHealSetDragonCone" />
   </CEffectSet>
   <CEffectSwitch id="AlexstraszaDragonConeWeaponImpactSwitch">
     <CaseArray Validator="TargetIsEnemy" Effect="AlexstraszaDragonConeWeaponDamageImpactSet" />
@@ -2171,6 +2214,9 @@
     <AreaArray Arc="49.9987" Effect="AlexstraszaDragonConeWeaponImpactSwitch">
       <Radius value="9" />
     </AreaArray>
+    <RevealerParams Duration="0.75" ShapeExpansion="1">
+      <RevealFlags index="Unfog" value="1" />
+    </RevealerParams>
     <SearchFlags index="DoActorSearch" value="1" />
     <SearchFilters value="-;Self,Player,Neutral,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden" />
   </CEffectEnumArea>
@@ -2229,13 +2275,13 @@
     <ExpireEffect value="AlexstraszaCleansingFlameFinalPersistent" />
     <PeriodCount value="8" />
     <PeriodicEffectArray value="AlexstraszaCleansingFlameApplyChannelBarDummy" />
-    <PeriodicEffectArray value="AlexstraszaCleansingFlameFireballSearchPersistent" />
-    <PeriodicEffectArray value="AlexstraszaCleansingFlameFireballSearchPersistent" />
-    <PeriodicEffectArray value="AlexstraszaCleansingFlameFireballSearchPersistent" />
-    <PeriodicEffectArray value="AlexstraszaCleansingFlameFireballSearchPersistent" />
-    <PeriodicEffectArray value="AlexstraszaCleansingFlameFireballSearchPersistent" />
+    <PeriodicEffectArray value="AlexstraszaCleansingFlamePersistentClampSwitch" />
+    <PeriodicEffectArray value="AlexstraszaCleansingFlamePersistentClampSwitch" />
+    <PeriodicEffectArray value="AlexstraszaCleansingFlamePersistentClampSwitch" />
+    <PeriodicEffectArray value="AlexstraszaCleansingFlamePersistentClampSwitch" />
+    <PeriodicEffectArray value="AlexstraszaCleansingFlamePersistentClampSwitch" />
     <PeriodicEffectArray value="AlexstraszaCleansingFlameLandingPrepSet" />
-    <PeriodicEffectArray value="AlexstraszaCleansingFlameLandingTeleport" />
+    <PeriodicEffectArray value="AlexstraszaCleansingFlamePersistentClampTeleportSwitch" />
     <PeriodicPeriodArray value="0.25" />
     <PeriodicPeriodArray value="1.1875" />
     <PeriodicPeriodArray value="1.1875" />
@@ -2255,18 +2301,40 @@
   <CEffectSet id="AlexstraszaCleansingFlameFinalSet">
     <EffectArray value="AlexstraszaCleansingFlameRemoveCasterBehavior" />
     <EffectArray value="AlexstraszaOnRubyWingsCleansingFlameRemoveTokenBehavior" />
+    <EffectArray value="RemoveMousePointUpdater" />
   </CEffectSet>
   <CEffectDamage id="AlexstraszaCleansingFlameFireballDamage" parent="StormSpell">
     <Amount value="135" />
     <SourceButtonFace value="AlexstraszaCleansingFlame" />
   </CEffectDamage>
-  <CEffectCreatePersistent id="AlexstraszaCleansingFlameFireballSearchPersistent">
-    <WhichLocation Effect="AlexstraszaCleansingFlameFireballPersistent" />
+  <CEffectSwitch id="AlexstraszaCleansingFlamePersistentClampSwitch">
+    <CaseArray Validator="AlexstrsazaCleansingFlameMousePointGTCastRange" Effect="AlexstraszaCleansingFlameClampOffset" />
+    <CaseDefault value="AlexstraszaCleansingFlameFireballSearchPersistentMousePoint" />
+  </CEffectSwitch>
+  <CEffectCreatePersistent id="AlexstraszaCleansingFlameClampOffset">
+    <WhichLocation Value="CasterPoint" />
+    <InitialEffect value="AlexstraszaCleansingFlameFireballSearchPersistentTargetPoint" />
+    <InitialOffset Y="$AlexstraszaCleansingFlameCastRange" />
+    <OffsetVectorStartLocation Value="MousePoint" />
+    <OffsetVectorEndLocation Value="CasterPoint" />
+  </CEffectCreatePersistent>
+  <CEffectCreatePersistent id="AlexstraszaCleansingFlameFireballSearchPersistentTargetPoint">
     <InitialEffect value="AlexstraszaCleansingFlameTeleport" />
     <PeriodCount value="1" />
     <PeriodicEffectArray value="AlexstraszaCleansingFlameFireballSearch" />
     <RevealRadius value="3" />
     <RevealFlags index="Unfog" value="1" />
+  </CEffectCreatePersistent>
+  <CEffectCreatePersistent id="AlexstraszaCleansingFlameFireballSearchPersistentMousePoint">
+    <WhichLocation Value="MousePoint" />
+    <InitialEffect value="AlexstraszaCleansingFlameTeleport" />
+    <PeriodCount value="1" />
+    <PeriodicEffectArray value="AlexstraszaCleansingFlameFireballSearch" />
+    <RevealRadius value="3" />
+    <RevealFlags index="Unfog" value="1" />
+  </CEffectCreatePersistent>
+  <CEffectCreatePersistent id="AlexstraszaCleansingFlameFireballSearchPersistent">
+    <PeriodCount value="1" />
   </CEffectCreatePersistent>
   <CEffectSet id="AlexstraszaCleansingFlameInitialSet">
     <EffectArray value="AlexstraszaCleansingFlameApplyCasterBehavior" />
@@ -2274,6 +2342,7 @@
     <EffectArray value="AlexstraszaOnRubyWingsCleansingFlameApplyTokenBehavior" />
     <EffectArray value="AlexstraszaCleansingFlameDoodadSearchDummyTakeoff" />
     <EffectArray value="DismountDecloakCasterSet" />
+    <EffectArray value="ApplyMousePointUpdater" />
   </CEffectSet>
   <CEffectRemoveBehavior id="AlexstraszaCleansingFlameRemoveCasterBehavior">
     <WhichUnit Value="Caster" />
@@ -2568,6 +2637,7 @@
   <CEffectSet id="AlexstraszaWeaponImpactSet">
     <EffectArray value="UniversalWeaponImpact" />
     <EffectArray value="AlexstraszaWeaponDamage" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectSet id="AlexstraszaWeaponLaunchSet">
     <EffectArray value="UniversalWeaponLaunchSet" />
@@ -2712,8 +2782,12 @@
   </CEffectEnumArea>
   <CEffectSet id="AlexstraszaPreservationImpactSet">
     <EffectArray value="AlexstraszaPreservationCreateHealer" />
+    <EffectArray value="AlexstraszaPreservationRemovePreview" />
     <EffectArray value="AlexstraszaPacifyLifeUnboundModifyCooldownHealSet" />
   </CEffectSet>
+  <CEffectRemoveBehavior id="AlexstraszaPreservationRemovePreview">
+    <BehaviorLink value="AlexstraszaPreservationHoTPreview" />
+  </CEffectRemoveBehavior>
   <CEffectModifyTokenCount id="AlexstraszaCircleOfLifeAbundanceAddToken" parent="BaseEffectModifyTokenCount">
     <ValidatorArray value="AlexstraszaCircleOfLifeAbundanceLTMaxQuestTokens" />
     <EffectCategory index="Quest" value="1" />
@@ -2869,11 +2943,14 @@
     <SearchFlags index="OffsetAreaByAngle" value="0" />
   </CEffectEnumArea>
   <CEffectEnumArea id="AlexstraszaDragonConeWeaponSearchInside">
-    <SearchFilters value="-;Self,Player,Neutral,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
+    <SearchFilters value="-;Self,Player,Neutral,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden" />
     <AreaArray Effect="AlexstraszaDragonConeWeaponImpactSwitch">
       <RectangleWidth value="1.2" />
       <RectangleHeight value="3.6" />
     </AreaArray>
+    <RevealerParams Duration="0.75" ShapeExpansion="1">
+      <RevealFlags index="Unfog" value="1" />
+    </RevealerParams>
     <SearchFlags index="DoActorSearch" value="1" />
   </CEffectEnumArea>
   <CEffectSet id="AlexstraszaWingBuffetSearchSet">
@@ -2899,6 +2976,13 @@
     <EffectArray value="AlexstraszaPacifyModifyCooldownHealed" />
     <EffectArray value="AlexstraszaLifeUnboundModifyCooldownHealed" />
     <EffectArray value="AlexstraszaFlameWardModifyCooldownSet" />
+  </CEffectSet>
+  <CEffectSet id="AlexstraszaPacifyLifeUnboundModifyCooldownHealSetDragonCone">
+    <ValidatorArray value="TargetIsRootedOrSilencedOrStunned" />
+    <ValidatorArray value="CasterNotBlinded" />
+    <Chance value="0" />
+    <EffectArray value="AlexstraszaPacifyModifyCooldownHealed" />
+    <EffectArray value="AlexstraszaLifeUnboundModifyCooldownHealed" />
   </CEffectSet>
   <CEffectSet id="RegenGlobeImpactSet">
     <EffectArray value="AlexstraszaCircleOfLifeAbundanceRegenGlobeImpactSet" />
@@ -3009,7 +3093,7 @@
       </Modifications>
       <Modifications>
         <Catalog value="Behavior" />
-        <Entry value="AlexstraszaDragonqueen" />
+        <Entry value="AlexstraszaDragonqueenHealthIncrease" />
         <Field value="Modification.VitalMaxArray[0]" />
         <Value value="0.040000" />
         <AffectedByOverdrive value="1" />
@@ -4579,6 +4663,13 @@
       <Modifications>
         <Type value="FlatModification" />
         <Catalog value="Effect" />
+        <Entry value="AlexstraszaPacifyLifeUnboundModifyCooldownHealSetDragonCone" />
+        <Field value="Chance" />
+        <Value value="1.000000" />
+      </Modifications>
+      <Modifications>
+        <Type value="FlatModification" />
+        <Catalog value="Effect" />
         <Entry value="AlexstraszaPacifyModifyCooldownHealed" />
         <Field value="Chance" />
         <Value value="1.000000" />
@@ -4597,6 +4688,13 @@
         <Type value="FlatModification" />
         <Catalog value="Effect" />
         <Entry value="AlexstraszaPacifyLifeUnboundModifyCooldownHealSet" />
+        <Field value="Chance" />
+        <Value value="1.000000" />
+      </Modifications>
+      <Modifications>
+        <Type value="FlatModification" />
+        <Catalog value="Effect" />
+        <Entry value="AlexstraszaPacifyLifeUnboundModifyCooldownHealSetDragonCone" />
         <Field value="Chance" />
         <Value value="1.000000" />
       </Modifications>
@@ -4792,6 +4890,7 @@
     <AbilArray Link="AlexstraszaWingBuffet" />
     <AbilArray Link="AlexstraszaLifebinder" />
     <AbilArray Link="AlexstraszaCleansingFlameDragonqueen" />
+    <AbilArray Link="AlexstraszaCleansingFlame" />
     <CardLayouts index="0">
       <LayoutButtons Face="AlexstraszaBreathOfLife" Type="AbilCmd" AbilCmd="AlexstraszaBreathOfLife,Execute" Slot="Ability1" />
       <LayoutButtons Face="AlexstraszaPreservation" Type="AbilCmd" AbilCmd="AlexstraszaPreservation,Execute" Slot="Ability2" />
@@ -4830,6 +4929,11 @@
     <CombineArray value="AlexstraszaCleansingFlameIsCastingDragonqueenVersion" />
     <CombineArray value="AlexstraszaCleansingFlameHasCasterBehavior" />
   </CValidatorCombine>
+  <CValidatorLocationCompareRange id="AlexstrsazaCleansingFlameMousePointGTCastRange">
+    <WhichLocation Value="MousePoint" />
+    <Compare value="GT" />
+    <Range value="$AlexstraszaCleansingFlameCastRange" />
+  </CValidatorLocationCompareRange>
   <CValidatorUnitCompareBehaviorCount id="AlexstraszaDoesNotHaveDragonScalesDummyBehaviour">
     <WhichUnit Value="Caster" />
     <Behavior value="AlexstraszaDragonScalesDummyBehavior" />

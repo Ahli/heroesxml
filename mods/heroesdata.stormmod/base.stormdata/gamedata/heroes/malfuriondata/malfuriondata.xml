@@ -73,6 +73,7 @@
       <Cooldown TimeUse="12" />
     </Cost>
     <Range value="8" />
+    <RangeSlop value="5" />
     <UninterruptibleArray index="Cast" value="1" />
     <UninterruptibleArray index="Channel" value="1" />
     <UninterruptibleArray index="Finish" value="1" />
@@ -92,6 +93,7 @@
       <Cooldown TimeUse="3" />
     </Cost>
     <Range value="9" />
+    <RangeSlop value="5" />
     <UninterruptibleArray index="Cast" value="1" />
     <UninterruptibleArray index="Channel" value="1" />
     <UninterruptibleArray index="Finish" value="1" />
@@ -214,6 +216,12 @@
     <ApplicationRule value="Add" />
     <TokenId value="MalfurionEntanglingRootsDeepRootsTokenCounter" />
     <Scale value="14" />
+  </CAccumulatorToken>
+  <CAccumulatorToken id="MalfurionMoonfireHealAccumulator" parent="BaseAccumulator">
+    <MaxAccumulation value="15" />
+    <TokenId value="MalfurionMoonfireHeroHitCounter" />
+    <Scale value="1" />
+    <Offset value="-1" />
   </CAccumulatorToken>
   <CActorSound id="Malfurion_NaturesCure_Impact_PLR" parent="SoundOneShot">
     <Filter index="Ally" value="1" />
@@ -842,7 +850,7 @@
     <Duration value="2" />
   </CBehaviorBuff>
   <CBehaviorAbility id="MalfurionTwilightDreamAstralCommunionItem">
-    <Buttons Face="MalfurionTwilightDreamAstralCommunionTalent" Type="AbilCmd" AbilCmd="MalfurionAstralCommunion,Execute" Behavior="MalfurionTwilightDreamAstralCommunionItem" />
+    <Buttons Face="MalfurionTwilightDreamAstralCommunionTalent" Type="AbilCmd" AbilCmd="MalfurionAstralCommunion,Execute" />
   </CBehaviorAbility>
   <CBehaviorAbility id="MalfurionNaturesCureItem">
     <Buttons Face="MalfurionNaturesCure" Type="AbilCmd" AbilCmd="MalfurionNaturesCure,Execute" />
@@ -885,6 +893,11 @@
   </CBehaviorBuff>
   <CBehaviorTokenCounter id="MalfurionMoonfireLunarShowerTokenCounter" parent="StormGenericToken">
     <Max value="3" />
+    <MinStackCountDisplayed value="1" />
+    <Alignment value="Positive" />
+    <DisplayDurationProxyBehavior value="MalfurionMoonfireLunarShowerBuffDuration" />
+    <Face value="MalfurionMoonfireLunarShowerTalent" />
+    <SortIndex value="150" />
   </CBehaviorTokenCounter>
   <CBehaviorTokenCounter id="MalfurionNaturesSwiftnessTokenCounter" parent="StormGenericToken">
     <Max value="10" />
@@ -902,6 +915,9 @@
     <InfoFlags index="Hidden" value="1" />
   </CBehaviorTokenCounter>
   <CBehaviorUnitTracker id="MalfurionRegrowthUnitTracker" />
+  <CBehaviorTokenCounter id="MalfurionMoonfireHeroHitCounter" parent="StormGenericToken">
+    <Max value="15" />
+  </CBehaviorTokenCounter>
   <CBehaviorBuff id="MalfurionTranquilityArmorBehavior" parent="StormArmor">
     <RemoveValidatorArray value="MalfurionTargetHasTranquilityDummyBehavior" />
     <ArmorModification>
@@ -1202,7 +1218,7 @@
     <TooltipCooldownOverrideText value="Abil/MalfurionInnervateCooldownOverride" />
   </CButton>
   <CButton id="MalfurionMoonfireLunarShowerTalent" parent="StormButtonParent">
-    <Icon value="Assets\Textures\storm_ui_icon_malfurion_moonfire_a.dds" />
+    <Icon value="Assets\Textures\storm_ui_icon_malfurion_moonfire.dds" />
   </CButton>
   <CButton id="MalfurionRegrowthHarmonyTalent" parent="StormButtonParent">
     <Icon value="Assets\Textures\storm_ui_icon_malfurion_regrowth.dds" />
@@ -1242,10 +1258,11 @@
   </CButton>
   <CButton id="MalfurionEntanglingRoots" parent="StormButtonParent">
     <Icon value="Assets\Textures\storm_ui_icon_malfurion_entanglingroots.dds" />
-    <TooltipAppender Validator="MalfurionHasMasteryStranglingVinesEntanglingRoots" Face="MalfurionEntanglingRootsStranglingVinesTalent" />
     <TooltipAppender Validator="MalfurionHasDeepRoots" Face="MalfurionEntanglingRootsDeepRootsTalent" />
     <TooltipAppender Validator="MalfurionHasVengefulRoots" Face="MalfurionEntanglingRootsVengefulRootsTalent" />
+    <TooltipAppender Validator="MalfurionHasEntanglingRootsEmeraldDreamsTalent" Face="MalfurionEntanglingRootsEmeraldDreams" />
     <TooltipAppender Validator="MalfurionHasTenaciousRoots" Face="MalfurionEntanglingRootsTenaciousRootsTalent" />
+    <TooltipAppender Validator="MalfurionHasMasteryStranglingVinesEntanglingRoots" Face="MalfurionEntanglingRootsStranglingVinesTalent" />
   </CButton>
   <CButton id="MalfurionTranquility" parent="StormButtonParent">
     <Icon value="Assets\Textures\storm_ui_icon_malfurion_tranquility.dds" />
@@ -1417,8 +1434,25 @@
     <RechargeVital value="Energy" />
     <RechargeVitalRate value="25" />
   </CEffectCreateHealer>
-  <CEffectEnumTrackedUnits id="MalfurionRegrowthEnumerateTrackedUnits">
+  <CEffectSet id="MalfurionMoonfireHeroHitSet">
     <ValidatorArray value="TargetIsHero" />
+    <EffectArray value="MalfurionRegrowthEnumerateTrackedUnits" />
+    <EffectArray value="MalfurionMoonfireHeroHitIncrementTokenCount" />
+  </CEffectSet>
+  <CEffectModifyTokenCount id="MalfurionMoonfireHeroHitIncrementTokenCount" parent="BaseEffectModifyTokenCount">
+    <TokenId value="MalfurionMoonfireHeroHitCounter" />
+  </CEffectModifyTokenCount>
+  <CEffectEnumTrackedUnits id="MalfurionMoonfireEnumRegrowthTrackedUnitsHealer">
+    <ValidatorArray value="MalfurionMoonfireCasterHasGE1HeroHitToken" />
+    <BehaviorLink value="MalfurionRegrowthUnitTracker" />
+    <Effect value="MalfurionRegrowthMoonfireImpactCreateHealer" />
+  </CEffectEnumTrackedUnits>
+  <CEffectModifyTokenCount id="MalfurionMoonfireHeroHitResetTokens">
+    <TokenId value="MalfurionMoonfireHeroHitCounter" />
+    <ContextUnit Value="Caster" />
+    <Operation value="Set" />
+  </CEffectModifyTokenCount>
+  <CEffectEnumTrackedUnits id="MalfurionRegrowthEnumerateTrackedUnits">
     <BehaviorLink value="MalfurionRegrowthUnitTracker" />
     <Effect value="MalfurionRegrowthEnumerateTrackedUnitsSet" />
   </CEffectEnumTrackedUnits>
@@ -1427,7 +1461,6 @@
   </CEffectModifyTokenCount>
   <CEffectSet id="MalfurionRegrowthEnumerateTrackedUnitsSet">
     <EffectArray value="MalfurionRegrowthEnumerateTrackedUnitsModifyToken" />
-    <EffectArray value="MalfurionRegrowthMoonfireImpactCreateHealer" />
     <EffectArray value="MalfurionMoonfireWildGrowthModifyBehaviorDuration" />
   </CEffectSet>
   <CEffectSet id="MalfurionRegrowthFinalSet">
@@ -1470,7 +1503,9 @@
     <Cost Abil="MalfurionRegrowth,Execute" CooldownOperation="Add" CooldownTimeUse="-3" />
   </CEffectModifyUnit>
   <CEffectCreateHealer id="MalfurionRegrowthMoonfireImpactCreateHealer" parent="StormHealingSpell">
-    <RechargeVitalRate value="130" />
+    <RechargeVitalRate value="130">
+      <AccumulatorArray value="MalfurionMoonfireHealAccumulator" />
+    </RechargeVitalRate>
     <MultiplicativeModifierArray index="MoonlitHarmony" Validator="MalfurionHasMoonlitHarmony" Accumulator="MalfurionMoonlitHarmonyAccumulator" Modifier="0.2" />
   </CEffectCreateHealer>
   <CEffectSet id="MalfurionRegrowthPeriodicSet">
@@ -1680,6 +1715,7 @@
     <EffectArray value="UniversalWeaponImpact" />
     <EffectArray value="RangedAttackMalfurionDamage" />
     <EffectArray value="MalfurionHeroWeaponCelestialAlignmentTalentDummy" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectModifyUnit id="MalfurionHardenedFocusModifyCooldowns">
     <Cost Abil="MalfurionMoonfire,Execute" CooldownOperation="Add" CooldownTimeUse="-0.125" />
@@ -1791,8 +1827,12 @@
     <SpawnUnit value="MalfurionEntanglingRootsVengefulRootsTreant" />
   </CEffectCreateUnit>
   <CEffectSwitch id="MalfurionEntanglingRootsVengefulRootsTreantWeaponSwitch" parent="SummonedBasicAttackAbilityDamageMissCheck">
-    <CaseDefault value="MalfurionEntanglingRootsVengefulRootsTreantWeaponDamage" />
+    <CaseDefault value="MalfurionEntanglingRootsVengefulRootsTreantWeaponDamageSet" />
   </CEffectSwitch>
+  <CEffectSet id="MalfurionEntanglingRootsVengefulRootsTreantWeaponDamageSet">
+    <EffectArray value="StormSummonedWeaponPhysicalDamageDummy" />
+    <EffectArray value="MalfurionEntanglingRootsVengefulRootsTreantWeaponDamage" />
+  </CEffectSet>
   <CEffectDamage id="MalfurionEntanglingRootsVengefulRootsTreantWeaponDamage" parent="StormSummonedUnitWeapon">
     <Amount value="58" />
   </CEffectDamage>
@@ -1831,6 +1871,8 @@
     <EffectArray value="MoonfireAreaRevealPersistent" />
     <EffectArray value="MoonfireHarmonySearch" />
     <EffectArray value="MoonfireSearch" />
+    <EffectArray value="MalfurionMoonfireEnumRegrowthTrackedUnitsHealer" />
+    <EffectArray value="MalfurionMoonfireHeroHitResetTokens" />
     <TargetLocationType value="Point" />
   </CEffectSet>
   <CEffectApplyBehavior id="MoonfireApplyRevealBehavior">
@@ -1904,7 +1946,7 @@
     <EffectArray value="MoonfireDamage" />
     <EffectArray value="MoonfireApplyRevealBehavior" />
     <EffectArray value="MoonfireApplyHinderingMoonfireSlowMastery" />
-    <EffectArray value="MalfurionRegrowthEnumerateTrackedUnits" />
+    <EffectArray value="MalfurionMoonfireHeroHitSet" />
     <EffectArray value="MalfurionMoonfireLunarShowerApplyBehavior" />
     <EffectArray value="MalfurionMoonfireLunarShowerAddToken" />
     <EffectArray value="MalfurionTranquilitySerenityModifyCooldown" />
@@ -2322,6 +2364,7 @@
     <AllowedMountCategoryArray value="Ridebeast" />
     <AllowedMountCategoryArray value="Ridebike" />
     <AllowedMountCategoryArray value="Ridesurf" />
+    <Difficulty value="Hard" />
     <Ratings>
       <Damage value="4" />
       <Utility value="7" />
@@ -2805,6 +2848,7 @@
     <BehaviorArray Link="ExcellentMana" />
     <BehaviorArray Link="MalfurionRegrowthUnitTracker" />
     <BehaviorArray Link="MalfurionRegrowthTokenCounter" />
+    <BehaviorArray Link="MalfurionMoonfireHeroHitCounter" />
     <WeaponArray Link="HeroMalfurion" />
     <CardLayouts index="0">
       <LayoutButtons Face="MalfurionRegrowth" Type="AbilCmd" AbilCmd="MalfurionRegrowth,Execute" Slot="Ability1" />
@@ -2910,6 +2954,12 @@
     <CombineArray value="MalfurionTargetHasCastersRegrowth" />
     <CombineArray value="MalfurionNaturesBalanceCombine" />
   </CValidatorCombine>
+  <CValidatorUnitCompareTokenCount id="MalfurionMoonfireCasterHasGE1HeroHitToken">
+    <WhichUnit Value="Caster" />
+    <Compare value="GE" />
+    <Value value="1" />
+    <TokenId value="MalfurionMoonfireHeroHitCounter" />
+  </CValidatorUnitCompareTokenCount>
   <CValidatorUnitCompareBehaviorCount id="IsRevealedByMalfurionMoonfire">
     <Value value="1" />
     <Behavior value="MalfurionMoonfireReveal" />
@@ -2972,6 +3022,7 @@
     <Type value="And" />
     <CombineArray value="CasterLifeGT75Percent" />
     <CombineArray value="MalfurionHasYserasGift" />
+    <CombineArray value="CasterNotDead" />
   </CValidatorCombine>
   <CValidatorPlayerTalent id="MalfurionHasRevitalize">
     <WhichPlayer Value="Caster" />

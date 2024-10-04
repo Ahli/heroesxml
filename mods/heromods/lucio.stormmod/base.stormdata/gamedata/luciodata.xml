@@ -150,6 +150,7 @@
     <Name value="Abil/Name/LucioAttack" />
     <TargetMessage value="Abil/TargetMessage/LucioAttack" />
     <AcquireFilters value="-;Player,Ally,Dead,Hidden,Invulnerable" />
+    <ParentAbil value="attack" />
   </CAbilAttack>
   <CAbilEffectTarget id="LucioHighFive">
     <PrepEffect value="LucioHighFivePrepSet" />
@@ -523,6 +524,30 @@
       <Stop Group="EyeRight" Weight="1" Time="150" />
     </Types>
   </CActorLookAt>
+  <CActorModel id="ConfirmationLocalGroundAttack">
+    <On Terms="Confirmation.*.Start; Game Local; AbilCmd LucioTargetingAttackClick" Send="Create" />
+  </CActorModel>
+  <CActorModel id="ConfirmationSyncGroundAttack">
+    <On Terms="Confirmation.*.Start; Game Sync; AbilCmd LucioTargetingAttackClick" Send="Create" />
+  </CActorModel>
+  <CActorModel id="ConfirmationLocalGroundLucio" parent="Confirmation">
+    <On Terms="Confirmation.*.Start; Game Local; !AbilCmd LucioTargetingAttackClick; ValidateUnit LucioIsCaster" Send="Create" />
+    <On Terms="ActorCreation" Send="SetTintColor 0,255,0" />
+    <ModelFlags index="AllowHitTest" value="0" />
+    <Model value="ConfirmationLocalGround" />
+    <ModelAspectSets>
+      <Aspects Person="Observer" RegardsAs="NotSelf" Model="Invisible" />
+    </ModelAspectSets>
+  </CActorModel>
+  <CActorModel id="ConfirmationSyncGroundLucio" parent="Confirmation">
+    <On Terms="Confirmation.*.Start; Game Sync; !AbilCmd LucioTargetingAttackClick; ValidateUnit LucioIsCaster" Send="Create" />
+    <On Terms="ActorCreation" Send="SetTintColor 0,255,0" />
+    <ModelFlags index="AllowHitTest" value="0" />
+    <Model value="ConfirmationLocalGround" />
+    <ModelAspectSets>
+      <Aspects Person="Observer" RegardsAs="NotSelf" Model="Invisible" />
+    </ModelAspectSets>
+  </CActorModel>
   <CActorModel id="LucioSoundwaveLookDirection" parent="StormModelAnimationStyleContinuous">
     <HostSiteOps Ops="SOpTargetPoint SOpShadow SOpMoveUpBy2" HoldPosition="1" />
     <Model value="Invisible" />
@@ -1551,6 +1576,7 @@
     <RemoveValidatorArray value="LucioHasReverseAmp" />
     <RemoveValidatorArray value="LucioCrossfadeCasterHasHealingBoostApplier" />
     <RemoveValidatorArray value="CasterNotTimeStopped" />
+    <Face value="LucioReverseAmp" />
     <Period value="0.125" />
     <InitialEffect value="LucioReverseAmpNonstopRemixModifyTokenUp" />
     <PeriodicEffect value="LucioReverseAmpDamage" />
@@ -1937,7 +1963,7 @@
     <Icon value="Assets\Textures\storm_ui_icon_Lucio_Soundwave_B.dds" />
   </CButton>
   <CButton id="LucioSoundwaveGoodVibrations" parent="StormButtonParent">
-    <Icon value="assets\textures\storm_ui_icon_lucio_soundwave_a.dds" />
+    <Icon value="assets\textures\storm_ui_icon_lucio_soundwave.dds" />
   </CButton>
   <CButton id="LucioSoundwaveSubwoofer" parent="StormButtonParent">
     <Icon value="Assets\Textures\storm_ui_icon_Lucio_Soundwave.dds" />
@@ -2176,6 +2202,7 @@
   </CEffectApplyBehavior>
   <CEffectDamage id="LucioHighFiveMixingFireDamage" parent="StormSpell">
     <ValidatorArray value="TargetIsEnemyHero" />
+    <SourceButtonFace value="LucioHighFiveMixingFire" />
     <Amount value="160" />
     <Chance value="0" />
   </CEffectDamage>
@@ -2919,7 +2946,7 @@
     <Count value="32" />
   </CEffectApplyBehavior>
   <CEffectSwitch id="LucioSoundBarrierShieldRemoveSwitch">
-    <CaseArray Validator="LucioHasSoundBarrierBossaNovaTalent" Effect="LucioSoundBarrierBossaNovaShieldRemove" />
+    <CaseArray Validator="LucioTargetHasSoundBarrierBossaNovaShield" Effect="LucioSoundBarrierBossaNovaShieldRemove" />
     <CaseDefault value="LucioSoundBarrierShieldRemove" />
   </CEffectSwitch>
   <CEffectRemoveBehavior id="LucioSoundBarrierShieldRemove">
@@ -3195,6 +3222,7 @@
     <EffectArray value="LucioSmoothMovesCreateManaHealer" />
     <EffectArray value="LucioWeaponDamage" />
     <EffectArray value="UniversalWeaponLaunchSet" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectSet id="LucioWeaponLaunchMissileSet">
     <EffectArray value="UniversalWeaponLaunchSet" />

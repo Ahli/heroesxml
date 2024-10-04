@@ -59,6 +59,7 @@
       <Cooldown TimeUse="0.5" />
     </Cost>
     <Range value="7" />
+    <RangeSlop value="5" />
     <Arc value="360" />
     <CastIntroTime value="0.15" />
     <UninterruptibleArray index="Cast" value="1" />
@@ -146,7 +147,7 @@
     <FinishTime value="0.5" />
   </CAbilEffectTarget>
   <CAbilEffectInstant id="ThrallFrostwolfsGrace">
-    <PrepEffect value="DismountDecloakCasterSet" />
+    <PrepEffect value="DecloakCasterSet" />
     <Effect value="ThrallFrostwolfsGraceImpactSet" />
     <Cost>
       <Cooldown TimeUse="15" />
@@ -1404,13 +1405,13 @@
     <AlertTooltip value="Button/Tooltip/ThrallSpiritShield" />
   </CButton>
   <CButton id="ThrallMaelstromWeapon" parent="StormButtonParent">
-    <Icon value="Assets\Textures\storm_ui_icon_thrall_windfury_var1.dds" />
+    <Icon value="Assets\Textures\storm_ui_icon_thrall_windfury.dds" />
   </CButton>
   <CButton id="ThrallWindStalkerToken" parent="StormButtonParent">
     <Icon value="Assets\Textures\storm_ui_icon_thrall_windfury.dds" />
   </CButton>
   <CButton id="ThrallMaelstromWeaponToken" parent="StormButtonParent">
-    <Icon value="Assets\Textures\storm_ui_icon_thrall_windfury_var1.dds" />
+    <Icon value="Assets\Textures\storm_ui_icon_thrall_windfury.dds" />
     <HotkeyAlias value="ThrallWindStalkerToken" />
   </CButton>
   <CButton id="ThrallWindStalker" parent="StormButtonParent">
@@ -1589,6 +1590,7 @@
   <CEffectSwitch id="ThrallFrostwolfResilienceWindfuryImpactSwitchNoValidator">
     <CaseArray Validator="ThrallHasGraceOfAir" Effect="ThrallFrostwolfResilience2StackPersistent" />
     <CaseDefault value="ThrallFrostwolfResilienceApplySwitch" />
+    <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
   </CEffectSwitch>
   <CEffectApplyBehavior id="ThrallChainLightningThunderstormTalentApplySlow" parent="StormSlowApply">
     <ValidatorArray index="0" value="ThrallHasThunderstormTalent" />
@@ -1769,6 +1771,8 @@
     <Behavior value="ThrallChainLightningEchooftheElementsTalentDebuff" />
     <Chance value="0" />
     <ValidatorArray index="0" value="ThrallEchooftheElementsValidTargetCombine" />
+    <ValidatorArray value="SylvanasTargetUnPossessed" />
+    <ValidatorArray value="TargetNotHallucination" />
   </CEffectApplyBehavior>
   <CEffectModifyUnit id="ThrallChainLightningEchooftheElementsTalentModifyUnitCooldown">
     <Cost Abil="ThrallChainLightning,Execute" ChargeCountUse="-1" CooldownOperation="Add" />
@@ -2056,7 +2060,7 @@
     <Value value="0" />
   </CEffectModifyTokenCount>
   <CEffectModifyPlayer id="ThrallFeralSpiritFrostwolfPackTalentResetPlayer">
-    <EffectArray Operation="Set" Reference="Abil,ThrallFeralSpirit,Cost.Vital[Energy]" Value="60" />
+    <EffectArray Operation="Set" Reference="Abil,ThrallFeralSpirit,Cost.Vital[Energy]" Value="40" />
     <EffectArray Operation="Set" Reference="Abil,ThrallFeralSpirit,Cost.Cooldown.TimeUse" Value="12" />
   </CEffectModifyPlayer>
   <CEffectModifyTokenCount id="ThrallFeralSpiritFrostwolfPackTalentModifyTokenCount" parent="BaseEffectModifyTokenCount">
@@ -2101,9 +2105,17 @@
   </CEffectRemoveBehavior>
   <CEffectSet id="ThrallFeralSpiritFeralResilienceTalentRemoveBlockSet">
     <EffectArray value="BlockDummyDamage" />
-    <EffectArray value="BlockDummyDamageTarget" />
+    <EffectArray value="ThrallFeralResilienceBlockDummyDamageTarget" />
     <EffectArray value="ThrallFeralSpiritFeralResilienceTalentBlockRemoveStack" />
   </CEffectSet>
+  <CEffectDamage id="ThrallFeralResilienceBlockDummyDamageTarget">
+    <LaunchLocation Effect="ThrallFeralSpiritFeralResilienceTalentRemoveBlockSet" Value="CasterUnit" />
+    <ImpactLocation Value="TargetUnit" />
+    <Flags index="NoScaledDealtBonus" value="1" />
+    <Flags index="NoFractionDealtBonus" value="1" />
+    <Flags index="NoBehaviorResponse" value="1" />
+    <Flags index="NoDamageTimerReset" value="1" />
+  </CEffectDamage>
   <CEffectApplyBehavior id="ThrallChainLightningCrashLightningTalentApplyHeroHitMarker">
     <WhichUnit Value="Caster" />
     <Behavior value="ThrallChainLightningCrashLightningTalentHeroHitMarker" />
@@ -2318,6 +2330,7 @@
     <CaseArray Validator="ThrallHasGraceOfAir" Effect="ThrallFrostwolfResilience2StackPersistent" />
     <CaseDefault value="ThrallFrostwolfResilienceApplySwitch" />
     <ValidatorArray value="HasWindfuryEnabled" />
+    <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
   </CEffectSwitch>
   <CEffectApplyBehavior id="ThrallFeralSpiritApplyDummyMissileTimedLife">
     <WhichUnit Value="Source" />
@@ -2805,7 +2818,7 @@
   </CEffectApplyBehavior>
   <CEffectEnumArea id="ThrallFeralSpiritMissileNonHeroicSearch">
     <LaunchLocation Value="OriginPoint" />
-    <SearchFilters value="-;Player,Ally,Neutral,ImmuneToAOE,Heroic,Missile,Item,Stasis,Dead,Hidden" />
+    <SearchFilters value="-;Player,Ally,Neutral,ImmuneToAOE,Heroic,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
     <AreaArray Effect="ThrallFeralSpiritInitialImpactSet">
       <RectangleWidth value="1.25" />
       <RectangleHeight value="1.875" />
@@ -2871,9 +2884,10 @@
   </CEffectCreatePersistent>
   <CEffectSet id="ThrallWindfuryTempestFuryAttackImpactSet">
     <EffectArray value="ThrallWindfuryTempestFuryDamage" />
-    <EffectArray value="ThrallChainLightningRollingThunderMasteryProcDummy" />
+    <EffectArray value="ThrallChainLightningRollingThunderMasteryProcSet" />
     <EffectArray value="ThrallFrostwolfResilienceWindfuryImpactSwitchNoValidator" />
     <EffectArray value="ThrallWindfuryMaelstromWeaponTalentModifyTokenCount" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectSwitch id="ThrallHeroWeaponSwitch">
     <CaseArray Validator="TempestFuryCombine" Effect="ThrallWindfuryTempestFuryMasteryPersistent" />
@@ -2881,7 +2895,7 @@
   </CEffectSwitch>
   <CEffectSet id="ThrallWindfuryTempestFuryAttackImpactNoTraitSet">
     <EffectArray value="ThrallWindfuryTempestFuryDamage" />
-    <EffectArray value="ThrallChainLightningRollingThunderMasteryProcDummy" />
+    <EffectArray value="ThrallChainLightningRollingThunderMasteryProcSet" />
     <EffectArray value="ThrallWindfuryMaelstromWeaponTalentModifyTokenCount" />
   </CEffectSet>
   <CEffectDamage id="ThrallWindfuryTempestFuryDamage" parent="StormWeapon">
@@ -3101,6 +3115,7 @@
     <EffectArray value="ThrallWindfuryTempestFuryAttackImpactNoTraitSet" />
     <EffectArray value="UniversalWeaponLaunchSet" />
     <EffectArray value="ThrallWindfuryPreImpactSet" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectSet id="WindfuryStacksApplyBehaviorsSet">
     <EffectArray value="WindfuryApplyEnablerBehavior" />
@@ -3213,6 +3228,7 @@
     <EffectArray value="ThrallHeroWeaponWindfurySet" />
     <EffectArray value="ThrallWeaponAttackDamage" />
     <EffectArray value="ThrallHeroWeaponTalentImpactSet" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectLaunchMissile id="WindfuryWeaponLaunchMissile">
     <ImpactEffect value="WindfuryWeaponAttackImpactSet" />
@@ -3518,6 +3534,7 @@
     <AllowedMountCategoryArray value="Ridebeast" />
     <AllowedMountCategoryArray value="Ridebike" />
     <AllowedMountCategoryArray value="Ridesurf" />
+    <Difficulty value="Medium" />
     <Ratings>
       <Damage value="8" />
       <Utility value="5" />

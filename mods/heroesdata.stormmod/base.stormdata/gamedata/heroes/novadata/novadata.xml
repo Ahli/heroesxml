@@ -151,6 +151,7 @@
     </Cost>
     <TargetFilters value="-;Player,Ally,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
     <Range value="6.5" />
+    <RangeSlop value="5" />
     <UninterruptibleArray index="Cast" value="1" />
     <UninterruptibleArray index="Channel" value="1" />
     <UninterruptibleArray index="Finish" value="1" />
@@ -813,9 +814,10 @@
     <SortIndex value="5" />
   </CBehaviorTokenCounter>
   <CBehaviorBuff id="NovaAntiArmorShellsArmorDebuff" parent="StormArmor">
+    <BehaviorCategories index="DebuffVulnerable" value="1" />
     <Alignment value="Negative" />
     <BuffFlags index="RefreshStack" value="1" />
-    <Duration value="3" />
+    <Duration value="4" />
     <ArmorModification>
       <ArmorSet index="Hero">
         <ArmorMitigationTable index="Basic" value="-15" />
@@ -1004,12 +1006,25 @@
       <Flags index="Disabled" value="1" />
     </AINotifySettings>
   </CBehaviorBuff>
+  <CBehaviorBuff id="NovaHoloDecoyXPGlobeFinder">
+    <BehaviorFlags index="Permanent" value="1" />
+    <BehaviorFlags index="EnabledWhileDead" value="1" />
+    <DisableValidatorArray value="CasterHasNoOrders" />
+    <DisableValidatorArray value="SourceNotInShrub" />
+    <EnableEffect value="NovaHoloDecoyXPGlobeSearch" />
+    <PeriodicEffect value="NovaHoloDecoyXPGlobeSearch" />
+    <Period value="0.25" />
+  </CBehaviorBuff>
   <CBehaviorBuff id="HoloCloneReveal" parent="StormReveal">
     <Alignment value="Negative" />
     <BehaviorFlags index="EnabledWhileDead" value="1" />
     <InfoIcon value="Assets\Textures\storm_temp_btn-ability-terran-decloak-color.dds" />
     <BuffFlags index="RefreshStack" value="1" />
     <BuffFlags index="UpdateDurationWhileDisabled" value="0" />
+  </CBehaviorBuff>
+  <CBehaviorBuff id="NovaApolloSuitAbilityRevealRemoveCarry" parent="CarryBehaviorParent">
+    <DisableValidatorArray value="TargetNotInCombat1Sec" />
+    <EnableEffect value="AbilityImpactRevealRemove" />
   </CBehaviorBuff>
   <CBehaviorBuff id="NovaPermanentCloakDisableController" parent="StormPersistentCloakController" />
   <CBehaviorBuff id="NovaPermanentCloak" parent="StormPersistentCloak">
@@ -1118,7 +1133,7 @@
     <Icon value="Assets\Textures\storm_ui_icon_nova_pinningshot_var1.dds" />
   </CButton>
   <CButton id="NovaHoloDecoyRapidProjectionTalent" parent="StormButtonParent">
-    <Icon value="Assets\Textures\storm_ui_icon_nova_holodecoy_var1.dds" />
+    <Icon value="Assets\Textures\storm_ui_icon_nova_holodecoy.dds" />
   </CButton>
   <CButton id="NovaPerfectShotTalent" parent="StormButtonParent">
     <Icon value="Assets\Textures\storm_ui_icon_nova_snipe.dds" />
@@ -1538,7 +1553,8 @@
   </CEffectCreatePersistent>
   <CEffectModifyUnit id="NovaAntiArmorShellsTargetingImpactDummy" />
   <CEffectDamage id="NovaRangedAttackNovaAntiArmorShellsDamage" parent="StormWeapon">
-    <Amount value="262" />
+    <Amount value="105" />
+    <MultiplicativeModifierArray index="AntiArmor" Validator="HasNovaCombatStyleAntiArmorShells" Modifier="1.5" />
   </CEffectDamage>
   <CEffectSet id="NovaSnipeInitialSet">
     <EffectArray value="SnipeCreatePersistent" />
@@ -1564,7 +1580,6 @@
     <Behavior value="NovaSnipePerfectShotBehavior" />
   </CEffectApplyBehavior>
   <CEffectSet id="NovaSnipeSecondaryImpactSet">
-    <EffectArray value="SnipeImpactCreatePersistentReveal" />
     <EffectArray value="CameraShakeMediumTauntingTotemSet" />
     <EffectArray value="NovaSnipeModifyCooldown" />
     <EffectArray value="ApplyAbilityImpactReveal" />
@@ -1620,9 +1635,10 @@
     <Flags index="NoKillCredit" value="0" />
   </CEffectDamage>
   <CEffectSet id="RangedAttackNovaImpactSet">
-    <EffectArray value="NovaAntiArmorShellsApplyArmorDebuff" />
     <EffectArray value="UniversalWeaponImpact" />
     <EffectArray value="RangedAttackNovaDamage" />
+    <EffectArray value="NovaAntiArmorShellsApplyArmorDebuff" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectApplyBehavior id="TripleTapInitialApplyMissileScan">
     <WhichUnit Value="Source" />
@@ -1762,6 +1778,7 @@
   <CEffectSet id="HoloDecoyAttackSet">
     <EffectArray value="HoloDecoyWeaponDamage" />
     <EffectArray value="NovaHoloDecoyWeaponRelicDamageSwitch" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectApplyBehavior id="HoloDecoyApplyActiveBehavior">
     <Chance value="0" />
@@ -1841,6 +1858,19 @@
     </AreaArray>
     <Chance value="0" />
   </CEffectEnumArea>
+  <CEffectEnumArea id="NovaHoloDecoyXPGlobeSearch">
+    <SearchFilters value="Benign;Player,Neutral,Enemy,Heroic" />
+    <AreaArray MaxCount="1" Effect="NovaHoloDecoyXPGlobeIssueMoveOrder">
+      <Radius value="10" />
+    </AreaArray>
+  </CEffectEnumArea>
+  <CEffectIssueOrder id="NovaHoloDecoyXPGlobeIssueMoveOrder">
+    <ValidatorArray value="TargetIsExperienceGlobeMinion" />
+    <WhichUnit Value="Source" />
+    <Abil value="move" />
+    <Player Value="Caster" />
+    <Target Value="TargetPoint" />
+  </CEffectIssueOrder>
   <CEffectDamage id="HoloDecoyExplodeDamage" parent="StormSpell">
     <ValidatorArray value="noMarkers" />
     <Visibility value="Hidden" />
@@ -1934,6 +1964,7 @@
     <EffectArray value="TripleTapMissileScanDestroyPersistent" />
     <EffectArray value="CameraShakeLightTauntingTotemSet" />
     <EffectArray value="TripleTapSuicideRemove" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
     <ValidatorArray value="TargetIsHeroOrStructure" />
   </CEffectSet>
   <CEffectCreatePersistent id="TripleTapCreateLaunchPersistent">
@@ -2067,6 +2098,7 @@
   </CEffectCreatePersistent>
   <CEffectSet id="PrecisionStrikeSet">
     <EffectArray value="PrecisionStrikeDamage" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
     <EffectArray value="PrecisionStrikeDummy" />
   </CEffectSet>
   <CEffectDamage id="PrecisionStrikeDamage" parent="StormSpell">
@@ -2211,14 +2243,16 @@
   </CEffectEnumArea>
   <CEffectSet id="NovaSnipeExplosiveShotImpactSet">
     <EffectArray value="NovaSnipeExplosiveShotDamageSwitch" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
     <EffectArray value="NovaSnipeModifyCooldown" />
   </CEffectSet>
   <CEffectDamage id="SnipeExplosiveDamage" parent="StormSpell">
-    <Amount value="207" />
+    <Amount value="230" />
     <ValidatorArray value="noMarkers" />
     <SourceButtonFace value="NovaSnipeExplosiveRoundTalent" />
     <MultiplicativeModifierArray index="PrecisionSniperBase" Accumulator="NovaPrecisionSniperAccumulator" />
     <MultiplicativeModifierArray index="PrecisionSniperMax" Validator="NovaHas5StacksOfPrecisionSniper" Modifier="0.25" />
+    <MultiplicativeModifierArray index="ExplosiveSnipe" Modifier="-0.1" />
     <DamageModifierSource Value="Creator" />
   </CEffectDamage>
   <CHero id="Nova" parent="LegacyVOHero">
@@ -2318,7 +2352,7 @@
       <TalentsArray value="NovaMasteryCripplingShot" />
       <TalentsArray value="NovaMasteryPrecisionBarrage" />
     </TalentAIBuildsArray>
-    <Difficulty value="Medium" />
+    <Difficulty value="Hard" />
     <HeroTierAchievementId value="5216701565561171412" />
     <Gender value="Female" />
     <LevelScalingArray Ability="NovaSnipeStorm">
@@ -2532,7 +2566,6 @@
     <AllowedMountCategoryArray value="Ridebike" />
     <AllowedMountCategoryArray value="Ridesurf" />
     <Flags index="GoodForModeA" value="1" />
-    <Flags index="GoodForModeB" value="1" />
     <Ratings>
       <Damage value="10" />
       <Utility value="4" />
@@ -2742,6 +2775,9 @@
   </CTalent>
   <CTalent id="NovaApolloSuit">
     <Face value="NovaGhostProtocolApolloSuitTalent" />
+    <RankArray>
+      <BehaviorArray value="NovaApolloSuitAbilityRevealRemoveCarry" />
+    </RankArray>
     <AbilityModificationArray>
       <Modifications>
         <Type value="FlatModification" />
@@ -3143,7 +3179,7 @@
         <Catalog value="Behavior" />
         <Entry value="NovaPermanentCloak" />
         <Field value="Modification.VitalRegenArray[Energy]" />
-        <Value value="3.000000" />
+        <Value value="6.000000" />
       </Modifications>
       <Modifications>
         <Type value="FlatModification" />
@@ -3253,9 +3289,7 @@
     </RankArray>
   </CTalent>
   <CUnit id="NovaHoloClone" parent="StormBasicHeroicUnit">
-    <DeathRevealDuration value="1" />
-    <DeathRevealType value="Vision" />
-    <FlagArray index="VisionTestCenterOnly" value="0" />
+    <DeathRevealRadius value="3" />
     <FlagArray index="CreateAITreeOnSpawn" value="1" />
     <Collide index="Ground" value="0" />
     <Collide index="Structure" value="1" />
@@ -3278,6 +3312,7 @@
     <BehaviorArray Link="ExcellentMana" />
     <BehaviorArray Link="HeroGenericPermanentHallucinationFlag" />
     <BehaviorArray Link="VitalAliasUnitTracker" />
+    <BehaviorArray Link="NovaHoloDecoyXPGlobeFinder" />
     <WeaponArray Link="HoloCloneWeapon" />
     <CardLayouts>
       <LayoutButtons Face="NovaSnipe" Type="AbilCmd" AbilCmd="NovaSnipeStorm,Execute" Slot="Ability1" />

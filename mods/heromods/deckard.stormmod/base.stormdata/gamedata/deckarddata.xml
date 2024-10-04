@@ -10,6 +10,7 @@
       <Cooldown TimeUse="4" />
     </Cost>
     <Range value="8" />
+    <RangeSlop value="5" />
     <Arc value="360" />
     <CastIntroTime value="0.125" />
     <UninterruptibleArray index="Cast" value="1" />
@@ -36,6 +37,7 @@
       <Cooldown TimeUse="16" />
     </Cost>
     <Range value="12" />
+    <RangeSlop value="5" />
     <CastIntroTime value="0.1875" />
     <UninterruptibleArray index="Cast" value="1" />
     <UninterruptibleArray index="Channel" value="1" />
@@ -57,6 +59,7 @@
       <Cooldown TimeUse="12" />
     </Cost>
     <Range value="12" />
+    <RangeSlop value="5" />
     <Arc value="360" />
     <CastIntroTime value="0.125" />
     <UninterruptibleArray index="Cast" value="1" />
@@ -100,6 +103,7 @@
     <Cost>
       <Cooldown TimeUse="0.75" />
     </Cost>
+    <ParentAbil value="DeckardStayAWhileAndListen" />
   </CAbilEffectInstant>
   <CAbilEffectInstant id="DeckardGemSapphire">
     <Effect value="DeckardGemSapphireInitialSet" />
@@ -1373,7 +1377,9 @@
   </CBehaviorBuff>
   <CBehaviorBuff id="DeckardSuperHealingPotionActive" />
   <CBehaviorBuff id="DeckardPotionOfShieldingShield" parent="StormShield">
-    <DamageResponse Priority="45" ModifyLimit="140" />
+    <DamageResponse Priority="45" ModifyLimit="140">
+      <ModifyScoreArray index="0" Value="Healing" />
+    </DamageResponse>
     <Duration value="6" />
   </CBehaviorBuff>
   <CBehaviorBuff id="DeckardBottomlessFlask">
@@ -1458,15 +1464,6 @@
     <InfoIcon value="Assets\Textures\storm_ui_icon_deckard_horadric_staff.dds" />
     <SortIndex value="100" />
     <FinalEffect value="DeckardHoradricStaffApplyCooldown" />
-    <DamageResponse>
-      <Chance value="1" />
-      <Handled value="DeckardHoradricStaffStunImpactSet" />
-      <TargetFilters value="Heroic;-" />
-      <Location value="Attacker" />
-      <ValidatorArray value="CasterNotBlinded" />
-      <Kind index="Splash" value="0" />
-      <Kind index="Ability" value="0" />
-    </DamageResponse>
   </CBehaviorBuff>
   <CBehaviorBuff id="DeckardFortitudeOfTheFaithfulSafetyInNumbersManaRegeneration" parent="CarryBehaviorParent">
     <Alignment value="Positive" />
@@ -1505,6 +1502,10 @@
     <MaxStackCount value="2" />
   </CBehaviorBuff>
   <CBehaviorBuff id="DeckardRespectTheElderlyBlind" parent="StormBlind">
+    <Duration value="3" />
+  </CBehaviorBuff>
+  <CBehaviorBuff id="DeckardRespectTheElderlyNonHeroesBlind" parent="StormBlindNonHeroes">
+    <RemoveValidatorArray value="DeckardTargetHasRespectTheElderlyBlind" />
     <Duration value="3" />
   </CBehaviorBuff>
   <CBehaviorBuff id="DeckardRespectTheElderlySilence" parent="StormSilence">
@@ -1560,6 +1561,7 @@
     <PeriodicEffect value="DeckardRejuvenationPotionHeal" />
     <PeriodicDisplayEffect value="DeckardRejuvenationPotionHeal" />
     <BuffFlags index="RefreshStack" value="1" />
+    <RemoveValidatorArray value="TargetNotSpecialDeathState" />
   </CBehaviorBuff>
   <CBehaviorBuff id="DeckardMorenadosCooldown">
     <Duration value="0.5" />
@@ -1691,10 +1693,13 @@
     <RequireCaster Value="Caster" />
   </CEffectDestroyPersistent>
   <CEffectApplyBehavior id="DeckardHoradricStaffStunApply">
+    <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
+    <ValidatorArray value="DeckardHasHoradricStaffActive" />
     <Behavior value="DeckardHoradricStaffStun" />
-    <ValidatorArray value="TargetNotEvading" />
   </CEffectApplyBehavior>
   <CEffectSet id="DeckardHoradricStaffStunImpactSet">
+    <ValidatorArray value="TargetIsHero" />
+    <ValidatorArray value="DeckardHasHoradricStaffTalent" />
     <EffectArray value="DeckardHoradricStaffStunApply" />
     <EffectArray value="DeckardHoradricStaffActiveRemove" />
   </CEffectSet>
@@ -2041,7 +2046,9 @@
   <CEffectSet id="DeckardWeaponAttackSet">
     <EffectArray value="UniversalWeaponLaunchSet" />
     <EffectArray value="DeckardWeaponDamage" />
+    <EffectArray value="DeckardHoradricStaffStunImpactSet" />
     <EffectArray value="UniversalWeaponImpact" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectDamage id="DeckardWeaponDamage" parent="StormWeapon">
     <Amount value="63" />
@@ -2292,6 +2299,7 @@
     <EffectArray value="DeckardKanaisCubeDamageReductionApply" />
     <EffectArray value="DeckardCubeMasteryModifyCooldown" />
     <EffectArray value="DeckardHoradricCubeActiveMissileSuicide" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
     <TargetLocationType value="Point" />
   </CEffectSet>
   <CEffectApplyBehavior id="DeckardHoradricCubeActiveSlowApply">
@@ -2313,11 +2321,11 @@
   </CEffectDamage>
   <CEffectEnumArea id="DeckardAncientBlessingsAoESearch">
     <ImpactLocation Value="TargetPoint" />
-    <SearchFilters value="-;Player,Ally,Neutral,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
+    <SearchFilters value="-;Self,Player,Ally,Neutral,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
     <AreaArray Effect="DeckardAncientBlessingsAoEImpactSet">
       <Radius value="2.5" />
     </AreaArray>
-    <RevealerParams Duration="1">
+    <RevealerParams Duration="0.75" ShapeExpansion="1">
       <RevealFlags index="Unfog" value="1" />
     </RevealerParams>
     <SearchFlags index="DoActorSearch" value="1" />
@@ -2341,7 +2349,7 @@
   </CEffectCreateHealer>
   <CEffectEnumArea id="DeckardAncientBlessingsHealAoESearch">
     <ImpactLocation Value="TargetPoint" />
-    <SearchFilters value="Heroic;Player,Ally,Neutral,ImmuneToAOE,ImmuneToFriendlyAbilities,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
+    <SearchFilters value="Heroic;Player,Ally,Neutral,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
     <AreaArray Effect="DeckardAncientBlessingsHealCreateHealer">
       <Radius value="2.5" />
     </AreaArray>
@@ -2723,7 +2731,7 @@
     <Behavior value="DeckardLesserHealingPotionTimedLife" />
   </CEffectApplyBehavior>
   <CEffectApplyBehavior id="DeckardScrollOfIdentifyApplyBehavior">
-    <Chance value="0" />
+    <ValidatorArray value="DeckardCasterHasGTE15ScrollOfIdentifyTokens" />
     <Behavior value="DeckardScrollOfSealingScrollOfIdentifyTalentReveal" />
   </CEffectApplyBehavior>
   <CEffectApplyBehavior id="DeckardHoradricStaffActiveApply">
@@ -2754,6 +2762,7 @@
   </CEffectApplyBehavior>
   <CEffectSet id="DeckardRespectTheElderlyImpactSet">
     <EffectArray value="DeckardRespectTheElderlyBlindApply" />
+    <EffectArray value="DeckardRespectTheElderlyNonHeroesBlindApply" />
     <EffectArray value="DeckardRespectTheElderlySilenceApply" />
     <ValidatorArray value="DeckardHasRespectTheElderlyTalent" />
     <ValidatorArray value="IsHeroAndNotVehicle" />
@@ -2761,6 +2770,10 @@
   </CEffectSet>
   <CEffectApplyBehavior id="DeckardRespectTheElderlyBlindApply" parent="StormBlindApply">
     <Behavior value="DeckardRespectTheElderlyBlind" />
+    <ValidatorArray value="TargetNotDead" />
+  </CEffectApplyBehavior>
+  <CEffectApplyBehavior id="DeckardRespectTheElderlyNonHeroesBlindApply" parent="StormBlindApply">
+    <Behavior value="DeckardRespectTheElderlyNonHeroesBlind" />
     <ValidatorArray value="TargetNotDead" />
   </CEffectApplyBehavior>
   <CEffectApplyBehavior id="DeckardRespectTheElderlySilenceApply">
@@ -2802,6 +2815,8 @@
   </CEffectApplyBehavior>
   <CEffectSet id="DeckardRejuvenationPotionImpactSet">
     <ValidatorArray value="DeckardHasRejuvenationPotionTalent" />
+    <EffectArray value="DeckardRejuvenationPotionBuffApply" />
+    <EffectArray value="DeckardRejuvenationPotionMana" />
   </CEffectSet>
   <CEffectApplyBehavior id="DeckardRejuvenationPotionBuffApply">
     <Behavior value="DeckardRejuvenationPotionBuff" />
@@ -2853,7 +2868,7 @@
   <CEffectApplyBehavior id="DeckardMorenadosCooldownApply">
     <WhichUnit Value="Caster" />
     <Behavior value="DeckardMorenadosCooldown" />
-    <ValidatorArray index="0" value="DeckardDoesNotHaveMorenadosCooldown" />
+    <ValidatorArray index="0" value="DeckardMorenadosCooldownValidator" />
   </CEffectApplyBehavior>
   <CEffectDamage id="DeckardHealingPotionSuicide" parent="StormSuicideParent">
     <Flags index="NoKillCredit" value="0" />
@@ -3030,13 +3045,6 @@
       </Modifications>
     </LevelScalingArray>
     <LevelScalingArray>
-      <Modifications>
-        <Catalog value="Effect" />
-        <Entry value="DeckardAncientBlessingsAoEDamage" />
-        <Field value="Amount" />
-        <Value value="0.040000" />
-        <AffectedByOverdrive value="1" />
-      </Modifications>
       <Modifications>
         <Catalog value="Effect" />
         <Entry value="DeckardAncientBlessingsHealCreateHealer" />
@@ -3714,15 +3722,6 @@
   <CTalent id="DeckardScrollOfIdentify">
     <Face value="DeckardScrollOfIdentify" />
     <Abil value="DeckardScrollOfSealing" />
-    <AbilityModificationArray>
-      <Modifications>
-        <Type value="FlatModification" />
-        <Catalog value="Effect" />
-        <Entry value="DeckardScrollOfIdentifyApplyBehavior" />
-        <Field value="Chance" />
-        <Value value="1.000000" />
-      </Modifications>
-    </AbilityModificationArray>
     <QuestData StackBehavior="DeckardScrollOfIdentifyToken" />
     <RankArray>
       <BehaviorArray value="DeckardScrollOfIdentifyToken" />
@@ -3831,6 +3830,7 @@
     <InnerRadius value="0.625" />
     <InitializerFunction value="libHDEC_gf_HeroDeckardIncrementHeroCountFunction" />
     <DestructionFunction value="libHDEC_gf_HeroDeckardDecrementHeroCountFunction" />
+    <TauntDuration index="Dance" value="6.4" />
     <AIThinkTree value="AI\Deckard.aitree" />
     <HeroPlaystyleFlags index="AllyHealer" value="1" />
     <HeroPlaystyleFlags index="EnergyImportant" value="1" />
@@ -4067,6 +4067,10 @@
   <CValidatorUnitCompareBehaviorCount id="TargetHasAncientBlessingsCasterBehavior">
     <Value value="1" />
     <Behavior value="DeckardAncientBlessingsCasterBehavior" />
+  </CValidatorUnitCompareBehaviorCount>
+  <CValidatorUnitCompareBehaviorCount id="DeckardTargetHasRespectTheElderlyBlind">
+    <Compare value="GT" />
+    <Behavior value="DeckardRespectTheElderlyBlind" />
   </CValidatorUnitCompareBehaviorCount>
   <CValidatorUnitHasBehavior id="DeckardGemSapphireCasterHasBuff">
     <WhichUnit Value="Caster" />

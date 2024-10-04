@@ -115,6 +115,7 @@
       <Cooldown TimeUse="30" />
     </Cost>
     <CmdButtonArray index="Execute" DefaultButtonFace="GarroshArmorUpDoubleUp" Requirements="GarroshHasDoubleUpCarryBehavior" />
+    <SharedFlags index="AllowQuickCastCustomization" value="0" />
   </CAbilEffectInstant>
   <CAbilEffectTarget id="GarroshArmorUpBodyCheck">
     <PrepEffect value="DismountDecloakCasterSet" />
@@ -134,6 +135,7 @@
     </Cost>
     <TargetFilters value="Visible;Player,Ally,Neutral,Structure,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
     <Range value="3" />
+    <RangeSlop value="5" />
     <CastIntroTime value="0.125" />
     <UninterruptibleArray index="Cast" value="1" />
     <UninterruptibleArray index="Channel" value="1" />
@@ -1002,7 +1004,6 @@
     <ArmorModification StackCount="1" />
   </CBehaviorBuff>
   <CBehaviorBuff id="GarroshGroundbreakerIntimidationAttackSpeedSlow" parent="StormDamageReductionAttackSpeedSlow">
-    <BehaviorCategories index="DebuffAutoattackDPS" value="1" />
     <Duration value="4" />
     <Modification>
       <AdditiveAttackSpeedFactor value="-0.3" />
@@ -1143,7 +1144,7 @@
     <RemoveValidatorArray value="GarroshTargetHasWreckingBallDisplacementBehavior" />
   </CBehaviorBuff>
   <CButton id="GarroshArmorUpSeasonedSoldier" parent="StormButtonParent">
-    <Icon value="Assets\Textures\storm_ui_icon_garrosh_armor_up.dds" />
+    <Icon value="Assets\Textures\storm_ui_icon_garrosh_bloodthirst.dds" />
     <TooltipFlags index="ShowCooldown" value="0" />
   </CButton>
   <CButton id="GarroshArmorUpFace" parent="StormButtonParentTrait">
@@ -1202,7 +1203,7 @@
     <Icon value="Assets\Textures\storm_ui_icon_garrosh_groundbreaker.dds" />
   </CButton>
   <CButton id="GarroshGroundbreakerMortalCombo" parent="StormButtonParent">
-    <Icon value="Assets\Textures\storm_ui_icon_garrosh_wrecking_ball.dds" />
+    <Icon value="Assets\Textures\storm_ui_icon_garrosh_groundbreaker.dds" />
   </CButton>
   <CButton id="GarroshGroundbreakerWarbreaker" parent="StormButtonParent">
     <Icon value="Assets\Textures\storm_ui_icon_garrosh_groundbreaker.dds" />
@@ -1215,7 +1216,7 @@
     <TooltipAppender Validator="GarroshHasArmorUpSeasonedSoldierTalent" Face="GarroshArmorUpSeasonedSoldier" />
   </CButton>
   <CButton id="GarroshWreckingBallEarthshaker" parent="StormButtonParent">
-    <Icon value="Assets\Textures\storm_ui_icon_garrosh_intothefray.dds" />
+    <Icon value="Assets\Textures\storm_ui_icon_garrosh_wrecking_ball.dds" />
   </CButton>
   <CButton id="GarroshDecimateDeadlyCalm" parent="StormButtonParent">
     <Icon value="Assets\Textures\storm_ui_icon_garrosh_decimate.dds" />
@@ -1338,6 +1339,7 @@
     <EffectArray value="UniversalWeaponLaunchSet" />
     <EffectArray value="GarroshThirstforBattleBloodthirstModifyCooldown" />
     <EffectArray value="GarroshOppressorApplyBehavior" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectDamage id="GarroshWeaponDamage" parent="StormWeapon">
     <Amount value="137" />
@@ -1520,6 +1522,7 @@
     <EffectArray value="GarroshWreckingBallApplySlow" />
     <EffectArray value="GarroshWreckingBallStunApplyBehavior" />
     <EffectArray value="GarroshWreckingBallDamageSwitch" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
   </CEffectSet>
   <CEffectRemoveBehavior id="GarroshGroundbreakerMortalComboRemoveCasterBehavior">
     <WhichUnit Value="Caster" />
@@ -1541,6 +1544,7 @@
     <EffectArray value="GarroshIntotheFrayLoktarOgarModifyCooldown" />
     <EffectArray value="GarroshWreckingBallDamage" />
     <EffectArray value="GarroshWreckingBallApplySlow" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
   </CEffectSet>
   <CEffectSet id="GarroshWreckingBallFinishSet">
     <EffectArray value="GarroshWreckingBallUnstoppableRemoveBehavior" />
@@ -1705,6 +1709,7 @@
     <EffectArray value="GarroshDecimateDeadlyCalmDamageReductionApplyBehavior" />
     <EffectArray value="GarroshDecimateModifyCooldown" />
     <EffectArray value="GarroshDecimateDamage" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
   </CEffectSet>
   <CEffectDamage id="GarroshDecimateDamage" parent="StormSpell">
     <AttributeFactor index="Heroic" value="1" />
@@ -1868,7 +1873,8 @@
   </CEffectSwitch>
   <CEffectDamage id="GarroshWreckingBallUnrivaledStrengthDamage" parent="StormSpell">
     <ImpactLocation Value="TargetUnit" />
-    <Amount value="204.75" />
+    <Amount value="91" />
+    <MultiplicativeModifierArray index="UnrivalStrength" Modifier="1.25" />
   </CEffectDamage>
   <CEffectModifyUnit id="GarroshThirstforBattleBloodthirstModifyCooldown">
     <ValidatorArray value="TargetIsHero" />
@@ -2165,6 +2171,12 @@
       <Flags index="AffectedByCooldownReduction" value="1" />
       <Flags index="AffectedByOverdrive" value="1" />
     </HeroAbilArray>
+    <HeroAbilArray Abil="GarroshWreckingBallIntotheFray" Button="GarroshWreckingBallIntotheFray">
+      <Flags index="ShowInHeroSelect" value="1" />
+      <Flags index="ShowInQuickCastSetting" value="1" />
+      <Flags index="AffectedByCooldownReduction" value="1" />
+      <Flags index="AffectedByOverdrive" value="1" />
+    </HeroAbilArray>
     <HeroAbilArray Abil="GarroshWarlordsChallenge" Button="GarroshWarlordsChallenge">
       <Flags index="ShowInHeroSelect" value="1" />
       <Flags index="AffectedByCooldownReduction" value="1" />
@@ -2181,11 +2193,6 @@
       <Flags index="AffectedByCooldownReduction" value="1" />
       <Flags index="Trait" value="1" />
       <Flags index="HideHotkey" value="1" />
-    </HeroAbilArray>
-    <HeroAbilArray Abil="GarroshWreckingBallIntotheFray" Button="GarroshWreckingBallIntotheFray">
-      <Flags index="ShowInQuickCastSetting" value="1" />
-      <Flags index="AffectedByCooldownReduction" value="1" />
-      <Flags index="AffectedByOverdrive" value="1" />
     </HeroAbilArray>
     <HeroAbilArray Abil="GarroshArmorUpDoubleUp" Button="GarroshArmorUpDoubleUp">
       <Flags index="ShowInQuickCastSetting" value="1" />
@@ -2228,7 +2235,7 @@
     <TalentTreeArray Talent="GarroshArmorUpInnerRage" Tier="7" Column="4">
       <PrerequisiteTalentArray value="GarroshArmorUpBodyCheck" />
     </TalentTreeArray>
-    <Difficulty value="Medium" />
+    <Difficulty value="Hard" />
     <Universe value="Warcraft" />
     <UniverseIcon value="Assets\Textures\ui_glues_store_gameicon_wow.dds" />
     <ProductId value="24949" />
@@ -3136,7 +3143,6 @@
         <Value value="-1.000000" />
       </Modifications>
     </AbilityModificationArray>
-    <Active value="1" />
   </CTalent>
   <CTalent id="GarroshIndomitable">
     <Face value="GarroshIndomitable" />
@@ -3348,7 +3354,6 @@
         <Value value="1.000000" />
       </Modifications>
     </AbilityModificationArray>
-    <Active value="1" />
   </CTalent>
   <CTalent id="GarroshWreckingBallTitanicMight">
     <Face value="GarroshWreckingBallTitanicMight" />

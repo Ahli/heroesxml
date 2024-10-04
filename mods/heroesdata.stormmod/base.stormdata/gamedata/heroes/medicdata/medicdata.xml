@@ -146,6 +146,7 @@
     <ProducedUnitArray value="MedicMedivacDropship" />
     <PlaceUnit value="MedicMedivacDropshipDropoffLocationUnit" />
     <Range value="100" />
+    <RangeSlop value="5" />
     <Arc value="360" />
     <CastIntroTime value="1" />
     <FinishTime value="0.25" />
@@ -1101,6 +1102,7 @@
     <DisplayDuration index="Ally" value="1" />
     <DisplayDuration index="Neutral" value="1" />
     <DisplayDuration index="Enemy" value="1" />
+    <Face value="MedicHospiceCare" />
     <Duration value="1" />
     <DamageResponse>
       <Chance value="1" />
@@ -1131,6 +1133,7 @@
     <PeriodicEffect value="MedicHealingBeamExtendedCareTalentCreateHealer" />
     <PeriodicDisplayEffect value="MedicHealingBeamExtendedCareTalentCreateHealer" />
     <FinalEffect value="MedicHealingBeamExtendedCareTalentRemoveUIBuff" />
+    <Face value="MedicExtendedCare" />
   </CBehaviorBuff>
   <CBehaviorBuff id="MedicHealingBeamExtendedCareTalentHoTCoolup">
     <RemoveValidatorArray value="MedicHasHealingBeamDisplayBuffTarget" />
@@ -1171,6 +1174,7 @@
   <CBehaviorUnitTracker id="MedicSafeguardMediDroneTalentUnitTracker">
     <BehaviorFlags index="Permanent" value="1" />
     <BehaviorFlags index="EnabledWhileDead" value="1" />
+    <TrackingValidatorArray value="TargetNotSpecialDeathState" />
   </CBehaviorUnitTracker>
   <CBehaviorBuff id="MedicStimDroneMovementSpeedBuff" parent="StormSprint">
     <Modification>
@@ -1574,7 +1578,6 @@
     <PeriodicDisplayEffect value="MedicHealingBeamCreateHealer" />
   </CBehaviorBuff>
   <CBehaviorBuff id="MedicHealingBeamPreventativeCareMasteryDebuff" parent="StormDamageReductionAttackSpeedSlow">
-    <BehaviorCategories index="DebuffAutoattackDPS" value="1" />
     <Duration value="2.5" />
     <Modification>
       <AdditiveAttackSpeedFactor value="-0.25" />
@@ -1847,6 +1850,7 @@
   <CEffectDamage id="MedicDisplacementGrenadeBedsideMannerTalentProcDamage" parent="StormSpellPercentDamage">
     <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
     <VitalFractionMax index="Life" value="0.06" />
+    <Flags index="Crit" value="1" />
   </CEffectDamage>
   <CEffectRemoveBehavior id="MedicDisplacementGrenadeBedsideMannerTalentRemoveMarker">
     <BehaviorLink value="MedicDisplacementGrenadeBedsideMannerTalentMarker" />
@@ -2737,6 +2741,7 @@
     <EffectArray value="MedicHeroWeaponCaduceusFeedbackTalentHeroModifyMana" />
     <EffectArray value="MedicHeroWeaponBedsideMannerTalentDamage" />
     <EffectArray value="MedicDisplacementGrenadeBedsideMannerBasicAttackProcSet" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectSet id="MedicHeroWeaponInitialSet">
     <EffectArray value="UniversalWeaponLaunchSet" />
@@ -2847,6 +2852,7 @@
   </CEffectSet>
   <CEffectCreateHealer id="MedicHealingBeamCreateHealer" parent="StormHealingSpell">
     <RechargeVitalRate value="86" />
+    <SourceButtonFace value="MedicHealingBeam" />
     <MultiplicativeModifierArray index="FirstResponder" Validator="MedicFirstResponderTalentCombine" Modifier="0.2" Crit="1" />
   </CEffectCreateHealer>
   <CEffectCreatePersistent id="MedicHealingBeamCreatePersistent">
@@ -2884,6 +2890,7 @@
     <ValidatorArray value="MedicDoesNotHaveHealingBeamBuffTarget" />
     <MultiplicativeModifierArray index="FirstResponder" Validator="MedicFirstResponderTalentCombine" Modifier="0.2" Crit="1" />
     <RechargeVitalRate value="64.5" />
+    <SourceButtonFace value="MedicMediDrone" />
   </CEffectCreateHealer>
   <CEffectSet id="MedicHealingBeamPersistentSet">
     <EffectArray value="MedicHealingBeamApplyPeriodicBehaviorsSet" />
@@ -4412,6 +4419,7 @@
     <CombineArray value="MedicHealingBeamBehaviorNegatorCombine" />
     <CombineArray value="TargetIsNotImmuneToFriendlyAbilities" />
     <CombineArray value="TargetNotBenignOrIsHealingDummy" />
+    <CombineArray value="TargetIsNotEnemy" />
   </CValidatorCombine>
   <CValidatorLocationCompareRange id="MedicStimDroneTargetNotAtExcessiveRange">
     <WhichLocation Effect="MedicStimDroneCreatePersistent" Value="TargetUnit" />

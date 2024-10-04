@@ -24,6 +24,7 @@
       <Cooldown TimeUse="15" />
     </Cost>
     <Range value="8" />
+    <RangeSlop value="5" />
     <CursorEffect value="AmazonBlindingLightTargetSearch" />
     <Arc value="360" />
   </CAbilEffectTarget>
@@ -133,13 +134,19 @@
     <Arc value="360" />
   </CAbilEffectTarget>
   <CAbilEffectInstant id="AmazonSurgeOfLight">
-    <CmdButtonArray index="Execute" DefaultButtonFace="AmazonAvoidance" Requirements="AmazonAvoidanceSurgeOfLightHasReadyBehavior" />
+    <CmdButtonArray index="Execute" DefaultButtonFace="AmazonAvoidance" ShowValidator="AmazonHasSurgeOfLightPickedTalent" />
     <PrepEffect value="DismountDecloakCasterSet" />
     <Effect value="AmazonAvoidanceSurgeOfLightActivateSet" />
     <Flags index="ClearLastMoveTarget" value="1" />
     <Flags index="RangeUseCasterRadius" value="0" />
     <Cost>
-      <Cooldown TimeUse="0.25" />
+      <Charge>
+        <CountMax value="100" />
+        <CountUse value="100" />
+        <HideCount value="1" />
+        <Location value="Player" />
+      </Charge>
+      <Cooldown Location="Player" TimeUse="0.25" />
     </Cost>
     <UninterruptibleArray index="Cast" value="1" />
     <UninterruptibleArray index="Channel" value="1" />
@@ -173,6 +180,20 @@
     </InterruptCost>
     <Arc value="360" />
   </CAbilEffectTarget>
+  <CAbilEffectInstant id="AmazonWarTravelerSummonMount">
+    <SharedFlags index="AllowQuickCastCustomization" value="0" />
+    <AbilityCategories index="Mount" value="1" />
+    <AbilityCategories index="InterruptedByDamage" value="1" />
+    <PrepEffect value="HeroGenericMountAbilityUsePrepareEffectSet" />
+    <Effect value="HeroGenericMountAbilityInitialSet" />
+    <Flags index="ClearLastAttackTarget" value="1" />
+    <Cost>
+      <Cooldown Link="Abil/Mount" TimeUse="4" />
+    </Cost>
+    <ValidatedArray index="Approach" value="0" />
+    <ValidatedArray index="Channel" value="0" />
+    <CmdButtonArray index="Execute" DefaultButtonFace="AmazonWarTravelerSummonMount" ShowValidator="AmazonWarTravelerMountCombine" />
+  </CAbilEffectInstant>
   <CAccumulatorToken id="AmazonAvoidanceWarTravelerMovementSpeedAccumulator" parent="BaseAccumulator">
     <MaxAccumulation value="0.1" />
     <ApplicationRule value="Add" />
@@ -499,6 +520,9 @@
   <CActorAction id="AmazonLightningFuryLightningImpact" parent="RangedHeroAttack" effectAttack="AmazonLightningFuryLightningDamage">
     <ImpactMap index="None" Model="AmazonLightningFuryImpact" Sound="Amazon_LightningFury_Impact" />
   </CActorAction>
+  <CActorAction id="AmazonStaticElectricityLightningImpact" parent="RangedHeroAttack" effectAttack="AmazonLightningFuryStaticElectricityLightningDamage">
+    <ImpactMap index="None" Model="AmazonLightningFuryImpact" Sound="Amazon_LightningFury_Impact" />
+  </CActorAction>
   <CActorMissile id="AmazonLightningFuryLightningMissile" parent="StormMissileWithDeathEarly" unitName="AmazonLightningFuryLightningMissile">
     <On Terms="ActorCreation" Send="Create AmazonLightningFuryLightningTravelSound" />
     <On Terms="ActorDestruction" Target="AmazonLightningFuryLightningTravelSound" Send="Destroy" />
@@ -589,16 +613,15 @@
   </CActorAction>
   <CActorModel id="AmazonRockstopperArmor" parent="StormModelAnimationStyleContinuousUnit">
     <On Terms="Behavior.AmazonAvoidanceRockstopperBonusArmor.On" Send="Create" />
-    <On Terms="Behavior.AmazonAvoidanceRockstopperBonusArmor.Off" Send="Destroy" />
-    <HostSiteOps Ops="SOpAttachCenter" />
+    <On Terms="Behavior.AmazonAvoidanceRockstopperBonusArmor.Off" Send="AnimBracketStop BSD" />
+    <HostSiteOps Ops="SOpAttachCenter" HoldRotation="1" />
     <Model value="HardenedShieldBuff" />
   </CActorModel>
   <CActorScene id="SYSTEM_Scene">
     <On Terms="SceneEffectSearchNotifyResults.AmazonBlindingLightTargetSearch" Send="SceneEffectSearchResponse DoodadImpactable" />
-    <On Terms="SceneEffectSearchNotifyResults.AmazonAvoidancePowerSurgeSearchArea" Send="SceneEffectSearchResponse DoodadImpactable" />
+    <On Terms="SceneEffectSearchNotifyResults.AmazonAvoidanceSurgeOfLightSearchArea" Send="SceneEffectSearchResponse DoodadImpactable" />
   </CActorScene>
   <CActorRegionCircle id="DoodadImpactSearch2">
-    <On index="14" Terms="Effect.MuradinDwarfTossDamageSearch.Start; At Effect" Send="Create" />
     <On Terms="Effect.AmazonFendChannelCreatePersistent.Start; !ValidatePlayer AmazonFendImpaleHasTalent; At Effect" Send="Create" />
     <On Terms="Effect.AmazonValkyrieSearchSet.Start; At Effect" Send="Create" />
   </CActorRegionCircle>
@@ -1043,6 +1066,10 @@
   <CBehaviorBuff id="AmazonValkyrieImprisoningLightBlind" parent="StormBlind">
     <Duration value="5" />
   </CBehaviorBuff>
+  <CBehaviorBuff id="AmazonValkyrieImprisoningLightBlindNonHeroes" parent="StormBlindNonHeroes">
+    <RemoveValidatorArray value="AmazonTargetHasImprisoningLightBlind" />
+    <Duration value="5" />
+  </CBehaviorBuff>
   <CBehaviorBuff id="AmazonValkyrieImprisoningLightRoot" parent="StormRoot">
     <Duration value="3" />
   </CBehaviorBuff>
@@ -1111,6 +1138,10 @@
   <CBehaviorBuff id="AmazonBlindingLightBlindDebuff" parent="StormBlind">
     <Duration value="2" />
   </CBehaviorBuff>
+  <CBehaviorBuff id="AmazonBlindingLightBlindDebuffNonHeroes" parent="StormBlindNonHeroes">
+    <RemoveValidatorArray value="AmazonBlindingLightTargetHasBehavior" />
+    <Duration value="2" />
+  </CBehaviorBuff>
   <CBehaviorBuff id="AmazonBallLightningMissileRevealer">
     <Period value="0.0625" />
     <PeriodicEffect value="AmazonBallLightningCreateMissileRevealPersistent" />
@@ -1170,8 +1201,11 @@
   <CButton id="AmazonAvoidanceWarTraveler" parent="StormButtonParent">
     <Icon value="Assets\Textures\storm_ui_icon_cassia_avoidance_b.dds" />
   </CButton>
+  <CButton id="AmazonWarTravelerSummonMount" parent="SummonMount">
+    <TooltipAppender Validator="AmazonAvoidanceWarTravelerHasTalent" Face="AmazonAvoidanceWarTraveler" />
+  </CButton>
   <CButton id="AmazonBallLightningInfiniteLightning" parent="StormButtonParent">
-    <Icon value="Assets\Textures\storm_ui_icon_cassia_balllightning_a.dds" />
+    <Icon value="Assets\Textures\storm_ui_icon_cassia_balllightning.dds" />
   </CButton>
   <CButton id="AmazonBlindingLight" parent="StormButtonParent">
     <Icon value="Assets\Textures\storm_ui_icon_cassia_blindinglight.dds" />
@@ -1238,14 +1272,14 @@
     <Icon value="Assets\Textures\storm_ui_icon_cassia_avoidance_b.dds" />
   </CButton>
   <CButton id="AmazonMartialLaw" parent="StormButtonParent">
-    <Icon value="Assets\Textures\storm_ui_icon_talent_autoattack_damage.dds" />
+    <Icon value="Assets\Textures\storm_ui_icon_talent_autoattack_searing.dds" />
   </CButton>
   <CButton id="AmazonValkyrie" parent="StormButtonParent">
     <Icon value="Assets\Textures\storm_ui_icon_cassia_valkrie.dds" />
     <TooltipAppender Validator="AmazonValkyrieImprisoningLightHasTalent" Face="AmazonValkyrieImprisoningLight" />
   </CButton>
   <CButton id="AmazonValkyrieImprisoningLight" parent="StormButtonParent">
-    <Icon value="Assets\Textures\storm_ui_icon_cassia_valkrie_a.dds" />
+    <Icon value="Assets\Textures\storm_ui_icon_cassia_valkrie.dds" />
   </CButton>
   <CEffectDamage default="1" id="AmazonSpellDamageParent" parent="StormSpell">
     <MultiplicativeModifierArray index="TargetBlinded" Validator="TargetIsBlinded" Modifier="0.15" Crit="1" />
@@ -1265,7 +1299,6 @@
   <CEffectSet id="AmazonAvoidanceBecomesMaxedSet">
     <EffectArray value="AmazonAvoidanceWarTravelerAddToken" />
     <EffectArray value="AmazonPlateoftheWhaleIncrementStackCounter" />
-    <EffectArray value="AmazonAvoidanceWarTravelerModifyMountCastTime" />
   </CEffectSet>
   <CEffectModifyPlayer id="AmazonAvoidanceGlovesOfAlacrityBaseModifyPlayerRange">
     <EffectArray Reference="Weapon,AmazonHeroWeaponRanged,MinScanRange" Value="1" />
@@ -1316,16 +1349,6 @@
     <Behavior value="AmazonAvoidanceDamageReduction" />
     <Count value="48" />
   </CEffectApplyBehavior>
-  <CEffectModifyPlayer id="AmazonAvoidanceWarTravelerModifyMountCastTime">
-    <WhichPlayer Value="Caster" />
-    <EffectArray Operation="Set" Reference="Abil,Mount,CastIntroTime" Value="0.000000" />
-    <ValidatorArray value="AmazonAvoidanceIsMaxed" />
-    <ValidatorArray value="AmazonAvoidanceWarTravelerHasTalent" />
-  </CEffectModifyPlayer>
-  <CEffectModifyPlayer id="AmazonAvoidanceWarTravelerResetMountCastTime">
-    <WhichPlayer Value="Caster" />
-    <EffectArray Operation="Set" Reference="Abil,Mount,CastIntroTime" Value="1" />
-  </CEffectModifyPlayer>
   <CEffectCreateHealer id="AmazonBlindingLightSeraphsHymnCreateManaHealer" parent="StormManaRestore">
     <Chance value="0" />
     <ImpactUnit Value="Caster" />
@@ -1357,7 +1380,6 @@
   </CEffectSet>
   <CEffectSet id="AmazonAvoidanceMaxedBehaviorCleanupSet">
     <EffectArray value="AmazonPlateoftheWhaleDecrementStackCounter" />
-    <EffectArray value="AmazonAvoidanceWarTravelerResetMountCastTime" />
     <EffectArray value="AmazonAvoidanceWarTravelerRemoveToken" />
   </CEffectSet>
   <CEffectModifyTokenCount id="AmazonAvoidanceWarTravelerAddToken" parent="BaseEffectModifyTokenCount">
@@ -1367,6 +1389,37 @@
     <TokenId value="AmazonAvoidanceWarTravelerTokenCounter" />
     <Value value="-1" />
   </CEffectModifyTokenCount>
+  <CEffectSet id="HeroGenericMountAbilityInitialSet">
+    <EffectArray value="AmazonWarTravelerDismountCooldownSwitch" />
+  </CEffectSet>
+  <CEffectSwitch id="AmazonWarTravelerDismountCooldownSwitch">
+    <Chance value="0" />
+    <CaseArray Validator="HallOfStormsCasterHasProtectionBuff" Effect="AmazonWarTravelerDismountCooldownReset" />
+    <CaseDefault value="AmazonWarTravelerDismountCooldownAdd" />
+  </CEffectSwitch>
+  <CEffectModifyUnit id="AmazonWarTravelerDismountCooldownReset">
+    <Cost Abil="Dismount,Execute" CooldownOperation="Set" />
+  </CEffectModifyUnit>
+  <CEffectModifyUnit id="AmazonWarTravelerDismountCooldownAdd">
+    <Cost Abil="Dismount,Execute" CooldownOperation="Set" CooldownTimeUse="0.5" />
+  </CEffectModifyUnit>
+  <CEffectSet id="HeroGenericMountFinalIntialSet">
+    <EffectArray value="AmazonWarTravelerSummonMountCooldownSwitch" />
+  </CEffectSet>
+  <CEffectSwitch id="AmazonWarTravelerSummonMountCooldownSwitch">
+    <Chance value="0" />
+    <CaseArray Validator="HallOfStormsCasterHasProtectionBuff" Effect="AmazonWarTravelerSummonMountCooldownReset" />
+    <CaseDefault value="AmazonWarTravelerSummonMountCooldownAdd" />
+  </CEffectSwitch>
+  <CEffectModifyUnit id="AmazonWarTravelerSummonMountCooldownReset">
+    <Cost Abil="AmazonWarTravelerSummonMount,Execute" CooldownOperation="Set" />
+  </CEffectModifyUnit>
+  <CEffectModifyUnit id="AmazonWarTravelerSummonMountCooldownAdd">
+    <ValidatorArray value="HallOfStormsCasterDoesNotHaveProtectionBuff" />
+    <Cost Abil="AmazonWarTravelerSummonMount,Execute" CooldownOperation="Set">
+      <Fraction Cooldown="1" />
+    </Cost>
+  </CEffectModifyUnit>
   <CEffectModifyUnit id="AmazonBlindingLightSeraphsHymnModifyCooldown">
     <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
     <ValidatorArray value="TargetIsHero" />
@@ -1437,22 +1490,42 @@
     </AreaArray>
     <AreaRelativeOffset Y="-1" />
   </CEffectEnumArea>
-  <CEffectSwitch id="AmazonLightningFuryLightningDamageSwitch">
-    <CaseArray Validator="AmazonHasStaticElectricityAndIsChannelingFend" Effect="AmazonLightningFuryStaticElectricityLightningDamage" />
-    <CaseDefault value="AmazonLightningFuryLightningDamage" />
-  </CEffectSwitch>
   <CEffectLaunchMissile id="AmazonFendStaticElectricityTalentLaunchMissile">
     <ImpactLocation Value="TargetPoint" />
     <SharedFlags index="DynamicSearchArea" value="1" />
     <SharedFlags index="DisableArriveOnLaunch" value="1" />
     <AmmoUnit value="AmazonLightningFuryLightningMissile" />
     <Movers Link="AmazonLightningFuryLightningMissileMover" />
-    <SearchEffect value="AmazonLightningFuryLightningMissileSearch" />
+    <SearchEffect value="AmazonStaticElectricityLightningFuryMissileSearch" />
   </CEffectLaunchMissile>
+  <CEffectEnumArea id="AmazonStaticElectricityLightningFuryMissileSearch">
+    <AreaArray Effect="AmazonStaticElectricityLightningImpactSet">
+      <RectangleWidth value="0.6" />
+      <RectangleHeight value="1" />
+    </AreaArray>
+    <RevealerParams Duration="0.75" ShapeExpansion="1.5">
+      <RevealFlags index="Unfog" value="1" />
+    </RevealerParams>
+    <SearchFilters value="-;Player,Ally,Neutral,Missile,Stasis,Dead,Hidden,Invulnerable" />
+    <LaunchLocation Value="TargetPoint" />
+    <ImpactLocation Value="SourcePoint" />
+  </CEffectEnumArea>
+  <CEffectSet id="AmazonStaticElectricityLightningImpactSet">
+    <ValidatorArray value="noMarkers" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
+    <EffectArray value="AmazonLightningFuryStaticElectricityLightningDamage" />
+    <EffectArray value="AmazonLightningFuryThunderstrokeIncrementToken" />
+    <EffectArray value="AmazonPowerStrikeApplyDurationBehavior" />
+    <EffectArray value="AmazonPowerStrikeBlindingLightCastSet" />
+    <EffectArray value="AmazonLightningFuryInnerLightModifyCooldown" />
+    <EffectArray value="AmazonFendGroundingRodApplySlowBehavior" />
+    <EffectArray value="AmazonPowerStrikeModifyCooldown" />
+  </CEffectSet>
   <CEffectSet id="AmazonMartialLawDamageSet">
     <ValidatorArray value="TargetNotInvulnerable" />
     <ValidatorArray value="AmazonMartialLawHasTalent" />
     <ValidatorArray value="TargetIsHero" />
+    <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
     <EffectArray value="AmazonMartialLawDamageSwitch" />
   </CEffectSet>
   <CEffectSet id="AmazonFendKeepAvoidanceActiveSet">
@@ -1528,6 +1601,7 @@
   </CEffectDamage>
   <CEffectSet id="AmazonAvoidanceSurgeOfLightImpactSet">
     <EffectArray value="AmazonAvoidanceSurgeOfLightDamage" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
   </CEffectSet>
   <CEffectRemoveBehavior id="AmazonAvoidanceSurgeOfLightRemoveReadyBehavior">
     <WhichUnit Value="Caster" />
@@ -1539,6 +1613,9 @@
     <AreaArray Effect="AmazonAvoidanceSurgeOfLightImpactSet">
       <Radius value="5.5" />
     </AreaArray>
+    <RevealerParams Duration="0.75" ShapeExpansion="1">
+      <RevealFlags index="Unfog" value="1" />
+    </RevealerParams>
   </CEffectEnumArea>
   <CEffectApplyBehavior id="AmazonAvoidanceWarTravelerApplyBehavior">
     <ValidatorArray index="0" value="AmazonAvoidanceWarTravelerHasTalent" />
@@ -1608,6 +1685,9 @@
   <CEffectApplyBehavior id="AmazonBlindingLightApplyBlindDebuff" parent="StormBlindApply">
     <Behavior value="AmazonBlindingLightBlindDebuff" />
   </CEffectApplyBehavior>
+  <CEffectApplyBehavior id="AmazonBlindingLightApplyNonHeroesBlindDebuff" parent="StormBlindApply">
+    <Behavior value="AmazonBlindingLightBlindDebuffNonHeroes" />
+  </CEffectApplyBehavior>
   <CEffectDamage id="AmazonBlindingLightDamage" parent="StormSpell">
     <Amount value="50" />
     <MultiplicativeModifierArray index="BlindingLight" Validator="TargetIsBlinded" Modifier="0.15" Crit="1" />
@@ -1623,6 +1703,7 @@
   <CEffectSet id="AmazonBlindingLightImpactSet">
     <EffectArray value="AmazonBlindingLightDamage" />
     <EffectArray value="AmazonBlindingLightApplyBlindDebuff" />
+    <EffectArray value="AmazonBlindingLightApplyNonHeroesBlindDebuff" />
   </CEffectSet>
   <CEffectSet id="AmazonBlindingLightInitialSet">
     <EffectArray value="AmazonBlindingLightDelayPersistent" />
@@ -1633,7 +1714,6 @@
     <AreaArray Effect="AmazonBlindingLightImpactSet">
       <Radius value="3" />
     </AreaArray>
-    <AreaArray />
     <SearchFilters value="-;Player,Ally,Neutral,ImmuneToAOE,Structure,Missile,Stasis,Dead,Hidden,Invulnerable" />
     <SearchFlags index="DoActorSearch" value="1" />
     <RevealerParams HeightMap="Ground" Duration="0.5" ShapeExpansion="1">
@@ -1687,6 +1767,7 @@
     <EffectArray value="AmazonFendChannelDamage" />
     <EffectArray value="AmazonFendChannelApplySoundDummyBehavior" />
     <EffectArray value="AmazonFendGroundingRodApplySlowBehavior" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
   </CEffectSet>
   <CEffectSet id="AmazonFendChannelInitialSet">
     <EffectArray value="AmazonFendChannelApplyCancelSlopBehavior" />
@@ -1805,7 +1886,7 @@
   <CEffectModifyUnit id="AmazonHeroWeaponChargedStrikesImpactDummy" />
   <CEffectEnumArea id="AmazonHeroWeaponChargedStrikesSearchArea">
     <ExcludeArray Value="Target" />
-    <SearchFilters value="Heroic,Visible;Self,Player,Ally,Neutral,Stasis,Dead,Hidden,Invulnerable" />
+    <SearchFilters value="Heroic,Visible;Self,Player,Ally,Neutral,Missile,Item,Stasis,Dead,Hidden,Invulnerable,Benign" />
     <AreaArray Effect="AmazonHeroWeaponChargedStrikesImpactSet">
       <Radius value="3.5" />
     </AreaArray>
@@ -1828,6 +1909,7 @@
     <EffectArray value="UniversalWeaponImpact" />
     <EffectArray value="AmazonChargedStrikesWeaponDamage" />
     <EffectArray value="AmazonMartialLawDamageSet" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectSet id="AmazonHeroWeaponSharedImpactSet">
     <EffectArray value="AmazonHeroWeaponChargedStrikesSearchArea" />
@@ -1840,6 +1922,7 @@
   <CEffectSet id="AmazonHeroWeaponMeleeImpactSet">
     <EffectArray value="AmazonHeroWeaponSharedImpactSet" />
     <EffectArray value="AmazonHeroWeaponMeleeImpactDummy" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectModifyUnit id="AmazonHeroWeaponRangedImpactDummy" />
   <CEffectSet id="AmazonHeroWeaponMeleeInitialSet">
@@ -1849,6 +1932,7 @@
   <CEffectSet id="AmazonHeroWeaponRangedImpactSet">
     <EffectArray value="AmazonHeroWeaponSharedImpactSet" />
     <EffectArray value="AmazonHeroWeaponRangedImpactDummy" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectSet id="AmazonHeroWeaponRangedInitialSet">
     <EffectArray value="UniversalWeaponLaunchSet" />
@@ -1864,10 +1948,9 @@
   <CEffectDamage id="AmazonLightningFuryStaticElectricityLightningDamage" parent="AmazonSpellDamageParent">
     <Amount value="158" />
     <LeechValidator index="Life" value="AmazonRingoftheLeechHasTalentAndTargetIsBlinded" />
-    <LeechFraction index="Life" value="0.15" />
+    <LeechFraction index="Life" value="0.2" />
     <SourceButtonFace value="AmazonLightningFury" />
     <FlatModifierArray index="Thunderstroke" Validator="AmazonLightningFuryThunderstrokeHasTalent" Accumulator="AmazonLightningFuryThunderstrokeDamageAccumulator" Modifier="15" />
-    <MultiplicativeModifierArray index="TargetBlinded" Validator="TargetIsBlinded" Modifier="0.15" Crit="0" />
   </CEffectDamage>
   <CEffectDamage id="AmazonLightningFuryMissileSuicide" parent="StormSuicideParent" />
   <CEffectDamage id="AmazonLightningFuryMissileDummySuicide" parent="StormSuicideParent">
@@ -1919,9 +2002,14 @@
     <Behavior value="AmazonValkyrieImprisoningLightSilence" />
     <ValidatorArray index="0" value="TargetNotDead" />
   </CEffectApplyBehavior>
-  <CEffectApplyBehavior id="AmazonValkyrieImprisoningLightApplyBlind">
+  <CEffectApplyBehavior id="AmazonValkyrieImprisoningLightApplyBlind" parent="StormBlindApply">
     <Behavior value="AmazonValkyrieImprisoningLightBlind" />
-    <ValidatorArray index="0" value="TargetNotDead" />
+    <ValidatorArray value="TargetNotDead" />
+    <ValidatorArray value="AmazonValkyrieImprisoningLightHasTalent" />
+  </CEffectApplyBehavior>
+  <CEffectApplyBehavior id="AmazonValkyrieImprisoningLightApplyNonHeroesBlind" parent="StormBlindApply">
+    <Behavior value="AmazonValkyrieImprisoningLightBlindNonHeroes" />
+    <ValidatorArray value="TargetNotDead" />
     <ValidatorArray value="AmazonValkyrieImprisoningLightHasTalent" />
   </CEffectApplyBehavior>
   <CEffectCreatePersistent id="AmazonValkyrieImprisoningLightCreatePersistent">
@@ -2041,7 +2129,7 @@
   <CEffectSet id="AmazonLightningFuryLightningImpactSet">
     <ValidatorArray value="noMarkers" />
     <EffectArray value="ApplyAbilityImpactReveal" />
-    <EffectArray value="AmazonLightningFuryLightningDamageSwitch" />
+    <EffectArray value="AmazonLightningFuryLightningDamage" />
     <EffectArray value="AmazonLightningFuryThunderstrokeIncrementToken" />
     <EffectArray value="AmazonPowerStrikeApplyDurationBehavior" />
     <EffectArray value="AmazonPowerStrikeBlindingLightCastSet" />
@@ -2283,6 +2371,7 @@
     <EffectArray value="AmazonValkyrieImpaleApplyFinalStunBehavior" />
     <EffectArray value="AmazonValkyrieRemoveCollisionProbes" />
     <EffectArray value="AmazonValkyrieImprisoningLightApplyBlind" />
+    <EffectArray value="AmazonValkyrieImprisoningLightApplyNonHeroesBlind" />
   </CEffectSet>
   <CEffectApplyForce id="AmazonValkyrieImpaleApplyForce">
     <Amount value="-1" />
@@ -2763,8 +2852,7 @@
       <TalentsArray value="AmazonMartialLaw" />
       <TalentsArray value="AmazonTitansRevenge" />
     </TalentAIBuildsArray>
-    <HeroSpecificUIArray Location="ConsoleUICommandCardStatus" DescName="Amazon/AmazonCommandCardFrame" />
-    <HeroSpecificUIArray Location="CommandButton05Status" DescName="Amazon/AmazonSurgeOfLightButtonOverrideFrame" />
+    <HeroSpecificUIArray Location="CommandButton05Status" DescName="Amazon/AmazonSurgeOfLightChargeButtonOverrideFrame" />
     <HeroSpecificUIArray Location="HeroSpecificStackingBuffsStatus" DescName="Amazon/AmazonStacksFrameContainer" />
     <Rarity value="Legendary" />
   </CHero>
@@ -3162,6 +3250,22 @@
       <BehaviorArray value="AmazonAvoidanceWarTravelerMovementBonus" />
       <BehaviorArray value="AmazonAvoidanceWarTravelerTokenCounter" />
     </RankArray>
+    <AbilityModificationArray>
+      <Modifications>
+        <Type value="FlatModification" />
+        <Catalog value="Effect" />
+        <Entry value="AmazonWarTravelerSummonMountCooldownSwitch" />
+        <Field value="Chance" />
+        <Value value="1.000000" />
+      </Modifications>
+      <Modifications>
+        <Type value="FlatModification" />
+        <Catalog value="Effect" />
+        <Entry value="AmazonWarTravelerDismountCooldownSwitch" />
+        <Field value="Chance" />
+        <Value value="1.000000" />
+      </Modifications>
+    </AbilityModificationArray>
   </CTalent>
   <CUnit id="AmazonLightningFuryLightningMissile" parent="MISSILE_INVULNERABLE" />
   <CUnit id="AmazonLightningFuryMissile" parent="MISSILE_INVULNERABLE" />
@@ -3179,7 +3283,7 @@
   <CUnit id="AmazonHeroWeaponMissile" parent="MISSILE_INVULNERABLE">
     <Mover value="HeroMissileSpeed22Ribbon" />
   </CUnit>
-  <CUnit id="HeroAmazon" parent="StormHeroMounted">
+  <CUnit id="HeroAmazon" parent="StormHeroMountedCustom">
     <LifeStart value="1660" />
     <LifeMax value="1660" />
     <AIThinkTree value="AI/Amazon.aitree" />
@@ -3195,6 +3299,9 @@
       <LayoutButtons Face="AmazonBlindingLight" Type="AbilCmd" AbilCmd="AmazonBlindingLight,Execute" Slot="Ability2" />
       <LayoutButtons Face="AmazonCancelFend" Type="AbilCmd" AbilCmd="AmazonFendCancelChannel,Execute" Slot="Ability3" />
       <LayoutButtons Face="AmazonFend" Type="AbilCmd" AbilCmd="AmazonFend,Execute" Slot="Ability3" />
+      <LayoutButtons Face="AmazonWarTravelerSummonMount" Type="AbilCmd" AbilCmd="AmazonWarTravelerSummonMount,Execute" Slot="Mount" />
+      <LayoutButtons Face="SummonMount" Type="AbilCmd" AbilCmd="Mount,Execute" Slot="Mount" />
+      <LayoutButtons Face="UnsummonMount" Type="AbilCmd" AbilCmd="Dismount,Execute" Slot="Mount" />
     </CardLayouts>
     <AbilArray Link="AmazonBallLightning" />
     <AbilArray Link="AmazonBlindingLight" />
@@ -3206,6 +3313,9 @@
     <AbilArray Link="AmazonValkyrie" />
     <AbilArray Link="AmazonSurgeOfLight" />
     <AbilArray Link="AmazonAvoidanceRockstopper" />
+    <AbilArray Link="Mount" />
+    <AbilArray Link="Dismount" />
+    <AbilArray Link="AmazonWarTravelerSummonMount" />
     <WeaponArray Link="AmazonHeroWeaponMelee" />
     <WeaponArray Link="AmazonHeroWeaponRanged" />
     <LifeRegenRate value="3.457" />
@@ -3318,11 +3428,22 @@
     <CombineArray value="AmazonAvoidanceSurgeOfLightHasTalent" />
     <CombineArray value="AmazonAvoidanceSurgeOfLightDoesNotHaveAbilityReadyBuff" />
   </CValidatorCombine>
+  <CValidatorUnitHasBehavior id="AmazonHasSurgeOfLightPickedTalent">
+    <WhichUnit Value="Caster" />
+    <Behavior value="AmazonAvoidanceSurgeOfLightPickedTalent" />
+  </CValidatorUnitHasBehavior>
   <CValidatorPlayerTalent id="AmazonAvoidanceWarTravelerHasTalent">
     <WhichPlayer Value="Caster" />
     <Find value="1" />
     <Value value="AmazonWarTraveler" />
   </CValidatorPlayerTalent>
+  <CValidatorCombine id="AmazonWarTravelerMountCombine">
+    <Type value="And" />
+    <CombineArray value="AmazonAvoidanceIsMaxed" />
+    <CombineArray value="AmazonAvoidanceWarTravelerHasTalent" />
+    <CombineArray value="NotMounted" />
+    <CombineArray value="CasterNotMountCaboose" />
+  </CValidatorCombine>
   <CValidatorCombine id="AmazonBallLightningBounceCasterInRangeAndNotInStasisAndControllerHasStacks">
     <Type value="And" />
     <CombineArray value="AmazonBallLightningBounceCasterInRangeAndNotInStasis" />
@@ -3653,6 +3774,10 @@
   <CValidatorUnitCompareBehaviorCount id="AmazonValkyrieKnockbackTargetHasPushPull">
     <Compare value="GT" />
     <Behavior value="AmazonValkyrieKnockbackMoveSpeed" />
+  </CValidatorUnitCompareBehaviorCount>
+  <CValidatorUnitCompareBehaviorCount id="AmazonTargetHasImprisoningLightBlind">
+    <Compare value="GT" />
+    <Behavior value="AmazonValkyrieImprisoningLightBlind" />
   </CValidatorUnitCompareBehaviorCount>
   <CWeaponLegacy id="AmazonHeroWeaponRanged" parent="StormHeroFastWeapon">
     <DisplayEffect value="AmazonHeroWeaponDamage" />

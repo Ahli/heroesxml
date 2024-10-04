@@ -63,6 +63,7 @@ void libHDVA_gf_HeroDVaIncrementHeroCountFunction () {
         TriggerEnable(libHDVA_gt_DVaAbathurClonedMechEnds, true);
         TriggerEnable(libHDVA_gt_HeroDVaPilotEjectedMoveCommandForwarding, true);
         TriggerEnable(libHDVA_gt_HeroDVaRemoveweapontargetfromData, true);
+        TriggerEnable(libHDVA_gt_DVaLiquidCoolingDurationFix, true);
         TriggerEnable(libHDVA_gt_DVaPilotUpdateEnergyTriggerconditions, true);
         TriggerEnable(libHDVA_gt_DVaPilotUpdateEnergyMechSelfDestructing, true);
         TriggerEnable(libHDVA_gt_DVaDefenseMatrixTracker, true);
@@ -103,6 +104,7 @@ void libHDVA_gf_HeroDVaDecrementHeroCountFunction () {
         TriggerEnable(libHDVA_gt_DVaAbathurClonedMechEnds, false);
         TriggerEnable(libHDVA_gt_HeroDVaPilotEjectedMoveCommandForwarding, false);
         TriggerEnable(libHDVA_gt_HeroDVaRemoveweapontargetfromData, false);
+        TriggerEnable(libHDVA_gt_DVaLiquidCoolingDurationFix, false);
         TriggerEnable(libHDVA_gt_DVaPilotUpdateEnergyTriggerconditions, false);
         TriggerEnable(libHDVA_gt_DVaPilotUpdateEnergyMechSelfDestructing, false);
         TriggerEnable(libHDVA_gt_DVaDefenseMatrixTracker, false);
@@ -217,6 +219,7 @@ bool auto_libHDVA_gf_SpawnDVa_TriggerFunc (bool testConds, bool runActions) {
         libNtve_gf_SendActorMessageToUnit(lv_dVaMechUnit, "Signal Respawn");
     }
 
+    PlayerSetHeroUnit(lp_player, lv_dVaMechUnit);
     UnitSelect(lv_dVaMechUnit, lp_player, true);
     libGame_gv_players[lp_player].lv_playerStatus = libGame_ge_PlayerStatusStorm_Playing;
     libGame_gv_players[lp_player].lv_isDead = false;
@@ -263,7 +266,6 @@ bool auto_libHDVA_gf_SpawnDVa_TriggerFunc (bool testConds, bool runActions) {
     AIAddPlayerUnit(lv_dVaMechUnit);
     libUIUI_gv_uIHeroStatusFrames[lp_player].lv_unitCount = 0;
     libUIUI_gf_UIUnitStatusFramesUpdateUnitStatusFramesForUnit(lp_player, lv_dVaMechUnit);
-    PlayerSetHeroUnit(lp_player, lv_dVaMechUnit);
     libAIAI_gf_AITeamDelegateModifyHeroStatusTokensforTeam(libAIAI_ge_AITeamDelegateAddRemoveLaneValue_Add, libGame_gv_players[lp_player].lv_aIHeroDelegateTokenValue, libGame_gf_TeamNumberOfPlayer(lp_player), libAIAI_ge_AITeamDelegateLivingDeadHeroStatusUpdates_HeroAlive);
     return true;
 }
@@ -321,6 +323,7 @@ bool auto_libHDVA_gf_RespawnHeroDVa_TriggerFunc (bool testConds, bool runActions
     UnitGroupAdd(libGame_gv_players[lp_player].lv_heroUnitGroup, lv_dVaPilotUnit);
     libCore_gf_SendPlayersSkinActorMessagesToUnit(lp_player, lv_dVaMechUnit);
     UnitStatusBarOverride(lv_dVaPilotUnit, c_unitStatusGroupAll);
+    PlayerSetHeroUnit(lp_player, lv_dVaMechUnit);
     UnitSelect(lv_dVaMechUnit, lp_player, true);
     libUIUI_gf_InitPathingLines(lv_dVaMechUnit, lp_player);
     libGame_gv_players[lp_player].lv_isDead = false;
@@ -814,10 +817,10 @@ bool libHDVA_gt_HeroDVaMechDiesviaFatalDamage_Func (bool testConds, bool runActi
     playergroup autoE02018F0_g;
 
     // Variable Initialization
-    lv_unit = EventPlayerEffectUsedUnit(c_effectUnitCaster);
+    lv_unit = EventUnit();
     lv_targetPlayer = UnitGetOwner(lv_unit);
     lv_killingUnit = EventPlayerEffectUsedUnit(c_effectUnitTarget);
-    lv_killingPlayer = UnitGetOwner(lv_killingUnit);
+    lv_killingPlayer = EventUnitDamageSourcePlayer();
     lv_enemyPlayerGroup = PlayerGroupEmpty();
     lv_killingGroup = PlayerGroupEmpty();
 
@@ -833,6 +836,7 @@ bool libHDVA_gt_HeroDVaMechDiesviaFatalDamage_Func (bool testConds, bool runActi
         return true;
     }
 
+    libGame_gf_DeathRecapPopulateDeathRecapDataForPlayer(lv_unit, lv_targetPlayer);
     lv_enemyPlayerGroup = libGame_gf_EnemyPlayerGroupOfPlayer(lv_targetPlayer);
     lv_killingGroup = libGame_gf_HeroDeathGetKillingGroupFromKillingTeamGroupAndDeadUnit(lv_enemyPlayerGroup, lv_killingPlayer, lv_unit);
     libGame_gf_HeroDeathAwardXP(lv_killingPlayer, lv_unit, lv_enemyPlayerGroup, lv_killingGroup, true);
@@ -855,7 +859,7 @@ bool libHDVA_gt_HeroDVaMechDiesviaFatalDamage_Func (bool testConds, bool runActi
 void libHDVA_gt_HeroDVaMechDiesviaFatalDamage_Init () {
     libHDVA_gt_HeroDVaMechDiesviaFatalDamage = TriggerCreate("libHDVA_gt_HeroDVaMechDiesviaFatalDamage_Func");
     TriggerEnable(libHDVA_gt_HeroDVaMechDiesviaFatalDamage, false);
-    TriggerAddEventPlayerEffectUsed(libHDVA_gt_HeroDVaMechDiesviaFatalDamage, c_playerAny, "DVaMechFatalDamageResponseHandledSet");
+    TriggerAddEventUnitDamageAbsorbed(libHDVA_gt_HeroDVaMechDiesviaFatalDamage, null, "DVaMechFatalDamageResponse");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1637,6 +1641,27 @@ void libHDVA_gt_DVaLiquidCoolingCooldownSync_Init () {
 }
 
 //--------------------------------------------------------------------------------------------------
+// Trigger: D.Va - Liquid Cooling Duration Fix
+//--------------------------------------------------------------------------------------------------
+bool libHDVA_gt_DVaLiquidCoolingDurationFix_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    CatalogFieldValueSetFixed(c_gameCatalogBehavior, "HealingFountainCooldown", "Duration", EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster), CatalogFieldValueGetAsFixed(c_gameCatalogBehavior, "HealingFountainCooldown", "Duration", c_playerAny));
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libHDVA_gt_DVaLiquidCoolingDurationFix_Init () {
+    libHDVA_gt_DVaLiquidCoolingDurationFix = TriggerCreate("libHDVA_gt_DVaLiquidCoolingDurationFix_Func");
+    TriggerEnable(libHDVA_gt_DVaLiquidCoolingDurationFix, false);
+    TriggerAddEventPlayerEffectUsed(libHDVA_gt_DVaLiquidCoolingDurationFix, c_playerAny, "DVaLiquidCoolingResetPlayer");
+}
+
+//--------------------------------------------------------------------------------------------------
 // Trigger: Hero - D.Va - Fusion Generator FCT Increment
 //--------------------------------------------------------------------------------------------------
 bool libHDVA_gt_HeroDVaFusionGeneratorFCTIncrement_Func (bool testConds, bool runActions) {
@@ -1717,7 +1742,7 @@ bool libHDVA_gt_DVaAblativeArmorHealingConversion_Func (bool testConds, bool run
     // Variable Initialization
     lv_dVaMech = EventUnit();
     lv_dVaPlayer = UnitGetOwner(lv_dVaMech);
-    lv_incomingDamage = EventUnitDamageAttemptedVitals();
+    lv_incomingDamage = (EventUnitDamageAmount()+EventUnitDamageBehaviorShield());
     lv_damageMod = CatalogFieldValueGetAsFixed(c_gameCatalogBehavior, "DVaAblativeArmorDamageModDummy", "DamageResponse.ModifyFraction", 0);
     lv_tokenCount = (lv_incomingDamage * lv_damageMod);
     lv_duration = FixedToInt(CatalogFieldValueGetAsFixed(c_gameCatalogBehavior, "DVaAblativeArmorHealingBuff", "Duration", 0));
@@ -1978,6 +2003,7 @@ void libHDVA_InitTriggers () {
     libHDVA_gt_HeroDVaHoldFireControllerHoldFireRemove_Init();
     libHDVA_gt_HeroDVaRemoveweapontargetfromData_Init();
     libHDVA_gt_DVaLiquidCoolingCooldownSync_Init();
+    libHDVA_gt_DVaLiquidCoolingDurationFix_Init();
     libHDVA_gt_HeroDVaFusionGeneratorFCTIncrement_Init();
     libHDVA_gt_HeroDVaFusionGeneratorFCTFinal_Init();
     libHDVA_gt_DVaAblativeArmorHealingConversion_Init();

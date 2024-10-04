@@ -357,10 +357,10 @@
     <On Terms="Effect.WizardArchonPurePowerDisintegrateStartBeamSet.Start" Send="AnimPlay Spell Spell,D PlayForever -1.000000 -1.000000 1.000000 AsTimeScale" />
     <On Terms="Behavior.WizardArchonPurePowerDisintegrateControllerBehavior.Off; AnimPlaying Spell D,Alternate" Send="AnimClear Spell" />
     <On Terms="Abil.WizardWaveOfForce.SourceCastStart" Send="AnimPlay Spell Spell,F 0 -1.000000 -1.000000 1.000000 AsTimeScale" />
-    <On Terms="AnimPlay; AnimPlaying Dance Dance" Send="Create WizardDanceFX" />
-    <On Terms="AnimDone; AnimName Dance" Target="WizardDanceFX" Send="AnimBracketStop BSD" />
-    <On Terms="AnimPlay; AnimPlaying Spell Dance" Send="Create WizardDanceFX" />
-    <On Terms="AnimClear; AnimName Spell" Target="WizardDanceFX" Send="AnimBracketStop BSD" />
+    <On Terms="UnitTaunt.*.Start; Taunt Dance" Send="Create WizardDanceFX" />
+    <On Terms="UnitTaunt.*.Stop; Taunt Dance" Target="WizardDanceFX" Send="AnimBracketStop BSD" />
+    <On Terms="UnitTaunt.*.Cancel; Taunt Dance" Target="WizardDanceFX" Send="AnimBracketStop BSD" />
+    <On Terms="UnitDeath" Target="WizardDanceFX" Send="Destroy Immediate" />
     <On Terms="Abil.Hearthstone.SourceCastStart; IsStatus WizardSpecialQAnim 1" Send="Create Wizard_VolleyBall_Hearth_Sound" />
     <On Terms="Abil.Hearthstone.SourceCastStop" Target="Wizard_VolleyBall_Hearth_Sound" Send="Destroy Immediate" />
     <On Terms="Behavior.WizardTeleportDiamondSkinBuff.On" Send="ModelMaterialApply WizardDiamondSkinGlaze" />
@@ -1731,7 +1731,6 @@
       <AbilClassDisableArray index="CAbilAttack" value="1" />
       <AbilClassDisableArray index="CAbilEffectInstant" value="1" />
       <AbilClassDisableArray index="CAbilEffectTarget" value="1" />
-      <AbilClassDisableArray index="CAbilStop" value="1" />
       <AbilLinkEnableArray value="WizardMagicMissiles" />
       <AbilLinkEnableArray value="WizardArcaneOrb" />
       <AbilLinkEnableArray value="WizardTeleport" />
@@ -1748,6 +1747,7 @@
     <RemoveValidatorArray value="CasterNotDeadOrSilencedOrStasisOrStunnedExceptTimeStop" />
     <RemoveValidatorArray value="CasterNotDazed" />
     <RemoveValidatorArray value="CasterIsCastingArchonPurePowerDisintegrate" />
+    <RemoveValidatorArray value="CasterNotHoldingFireQueuedCombine" />
     <Duration value="-1" />
     <InitialEffect value="WizardArchonPurePowerDisintegrateActiveApplyBehavior" />
     <FinalEffect value="WizardArchonPurePowerDisintegrateFinalSet" />
@@ -1759,6 +1759,7 @@
     <FinalEffect value="WizardDisintegrateFinalSet" />
     <ExpireEffect value="WizardDisintegrateFinalSet" />
     <RemoveValidatorArray value="CasterNotDazedOrDeadOrSilencedOrStasisOrStunnedExceptTimeStop" />
+    <RemoveValidatorArray value="CasterNotHoldingFireQueuedCombine" />
     <BuffFlags index="Channeled" value="1" />
   </CBehaviorBuff>
   <CBehaviorBuff id="WizardArchonPurePowerDisintegrateActive">
@@ -2030,24 +2031,14 @@
     <ImpactUnit Value="Caster" />
     <RechargeVitalRate value="40" />
   </CEffectCreateHealer>
-  <CEffectSet id="WizardTeleportAetherWalkerMagicMissilesCastSet">
-    <ValidatorArray value="WizardHasTeleportAetherWalkerDummyBehaviorAndAetherWalkerTalent" />
-    <EffectArray value="WizardTeleportMagicMissilesBonusDamageBuffAetherWalkerApplyBehavior" />
-    <EffectArray value="WizardTeleportMagicMissilesAetherWalkerDummyRemoveBehavior" />
-  </CEffectSet>
   <CEffectApplyBehavior id="WizardTeleportMagicMissilesAetherWalkerDummyApplyBehavior">
     <ValidatorArray value="WizardHasAetherWalker" />
     <WhichUnit Value="Caster" />
     <Behavior value="WizardTeleportMagicMissilesAetherWalkerDummyBehavior" />
   </CEffectApplyBehavior>
-  <CEffectRemoveBehavior id="WizardTeleportMagicMissilesBonusDamageBuffAetherWalkerRemoveBehavior">
-    <ValidatorArray value="WizardHasAetherWalker" />
-    <WhichUnit Value="Caster" />
-    <BehaviorLink value="WizardTeleportMagicMissilesBonusDamageBuffAetherWalker" />
-  </CEffectRemoveBehavior>
   <CEffectApplyBehavior id="WizardTeleportMagicMissilesBonusDamageBuffAetherWalkerApplyBehavior">
-    <ValidatorArray index="0" value="WizardHasAetherWalker" />
-    <WhichUnit Value="Caster" />
+    <ValidatorArray index="0" value="WizardHasTeleportAetherWalkerDummyBehaviorAndAetherWalkerTalent" />
+    <WhichUnit Value="Source" />
     <Behavior value="WizardTeleportMagicMissilesBonusDamageBuffAetherWalker" />
   </CEffectApplyBehavior>
   <CEffectRemoveBehavior id="WizardTeleportMagicMissilesAetherWalkerDummyRemoveBehavior">
@@ -2122,7 +2113,7 @@
   </CEffectCancelOrder>
   <CEffectModifyUnit id="WizardIllusionistCooldownRefund">
     <Cost Abil="WizardTeleport,Execute" CooldownOperation="Add">
-      <Fraction Cooldown="-1" />
+      <Fraction Cooldown="-1.66" />
     </Cost>
   </CEffectModifyUnit>
   <CEffectModifyUnit id="WizardCriticalMassCooldownRefund">
@@ -2133,7 +2124,7 @@
       <Fraction Cooldown="-1" />
     </Cost>
     <Cost Abil="WizardTeleport,Execute" CooldownOperation="Add">
-      <Fraction Cooldown="-1" />
+      <Fraction Cooldown="-1.66" />
     </Cost>
     <Cost Abil="WizardDisintegrate,Execute" CooldownOperation="Add">
       <Fraction Cooldown="-1" />
@@ -2204,10 +2195,12 @@
   <CEffectSet id="WizardDisintegrateCancelSet">
     <EffectArray value="WizardDisintegrateControllerRemoveBehavior" />
     <EffectArray value="WizardDisintegrateCasterRemoveBehavior" />
+    <EffectArray value="WizardDisintegrateCasterRemoveBlockersBehavior" />
   </CEffectSet>
   <CEffectSet id="WizardDisintegrateFinalSet">
     <EffectArray value="WizardDisintegrateActiveRemoveBehavior" />
     <EffectArray value="WizardDisintegrateCasterRemoveBehavior" />
+    <EffectArray value="WizardDisintegrateCasterRemoveBlockersBehavior" />
     <EffectArray value="DismountDecloakCasterSet" />
   </CEffectSet>
   <CEffectSet id="WizardArchonPurePowerBuffInitialSet">
@@ -2265,6 +2258,11 @@
   <CEffectRemoveBehavior id="WizardDisintegrateCasterRemoveBehavior">
     <WhichUnit Value="Caster" />
     <BehaviorLink value="WizardDisintegrateCasterBehavior" />
+    <Count value="1" />
+  </CEffectRemoveBehavior>
+  <CEffectRemoveBehavior id="WizardDisintegrateCasterRemoveBlockersBehavior">
+    <WhichUnit Value="Caster" />
+    <BehaviorLink value="WizardDisintegrateAbilityCooldownCasterBehavior" />
     <Count value="1" />
   </CEffectRemoveBehavior>
   <CEffectCreatePersistent id="WizardDisintegrateOffsetCreatePersistent">
@@ -2532,6 +2530,7 @@
   <CEffectSet id="WizardHeroWeaponImpactSet">
     <EffectArray value="UniversalWeaponImpact" />
     <EffectArray value="WizardHeroWeaponDamage" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectSet id="WizardCannoneerWeaponLaunchSet">
     <EffectArray value="WizardCannoneerWeaponLaunchSwitch" />
@@ -2547,8 +2546,12 @@
     <EffectArray value="WizardCannoneerMissSwitch" />
   </CEffectSet>
   <CEffectSwitch id="WizardCannoneerMissSwitch" parent="AbilDmgMissCheck">
-    <CaseDefault value="WizardCannoneerWeaponDamageSwitch" />
+    <CaseDefault value="WizardCannoneerDamageImpactSet" />
   </CEffectSwitch>
+  <CEffectSet id="WizardCannoneerDamageImpactSet">
+    <EffectArray value="WizardCannoneerWeaponDamageSwitch" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
+  </CEffectSet>
   <CEffectSwitch id="WizardCannoneerWeaponDamageSwitch">
     <CaseArray Validator="SourceHas3StackCannoneerTracker" Effect="WizardCannoneerWeaponDamage3" />
     <CaseArray Validator="SourceHas2StackCannoneerTracker" Effect="WizardCannoneerWeaponDamage2" />
@@ -2609,8 +2612,7 @@
     <EffectArray value="WizardMagicMissilesCreatePersistents" />
     <EffectArray value="WizardCannoneerTrackerAB" />
     <EffectArray value="WizardMagicMissilesCasterTrackerSwitch" />
-    <EffectArray value="WizardTeleportMagicMissilesBonusDamageBuffAetherWalkerRemoveBehavior" />
-    <EffectArray value="WizardTeleportAetherWalkerMagicMissilesCastSet" />
+    <EffectArray value="WizardTeleportMagicMissilesAetherWalkerDummyRemoveBehavior" />
     <TargetLocationType value="Point" />
   </CEffectSet>
   <CEffectCreatePersistent id="WizardMagicMissilesCreatePersistents">
@@ -2704,7 +2706,7 @@
   <CEffectEnumArea id="WizardMagicMissilesLeftSearch">
     <LaunchLocation Effect="WizardMagicMissilesLeftOffsetCP" Value="TargetPoint" />
     <ImpactLocation Value="SourceUnit" />
-    <SearchFilters value="-;Player,Ally,Neutral,ImmuneToSkillshots,Missile,Item,Stasis,Dead,Hidden" />
+    <SearchFilters value="-;Player,Ally,Neutral,ImmuneToSkillshots,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
     <SearchFlags index="DoActorSearch" value="1" />
     <AreaArray MaxCount="1" Effect="WizardMagicMissilesImpactSet">
       <RectangleWidth value="0.5" />
@@ -2717,7 +2719,7 @@
   <CEffectEnumArea id="WizardMagicMissilesCenterSearch">
     <LaunchLocation Effect="WizardMagicMissilesCenterOffsetCP" Value="OriginPoint" />
     <ImpactLocation Value="SourceUnit" />
-    <SearchFilters value="-;Player,Ally,Neutral,ImmuneToSkillshots,Missile,Item,Stasis,Dead,Hidden" />
+    <SearchFilters value="-;Player,Ally,Neutral,ImmuneToSkillshots,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
     <SearchFlags index="DoActorSearch" value="1" />
     <AreaArray MaxCount="1" Effect="WizardMagicMissilesImpactSet">
       <RectangleWidth value="0.5" />
@@ -2730,7 +2732,7 @@
   <CEffectEnumArea id="WizardMagicMissilesRightSearch">
     <LaunchLocation Effect="WizardMagicMissilesRightOffsetCP" Value="TargetPoint" />
     <ImpactLocation Value="SourceUnit" />
-    <SearchFilters value="-;Player,Ally,Neutral,ImmuneToSkillshots,Missile,Item,Stasis,Dead,Hidden" />
+    <SearchFilters value="-;Player,Ally,Neutral,ImmuneToSkillshots,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
     <SearchFlags index="DoActorSearch" value="1" />
     <AreaArray MaxCount="1" Effect="WizardMagicMissilesImpactSet">
       <RectangleWidth value="0.5" />
@@ -2743,7 +2745,7 @@
   <CEffectEnumArea id="WizardMagicMissilesMirrorballLeftSearch">
     <LaunchLocation Effect="WizardMagicMissilesMirrorballLeftOffsetCP" Value="TargetPoint" />
     <ImpactLocation Value="SourceUnit" />
-    <SearchFilters value="-;Player,Ally,Neutral,ImmuneToSkillshots,Missile,Item,Stasis,Dead,Hidden" />
+    <SearchFilters value="-;Player,Ally,Neutral,ImmuneToSkillshots,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
     <SearchFlags index="DoActorSearch" value="1" />
     <AreaArray MaxCount="1" Effect="WizardMagicMissilesMirrorBallImpactSet">
       <RectangleWidth value="0.5" />
@@ -2756,7 +2758,7 @@
   <CEffectEnumArea id="WizardMagicMissilesMirrorballRightSearch">
     <LaunchLocation Effect="WizardMagicMissilesMirrorballRightOffsetCP" Value="TargetPoint" />
     <ImpactLocation Value="SourceUnit" />
-    <SearchFilters value="-;Player,Ally,Neutral,ImmuneToSkillshots,Missile,Item,Stasis,Dead,Hidden" />
+    <SearchFilters value="-;Player,Ally,Neutral,ImmuneToSkillshots,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
     <SearchFlags index="DoActorSearch" value="1" />
     <AreaArray MaxCount="1" Effect="WizardMagicMissilesMirrorBallImpactSet">
       <RectangleWidth value="0.5" />
@@ -2767,26 +2769,31 @@
     </RevealerParams>
   </CEffectEnumArea>
   <CEffectSet id="WizardMagicMissilesRightSearchSet">
+    <EffectArray value="WizardTeleportMagicMissilesBonusDamageBuffAetherWalkerApplyBehavior" />
     <EffectArray value="WizardTalrashaElementsForwardStacksSet" />
     <EffectArray value="WizardMagicMissilesRightSearchCP" />
     <EffectArray value="WizardMagicMissilesSourceTrackerSwitch" />
   </CEffectSet>
   <CEffectSet id="WizardMagicMissilesCenterSearchSet">
+    <EffectArray value="WizardTeleportMagicMissilesBonusDamageBuffAetherWalkerApplyBehavior" />
     <EffectArray value="WizardTalrashaElementsForwardStacksSet" />
     <EffectArray value="WizardMagicMissilesCenterSearchCP" />
     <EffectArray value="WizardMagicMissilesSourceTrackerSwitch" />
   </CEffectSet>
   <CEffectSet id="WizardMagicMissilesLeftSearchSet">
+    <EffectArray value="WizardTeleportMagicMissilesBonusDamageBuffAetherWalkerApplyBehavior" />
     <EffectArray value="WizardTalrashaElementsForwardStacksSet" />
     <EffectArray value="WizardMagicMissilesLeftSearchCP" />
     <EffectArray value="WizardMagicMissilesSourceTrackerSwitch" />
   </CEffectSet>
   <CEffectSet id="WizardMagicMissilesMirrorballLeftSearchSet">
+    <EffectArray value="WizardTeleportMagicMissilesBonusDamageBuffAetherWalkerApplyBehavior" />
     <EffectArray value="WizardTalrashaElementsForwardStacksSet" />
     <EffectArray value="WizardMagicMissilesMirrorballLeftSearchCP" />
     <EffectArray value="WizardMagicMissilesSourceTrackerSwitch" />
   </CEffectSet>
   <CEffectSet id="WizardMagicMissilesMirrorballRightSearchSet">
+    <EffectArray value="WizardTeleportMagicMissilesBonusDamageBuffAetherWalkerApplyBehavior" />
     <EffectArray value="WizardTalrashaElementsForwardStacksSet" />
     <EffectArray value="WizardMagicMissilesMirrorballRightSearchCP" />
     <EffectArray value="WizardMagicMissilesSourceTrackerSwitch" />
@@ -2915,6 +2922,9 @@
     <EffectArray value="WizardWaveOfForceTalrashasElementsRB" />
   </CEffectSet>
   <CEffectSwitch id="WizardMagicMissilesTalrashasElementsSwitch">
+    <Marker>
+      <MatchFlags index="Id" value="1" />
+    </Marker>
     <Chance value="0" />
     <CaseArray Validator="DoesNotHaveAlreadyCastMagicMissiles" Effect="WizardMagicMissilesTalrashasElementsSuccessSet" />
     <CaseDefault value="WizardMagicMissilesTalrashasElementsFailSet" />
@@ -3051,7 +3061,7 @@
   <CEffectDamage id="WizardMagicMissilesDamage" parent="StormSpell">
     <Amount value="147" />
     <MultiplicativeModifierArray index="0" Accumulator="WizardTalrashasElementsSourceMissileAccumulator" />
-    <MultiplicativeModifierArray index="AetherWalker" Validator="WizardHasTeleportMagicMissilesBonusDamageBuffAndAetherWalkerTalent" Modifier="0.1" />
+    <MultiplicativeModifierArray index="AetherWalker" Validator="WizardSourceHasTeleportMagicMissilesBonusDamageBuffAndAetherWalkerTalent" Modifier="0.1" />
     <AttributeFactor index="Structure" value="-0.5" />
   </CEffectDamage>
   <CEffectDamage id="WizardMagicMissilesSeekerDamage" parent="StormSpell">
@@ -3314,7 +3324,7 @@
     <EffectArray value="WizardMagicMissilesThirdCastApplyBehaviorCaster" />
   </CEffectSet>
   <CEffectSwitch id="WizardMagicMissilesCasterTrackerSwitch">
-    <Chance value="0" />
+    <ValidatorArray value="WizardHasSeeker" />
     <CaseArray Validator="CasterHasWizardMagicMissilesFirstCast" Effect="WizardMagicMissilesSecondCastApplyBehaviorSet" />
     <CaseArray Validator="CasterHasWizardMagicMissilesSecondCast" Effect="WizardMagicMissilesThirdCastApplyBehaviorSet" />
     <CaseArray Validator="CasterHasWizardMagicMissilesThirdCast" Effect="WizardMagicMissilesFirstCastApplyBehaviorSet" />
@@ -4164,13 +4174,6 @@
         <Field value="Chance" />
         <Value value="1.000000" />
       </Modifications>
-      <Modifications>
-        <Type value="FlatModification" />
-        <Catalog value="Effect" />
-        <Entry value="WizardMagicMissilesCasterTrackerSwitch" />
-        <Field value="Chance" />
-        <Value value="1.000000" />
-      </Modifications>
     </AbilityModificationArray>
     <Face value="WizardMagicMissilesSeekerTalent" />
     <Abil value="WizardMagicMissiles" />
@@ -4391,6 +4394,11 @@
     <Value value="1" />
     <Behavior value="WizardTeleportMagicMissilesBonusDamageBuffAetherWalker" />
   </CValidatorUnitCompareBehaviorCount>
+  <CValidatorUnitCompareBehaviorCount id="WizardSourceHasTeleportMagicMissilesBonusDamageBuffAetherWalker">
+    <WhichUnit Value="Source" />
+    <Value value="1" />
+    <Behavior value="WizardTeleportMagicMissilesBonusDamageBuffAetherWalker" />
+  </CValidatorUnitCompareBehaviorCount>
   <CValidatorUnitCompareBehaviorCount id="WizardHasTeleportAetherWalkerDummyBehavior">
     <WhichUnit Value="Caster" />
     <Value value="1" />
@@ -4399,6 +4407,11 @@
   <CValidatorCombine id="WizardHasTeleportMagicMissilesBonusDamageBuffAndAetherWalkerTalent">
     <Type value="And" />
     <CombineArray value="WizardHasTeleportMagicMissilesBonusDamageBuffAetherWalker" />
+    <CombineArray value="WizardHasAetherWalker" />
+  </CValidatorCombine>
+  <CValidatorCombine id="WizardSourceHasTeleportMagicMissilesBonusDamageBuffAndAetherWalkerTalent">
+    <Type value="And" />
+    <CombineArray value="WizardSourceHasTeleportMagicMissilesBonusDamageBuffAetherWalker" />
     <CombineArray value="WizardHasAetherWalker" />
   </CValidatorCombine>
   <CValidatorCombine id="WizardHasTeleportAetherWalkerDummyBehaviorAndAetherWalkerTalent">
@@ -4573,6 +4586,10 @@
   <CValidatorPlayerTalent id="WizardHasForceArmor">
     <WhichPlayer Value="Caster" />
     <Find value="1" />
+    <Value value="WizardForceArmor" />
+  </CValidatorPlayerTalent>
+  <CValidatorPlayerTalent id="WizardDoesNotHaveForceArmor">
+    <WhichPlayer Value="Caster" />
     <Value value="WizardForceArmor" />
   </CValidatorPlayerTalent>
   <CValidatorPlayerTalent id="WizardHasArcaneOrbit">

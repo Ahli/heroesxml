@@ -74,6 +74,7 @@
     <UninterruptibleArray index="Channel" value="1" />
     <UninterruptibleArray index="Finish" value="1" />
     <CmdButtonArray index="Execute" DefaultButtonFace="ZeratulSeekerInTheDarkActivate" Requirements="ZeratulSingularitySpikeSeekerInTheDarkTalentActive" />
+    <SharedFlags index="AllowQuickCastCustomization" value="0" />
   </CAbilEffectInstant>
   <CAbilEffectInstant id="ZeratulCloakCooldownDisplay">
     <Cost>
@@ -208,6 +209,7 @@
       <Cooldown TimeUse="100" />
     </Cost>
     <Range value="5" />
+    <RangeSlop value="5" />
     <UninterruptibleArray index="Cast" value="1" />
     <UninterruptibleArray index="Channel" value="1" />
     <UninterruptibleArray index="Finish" value="1" />
@@ -963,6 +965,11 @@
   <CBehaviorTokenCounter id="ZeratulPsionicStrengthTokenBehavior" parent="StormGenericToken">
     <Max value="5" />
     <Init value="1" />
+    <MinStackCountDisplayed value="1" />
+    <Face value="ZeratulPsionicStrengthUIButton" />
+    <Alignment value="Positive" />
+    <DisplayDurationProxyBehavior value="ZeratulPsionicStrengthDamageBonus" />
+    <SortIndex value="25" />
   </CBehaviorTokenCounter>
   <CBehaviorBuff id="ZeratulDarknessDescendsPassiveAttackSpeedBuff">
     <Alignment value="Positive" />
@@ -981,7 +988,6 @@
     <Alignment value="Positive" />
     <BehaviorFlags index="Permanent" value="1" />
     <BehaviorFlags index="EnabledWhileDead" value="1" />
-    <InfoFlags index="Hidden" value="0" />
     <BuffFlags index="RefreshStack" value="1" />
     <Duration value="3" />
     <InitialEffect value="ZeratulPsionicStrengthApplyTokenBehavior" />
@@ -1678,7 +1684,7 @@
   <CEffectDamage id="ZeratulCleaveMightOfTheNerazimTalentDamage" parent="StormSpell">
     <Amount value="100" />
     <LeechValidator index="Life" value="ZeratulHasShadowMendingandTargetisHero" />
-    <LeechFraction index="Life" value="0.75" />
+    <LeechFraction index="Life" value="0.6" />
     <MultiplicativeModifierArray index="ZeratulSentencedToDeath" Validator="ZeratulHasSentencedtoDeathTalentandTargethasSingularitySpikeOrSingularitySpikeSlow" Modifier="0.25" Crit="1" />
   </CEffectDamage>
   <CEffectApplyBehavior id="ZeratulSingularitySpikeApplyMightOfTheNerazimTargetBehavior">
@@ -1691,7 +1697,7 @@
   <CEffectDamage id="ZeratulSingularitySpikeMightOfTheNerazimDamage" parent="StormSpell">
     <Amount value="120" />
     <LeechValidator index="Life" value="ZeratulHasShadowMendingandTargetisHero" />
-    <LeechFraction index="Life" value="0.75" />
+    <LeechFraction index="Life" value="0.6" />
     <MultiplicativeModifierArray index="ZeratulSentencedToDeath" Validator="ZeratulHasSentencedtoDeathTalentandTargethasSingularitySpikeOrSingularitySpikeSlow" Modifier="0.25" Crit="1" />
   </CEffectDamage>
   <CEffectSet id="ZeratulSingularitySpikeMightOfTheNerazimExplosionSet">
@@ -1724,6 +1730,9 @@
     <AreaArray Effect="ZeratulCleaveMightOfTheNerazimImpactSet">
       <Radius value="3" />
     </AreaArray>
+    <RevealerParams Duration="0.75" ShapeExpansion="1">
+      <RevealFlags index="Unfog" value="1" />
+    </RevealerParams>
   </CEffectEnumArea>
   <CEffectApplyBehavior id="ZeratulSingularitySpikeApplyMightOfTheNerazimMissileMarker">
     <WhichUnit Value="Source" />
@@ -2606,6 +2615,9 @@
     <AreaArray Effect="CleaveImpactSet">
       <Radius value="3" />
     </AreaArray>
+    <RevealerParams Duration="0.75" ShapeExpansion="1">
+      <RevealFlags index="Unfog" value="1" />
+    </RevealerParams>
   </CEffectEnumArea>
   <CEffectDamage id="ZeratulCleaveDamage" parent="StormSpell">
     <MultiplicativeModifierArray index="ZeratulVoidSlash" Validator="ZeratulCasterHasCleaveVoidSlashTalentTargetMarker" Modifier="0.4" Crit="1" />
@@ -2624,6 +2636,7 @@
     <EffectArray value="ZeratulBlinkShadowHunterTalentModifyCooldown" />
     <EffectArray value="ZeratulWarpSkirmisherRemoveDamageProcBehavior" />
     <EffectArray value="ZeratulSingularitySpikeUnwaveringPressureSwitch" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectSet id="ZeratulMasterWarpBladeFirstAttackSet">
     <EffectArray value="ZeratulMasterWarpBladeRemoveCasterHasTarget" />
@@ -2695,7 +2708,7 @@
     <DefaultMount value="HorseCommon" />
     <VariationArray value="ZeratulArgent" />
     <VariationArray value="ZeratulGreen" />
-    <Difficulty value="Hard" />
+    <Difficulty value="VeryHard" />
     <TalentTreeArray Talent="ZeratulMasteryGreaterCleaveCleave" Tier="1" Column="1" />
     <TalentTreeArray Talent="ZeratulShadowHunter" Tier="1" Column="2" />
     <TalentTreeArray Talent="ZeratulMoveUnseen" Tier="1" Column="3" />

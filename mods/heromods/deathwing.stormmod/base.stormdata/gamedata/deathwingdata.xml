@@ -389,6 +389,7 @@
       <Cooldown TimeUse="6" />
     </Cost>
     <Range value="9" />
+    <RangeSlop value="5" />
     <Arc value="360" />
     <CastIntroTime value="1" />
     <UninterruptibleArray index="Cast" value="1" />
@@ -489,6 +490,12 @@
   <CAccumulatorToken id="DeathwingHeatWaveDamageAccumulator" parent="BaseTokenAccumulator">
     <MaxAccumulation value="4" />
     <TokenId value="DeathwingHeatWaveToken" />
+  </CAccumulatorToken>
+  <CAccumulatorToken id="DeathwingHeatWaveTokenAccumulator" parent="BaseTokenAccumulator">
+    <MaxAccumulation value="4" />
+    <Offset value="1" />
+    <TokenId value="DeathwingHeatWaveToken" />
+    <ApplicationRule value="Add" />
   </CAccumulatorToken>
   <CActorModel id="DeathwingCataclysmMinionDoTFX" parent="StormModelAnimationStyleContinuousUnit">
     <On Terms="Behavior.DeathwingCataclysmDoT.On; !ValidateUnit TargetIsHero" Send="Create" />
@@ -624,7 +631,7 @@
     <On Terms="TimerExpired; TimerName Clear" Target="DeathwingShrubBuff" Send="ClearScale 0.250000 DamageScale" />
     <On Terms="Behavior.ShrubProximityRevealed.On" Send="TimerSet 0.062500 DamageProc" />
     <On Terms="Behavior.AttackReveal.Create" Target="DeathwingShrubBuff" Send="Destroy" />
-    <On Terms="Behavior.AttackReveal.Destroy; ValidateUnit SourceInShrubAndSourceNotRevealed" Send="Create DeathwingShrubBuff" />
+    <On Terms="Behavior.AttackReveal.Destroy; ValidateUnit SourceInShrubAndSourceNotRevealedAndSourceNotInCargo" Send="Create DeathwingShrubBuff" />
   </CActorEventMacro>
   <CActorUnit id="HeroDeathwing" parent="StormHeroStandard" unitName="HeroDeathwing">
     <On Terms="AnimBracketStop" Send="Signal ApplyReady" />
@@ -2298,6 +2305,12 @@
   </CBehaviorBuff>
   <CBehaviorTokenCounter id="DeathwingHeatWaveToken" parent="StormGenericToken">
     <Max value="3" />
+    <Face value="DeathwingHeatWave" />
+    <Alignment value="Positive" />
+    <SortIndex value="100" />
+    <DisplayDurationProxyBehavior value="DeathwingHeatWaveBuff" />
+    <StackCountAccumulator value="DeathwingHeatWaveTokenAccumulator" />
+    <MinStackCountDisplayed value="0" />
   </CBehaviorTokenCounter>
   <CBehaviorBuff id="DeathwingLavaBurstSlow" parent="StormSlowParent">
     <Duration value="0.5" />
@@ -2424,9 +2437,25 @@
     <Duration value="0.75" />
   </CBehaviorBuff>
   <CBehaviorBuff id="DeathwingDragonflightDeathDropSpellArmorDebuff" parent="StormArmor">
+    <BehaviorCategories index="DebuffVulnerable" value="1" />
     <Duration value="6" />
     <ArmorModification StackCount="6">
       <ArmorSet index="Hero">
+        <ArmorMitigationTable index="Ability" value="-15" />
+      </ArmorSet>
+      <ArmorSet index="Merc">
+        <ArmorMitigationTable index="Ability" value="-15" />
+      </ArmorSet>
+      <ArmorSet index="Monster">
+        <ArmorMitigationTable index="Ability" value="-15" />
+      </ArmorSet>
+      <ArmorSet index="Summon">
+        <ArmorMitigationTable index="Ability" value="-15" />
+      </ArmorSet>
+      <ArmorSet index="Structure">
+        <ArmorMitigationTable index="Ability" value="-15" />
+      </ArmorSet>
+      <ArmorSet index="Minion">
         <ArmorMitigationTable index="Ability" value="-15" />
       </ArmorSet>
     </ArmorModification>
@@ -3378,6 +3407,7 @@
     <EffectArray value="DeathwingWeaponDamage" />
     <EffectArray value="DeathwingDragonflightSetCooldown" />
     <EffectArray value="DeathwingDragonflightDestroyersRampageTalentBasicAttackRefreshBuff" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectDamage id="DeathwingWeaponDamage" parent="StormWeapon">
     <MultiplicativeModifierArray index="DeathwingFireAndFury" Validator="DeathwingFireAndFuryAttackValidator" Modifier="0.3" Crit="1" />
@@ -3510,7 +3540,7 @@
     <EffectArray value="DeathwingDestroyerFormApplyBehavior" />
     <EffectArray value="DeathwingDestroyersRampageApply" />
     <TargetLocationType value="Point" />
-    <ValidatorArray value="TargetPointWalkable" />
+    <ValidatorArray value="DeathwingTargetPointWalkableOrIsDeathwing" />
   </CEffectSet>
   <CEffectApplyBehavior id="DeathwingDestroyerFormApplyBehavior">
     <WhichUnit Value="Caster" />
@@ -3524,7 +3554,7 @@
     <EffectArray value="DeathwingDragonflightBuffRemoveBehavior" />
     <EffectArray value="DeathwingWorldbreakerFormApplyBehavior" />
     <TargetLocationType value="Point" />
-    <ValidatorArray value="TargetPointWalkable" />
+    <ValidatorArray value="DeathwingTargetPointWalkableOrIsDeathwing" />
   </CEffectSet>
   <CEffectApplyBehavior id="DeathwingWorldbreakerFormApplyBehavior">
     <WhichUnit Value="Caster" />
@@ -4507,7 +4537,7 @@
     <TalentTreeArray Talent="DeathwingStoodInTheFire" Tier="7" Column="1" />
     <TalentTreeArray Talent="DeathwingArrivalOfAGod" Tier="7" Column="2" />
     <TalentTreeArray Talent="DeathwingDestroyersRampage" Tier="7" Column="3" />
-    <Difficulty value="Medium" />
+    <Difficulty value="Hard" />
     <Universe value="Warcraft" />
     <UniverseIcon value="Assets\Textures\ui_glues_store_gameicon_wow.dds" />
     <ProductId value="70730" />
@@ -6235,6 +6265,10 @@
     <WhichUnit Value="Caster" />
     <Behavior value="DeathwingAdamantineArmorPlate1" />
   </CValidatorUnitHasBehavior>
+  <CValidatorCombine id="DeathwingTargetPointWalkableOrIsDeathwing">
+    <CombineArray value="TargetPointWalkable" />
+    <CombineArray value="CasterIsDeathwing" />
+  </CValidatorCombine>
   <CValidatorCombine id="AbilButtonActiveQDamage">
     <CombineArray value="DeathwingCasterHasGTE75EnergyAndHasInfernusTalentAndDoesNotHaveDeathwingDragonflightBuffBehavior" />
   </CValidatorCombine>
@@ -6245,6 +6279,7 @@
   <CValidatorCombine id="DeathwingCasterHasGTE75EnergyAndHasInfernusTalentAndDoesNotHaveDeathwingDragonflightBuffBehavior">
     <Type value="And" />
     <CombineArray value="DeathwingHasInfernusTalent" />
+    <CombineArray value="CasterIsDeathwing" />
     <CombineArray value="DeathwingCasterHasGTE75EnergyInfernus" />
     <CombineArray value="DeathwingDoesNotHaveDeathwingDragonflightBuffBehavior" />
   </CValidatorCombine>
@@ -6268,6 +6303,10 @@
     <WhichUnit Value="Caster" />
     <Value value="HeroDeathwing" />
     <Find value="0" />
+  </CValidatorUnitType>
+  <CValidatorUnitType id="CasterIsDeathwing">
+    <WhichUnit Value="Caster" />
+    <Value value="HeroDeathwing" />
   </CValidatorUnitType>
   <CValidatorUnitCompareVital id="DeathwingCasterHasGTE10Energy">
     <ResultFailed value="NotEnoughEnergy" />

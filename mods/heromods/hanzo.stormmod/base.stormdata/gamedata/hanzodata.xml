@@ -1277,7 +1277,7 @@
     <InfoFlags index="AlwaysUseGameText" value="1" />
     <InfoIcon value="Assets\Textures\storm_ui_icon_hanzo_draconicadvantage.dds" />
     <MaxStackCount value="4" />
-    <SortIndex value="100" />
+    <SortIndex value="50" />
   </CBehaviorBuff>
   <CBehaviorBuff id="HanzoDragonstrikeTargetImmuneBehavior">
     <Duration value="0.25" />
@@ -1319,7 +1319,7 @@
       <WeaponRange value="2" />
       <WeaponScanBonus value="2" />
     </Modification>
-    <SortIndex value="100" />
+    <SortIndex value="25" />
   </CBehaviorBuff>
   <CBehaviorBuff id="HanzoHeroWeaponDummyUICooldown">
     <Duration value="1.5" />
@@ -1369,6 +1369,9 @@
     <RemoveValidatorArray value="HanzoFleetofFootHasTalent" />
     <MaxStackCount value="3" />
     <BuffFlags index="RefreshStack" value="1" />
+    <InfoFlags index="Hidden" value="0" />
+    <Face value="HanzoFleetofFoot" />
+    <SortIndex value="75" />
   </CBehaviorBuff>
   <CBehaviorBuff id="HanzoRedemptionMaxStacksAttackSpeed" parent="CarryBehaviorParent">
     <Modification>
@@ -1675,6 +1678,12 @@
     <Behavior value="HanzoSharpenedArrowheadsArmorReduction" />
     <Count value="3" />
   </CEffectApplyBehavior>
+  <CEffectApplyBehavior id="HanzoSharpenedArrowheadsApplyArmorReductionStormBow">
+    <ValidatorArray value="HanzoSharpenedArrowheadsHasTalent" />
+    <ValidatorArray value="TargetIsHero" />
+    <Behavior value="HanzoSharpenedArrowheadsArmorReduction" />
+    <Count value="3" />
+  </CEffectApplyBehavior>
   <CEffectSet id="HanzoStormBowRemoveBehaviors">
     <EffectArray value="HanzoStormBowRemoveChargingBehavior" />
     <EffectArray value="HanzoStormBowRemoveTargetingBehavior" />
@@ -1817,6 +1826,9 @@
     <ValidatorArray value="TargetIsHero" />
     <Visibility value="Hidden" />
     <VitalFractionMax index="Life" value="0.02" />
+  </CEffectDamage>
+  <CEffectDamage id="HanzoGiantSlayerBonusDamageScatterArrow" parent="HanzoGiantSlayerBonusDamage">
+    <CollationId value="GiantSlayer" />
   </CEffectDamage>
   <CEffectApplyBehavior id="HanzoDragonstrikeApplySearchBehavior">
     <Behavior value="HanzoDragonstrikeSearchUnitController" />
@@ -2188,6 +2200,7 @@
     <EffectArray value="HanzoDragonsArrowStunSwitch" />
     <EffectArray value="HanzoDragonsArrowDamageSwitch" />
     <EffectArray value="HanzoPOTGTrackTarget" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
   </CEffectSet>
   <CEffectDamage id="HanzoDragonsArrowLevel3Damage" parent="StormSpell">
     <Amount value="390" />
@@ -2290,6 +2303,7 @@
   </CEffectModifyTokenCount>
   <CEffectSet id="HanzoExplosiveArrowsImpactSet">
     <EffectArray value="HanzoExplosiveArrowsDamage" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
   </CEffectSet>
   <CEffectEnumArea id="HanzoExplosiveArrowsSearchArea">
     <AreaArray Effect="HanzoExplosiveArrowsImpactSet">
@@ -2440,6 +2454,7 @@
     <ValidatorArray value="HanzoDragonstrikeTargetDoesNotHaveImmuneBehavior" />
   </CEffectSet>
   <CEffectModifyUnit id="HanzoHeroWeaponAbilityUseSetCooldown">
+    <ValidatorArray value="HanzoWeaponNotInSwing" />
     <ImpactUnit Value="Caster" />
     <Weapon Weapon="HanzoHeroWeapon" CooldownAmount="0.25" />
   </CEffectModifyUnit>
@@ -2455,6 +2470,7 @@
     <EffectArray value="HanzoHeroWeaponTalentProcSet" />
     <EffectArray value="HanzoIgnoreAllDistractionsBasicAttackDamageSwitch" />
     <EffectArray value="HanzoSharpenedArrowheadsApplyArmorReduction" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectSet id="HanzoHeroWeaponTalentProcSet">
     <EffectArray value="HanzoRedemptionAddToken" />
@@ -2500,6 +2516,7 @@
   </CEffectLaunchMissile>
   <CEffectDamage id="HanzoScatterArrowRicochetDamage" parent="StormSpell">
     <Amount value="88" />
+    <CollationId value="ScatterArrow" />
     <MultiplicativeModifierArray index="TalentSerratedArrowsDamageModifier" Validator="HanzoSerratedArrowsHasTalentAndTargetIsMinionOrMercOrMonster" Modifier="1" Crit="1" />
   </CEffectDamage>
   <CEffectModifyTokenCount id="HanzoScatterArrowDecrementTargetsRemainingCounter" parent="BaseEffectModifyTokenCount">
@@ -2524,7 +2541,7 @@
     <EffectArray value="HanzoScatterArrowDecrementTargetsRemainingCounter" />
     <EffectArray value="HanzoSimpleGeometryAddOrIncrementTargetHitCounterSwitch" />
     <EffectArray value="HanzoTheDragonAwakensReduceDragonstrikeCooldown" />
-    <EffectArray value="HanzoGiantSlayerBonusDamage" />
+    <EffectArray value="HanzoGiantSlayerBonusDamageScatterArrow" />
     <EffectArray value="HanzoScatterArrowMarkerTrackUnit" />
     <EffectArray value="HanzoScatterArrowRicochetDamage" />
     <EffectArray value="HanzoScatterArrowMissileSuicide" />
@@ -2677,11 +2694,11 @@
     <EffectArray value="HanzoFleetofFootApplyMovementSpeed" />
     <EffectArray value="HanzoNinjaAssassinReduceNaturalAgilityCooldown" />
     <EffectArray value="HanzoExplosiveArrowsSearchArea" />
-    <EffectArray value="HanzoTheDragonHungersApplyBehavior" />
     <EffectArray value="HanzoFlawlessTechniqueApplyBasicAttackBuff" />
     <EffectArray value="HanzoTheDragonAwakensReduceDragonstrikeCooldown" />
-    <EffectArray value="HanzoSharpenedArrowheadsApplyArmorReduction" />
     <EffectArray value="HanzoStormBowDamage" />
+    <EffectArray value="HanzoTheDragonHungersApplyBehavior" />
+    <EffectArray value="HanzoSharpenedArrowheadsApplyArmorReductionStormBow" />
     <EffectArray value="HanzoPiercingArrowsNoPierceLeftSuicide" />
     <EffectArray value="HanzoPiercingArrowsRemoveMissileCanPierceBehavior" />
     <ValidatorArray value="noMarkers" />
@@ -2714,6 +2731,10 @@
     <Movers Link="HanzoStormBowMissileMover" />
     <SearchEffect value="HanzoStormBowTargetSearch" />
   </CEffectLaunchMissile>
+  <CEffectModifyPlayer id="HanzoStormBowResetDistance">
+    <WhichPlayer Value="Caster" />
+    <EffectArray Operation="Set" Reference="Effect,HanzoStormBowLaunchMissile,ImpactLocation.ProjectionDistanceScale" Value="6.0" />
+  </CEffectModifyPlayer>
   <CEffectRemoveBehavior id="HanzoStormBowRemoveChargingBehavior">
     <WhichUnit Value="Caster" />
     <BehaviorLink value="HanzoStormBowCharging" />
@@ -2979,7 +3000,7 @@
     </Ratings>
     <HeroSpecificUIArray Location="Status" DescName="Hanzo/HanzoFrame" />
     <HeroSpecificUIArray Location="HeroSpecificStackingBuffsStatus" DescName="Hanzo/HanzoStacksFrameContainer" />
-    <Difficulty value="Medium" />
+    <Difficulty value="Hard" />
     <TalentAIBuildsArray ChanceToPick="16">
       <TalentsArray value="HanzoRedemption" />
       <TalentsArray value="HanzoIgnoreAllDistractions" />
@@ -3485,7 +3506,9 @@
     <FlagArray index="Benign" value="1" />
     <BehaviorArray Link="HallOfStormsKnockbackImmunity" />
   </CUnit>
-  <CUnit id="HanzoStormBowMissile" parent="MISSILE_INVULNERABLE" />
+  <CUnit id="HanzoStormBowMissile" parent="MISSILE_INVULNERABLE">
+    <EffectArray index="Death" value="HanzoStormBowResetDistance" />
+  </CUnit>
   <CUnit id="HanzoDragonsArrow" parent="MISSILE_INVULNERABLE" />
   <CUnit id="HeroHanzo" parent="StormHeroMounted">
     <LifeStart value="1375" />
@@ -3683,6 +3706,11 @@
     <Compare value="GT" />
     <Behavior value="HanzoFlawlessTechniqueStormBowMissileEmpowered" />
   </CValidatorUnitCompareBehaviorCount>
+  <CValidatorUnitCompareWeaponLegacyState id="HanzoWeaponNotInSwing">
+    <Compare value="NE" />
+    <Value value="Swing" />
+    <Weapon value="HanzoHeroWeapon" />
+  </CValidatorUnitCompareWeaponLegacyState>
   <CValidatorPlayerTalent id="HanzoMountedArcheryHasTalent">
     <Find value="1" />
     <Value value="HanzoMountedArchery" />
@@ -3699,6 +3727,7 @@
     <Type value="And" />
     <CombineArray value="HanzoIgnoreAllDistractionsHasTalent" />
     <CombineArray value="HanzoNeedsToBeAStandardValidatorTargetIsStandardLaneMinion" />
+    <CombineArray value="CasterNotBlindedAndTargetNotEvading" />
   </CValidatorCombine>
   <CValidatorPlayerTalent id="HanzoGiantSlayerHasTalent">
     <Find value="1" />

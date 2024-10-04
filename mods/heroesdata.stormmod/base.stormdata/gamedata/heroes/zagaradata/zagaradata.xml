@@ -152,6 +152,7 @@
     </Cost>
     <Placeholder value="ZagaraCreepTumor" />
     <Range value="2.5" />
+    <RangeSlop value="5" />
     <Arc value="360" />
     <CastIntroTime value="0.2" />
     <UninterruptibleArray index="Cast" value="1" />
@@ -1221,6 +1222,7 @@
   </CBehaviorBuff>
   <CBehaviorBuff id="ZagaraEnterNydusWormHealBehavior">
     <Alignment value="Positive" />
+    <Face value="ZagaraNydusNetwork" />
     <Duration value="-1" />
     <Period value="0.2" />
     <PeriodicEffect value="ZagaraEnterNydusWormCreateHealer" />
@@ -1752,6 +1754,7 @@
     <EffectArray value="ZagaraSerratedSpinesAddToken" />
     <EffectArray value="ZagaraWeaponEnvenomedSpinesRemoveBehavior" />
     <EffectArray value="ZagaraWeaponEnvenomedSpinesApplyBehavior" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectModifyTokenCount id="ZagaraSerratedSpinesAddToken" parent="BaseEffectModifyTokenCount">
     <ValidatorArray value="TargetIsHero" />
@@ -1841,6 +1844,7 @@
     <CaseDefault value="ZagaraHydraliskMeleeImpactSet" />
   </CEffectSwitch>
   <CEffectSet id="ZagaraHydraliskMeleeImpactSet">
+    <EffectArray value="StormSummonedWeaponPhysicalDamageDummy" />
     <EffectArray value="ZagaraHydraliskMeleeDamageSwitch" />
     <EffectArray value="ZagaraHunterKillerBileDropCorrosiveSalivaPercentDamage" />
     <EffectArray value="ZagaraHunterKillerPackInstinctsTalentApplyTargetMarker" />
@@ -1849,6 +1853,7 @@
     <CaseDefault value="ZagaraHydraliskRangedImpactSet" />
   </CEffectSwitch>
   <CEffectSet id="ZagaraHydraliskRangedImpactSet">
+    <EffectArray value="StormSummonedWeaponPhysicalDamageDummy" />
     <EffectArray value="ZagaraHydraliskRangedDamageSwitch" />
     <EffectArray value="ZagaraHunterKillerBileDropCorrosiveSalivaPercentDamage" />
     <EffectArray value="ZagaraHunterKillerPackInstinctsTalentApplyTargetMarker" />
@@ -1974,6 +1979,7 @@
     <EffectArray value="UniversalWeaponImpact" />
     <EffectArray value="ZagaraWeaponDamage" />
     <EffectArray value="ZagaraSerratedSpinesAddToken" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectLaunchMissile id="ZagaraWeaponEnvenomedSpinesLaunchMissile">
     <ValidatorArray index="0" value="TargetNotDead" />
@@ -1993,18 +1999,26 @@
   <CEffectSet id="ZagaraMedusaBladesImpactSet">
     <EffectArray value="MedusaBladesWeaponDamage" />
   </CEffectSet>
+  <CEffectSwitch id="ZagaraMedusaBladesSwitch">
+    <CaseArray Validator="TargetIsBenign" Effect="ZagaraMedusaBladesSearchIncludeBenign" />
+    <CaseDefault value="ZagaraMedusaBladesSearch" />
+  </CEffectSwitch>
   <CEffectEnumArea id="ZagaraMedusaBladesSearch">
     <ValidatorArray value="TargetNotDead" />
     <ImpactLocation Value="TargetUnit" />
     <ExcludeArray Effect="ZagaraMedusaBladesWeaponSet" Value="Target" />
-    <SearchFilters value="Visible;Self,Player,Ally,Neutral,Missile,Destructible,Stasis,Dead,Hidden,Invulnerable" />
+    <SearchFilters value="Visible;Self,Player,Ally,Neutral,Missile,Item,Stasis,Dead,Hidden,Invulnerable,Benign" />
     <AreaArray Arc="45" MaxCount="3" Effect="MedusaBladesSideWeaponLaunchMissile">
       <Radius value="9.5" />
     </AreaArray>
     <SearchFlags index="CenterAtLaunch" value="1" />
   </CEffectEnumArea>
+  <CEffectEnumArea id="ZagaraMedusaBladesSearchIncludeBenign" parent="ZagaraMedusaBladesSearch">
+    <SearchFilters value="Visible;Self,Player,Ally,Neutral,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
+  </CEffectEnumArea>
   <CEffectSet id="ZagaraMedusaBladesSideWeaponImpactSet">
     <EffectArray value="MedusaBladesSideWeaponDamage" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectLaunchMissile id="ZagaraMedusaBladesWeaponLaunchMissile">
     <ValidatorArray index="0" value="TargetNotDead" />
@@ -2015,7 +2029,7 @@
   </CEffectLaunchMissile>
   <CEffectSet id="ZagaraMedusaBladesWeaponSet">
     <ValidatorArray value="ZagaraHasMedusaBlades" />
-    <EffectArray value="ZagaraMedusaBladesSearch" />
+    <EffectArray value="ZagaraMedusaBladesSwitch" />
   </CEffectSet>
   <CEffectDamage id="MedusaBladesSideWeaponDamage" parent="StormWeapon">
     <Amount value="83" />
@@ -2146,8 +2160,9 @@
   </CEffectEnumArea>
   <CEffectDamage id="ZagaraBanelingExplodeDamage" parent="StormSpell">
     <Amount value="80" />
-    <DamageModifierSource Value="Creator" />
+    <Visibility value="Hidden" />
     <MultiplicativeModifierArray index="PackInstinct" Validator="ZagaraPackInstinctTalentProcCombine" Modifier="0.2" Crit="1" />
+    <SourceButtonFace value="ZagaraBanelingBarrage" />
   </CEffectDamage>
   <CEffectSet id="ZagaraBanelingSuicideTest">
     <EffectArray value="ZagaraBanelingCreatePersistentSuicideReveal" />
@@ -2164,6 +2179,7 @@
   </CEffectSwitch>
   <CEffectSet id="ZagaraRoachMeleeAttackImpactSet">
     <EffectArray value="InfestedDropApplyCorpseFeedersDebuff" />
+    <EffectArray value="StormSummonedWeaponPhysicalDamageDummy" />
     <EffectArray value="ZagaraRoachAttackDamage" />
     <EffectArray value="ZagaraHunterKillerBileDropCorrosiveSalivaPercentDamage" />
   </CEffectSet>
@@ -2172,6 +2188,7 @@
   </CEffectSwitch>
   <CEffectSet id="ZagaraRoachRangedAttackImpactSet">
     <EffectArray value="InfestedDropApplyCorpseFeedersDebuff" />
+    <EffectArray value="StormSummonedWeaponPhysicalDamageDummy" />
     <EffectArray value="ZagaraRoachAttackDamage" />
     <EffectArray value="ZagaraHunterKillerBileDropCorrosiveSalivaPercentDamage" />
   </CEffectSet>
@@ -2310,8 +2327,12 @@
     <MultiplicativeModifierArray index="PackInstinct" Validator="ZagaraPackInstinctTalentProcCombine" Modifier="0.2" Crit="1" />
   </CEffectDamage>
   <CEffectSwitch id="ZagaraMutaliskWeaponDamageSwitch3" parent="SummonedBasicAttackAbilityDamageMissCheck">
-    <CaseDefault value="ZagaraMutaliskWeaponDamage3" />
+    <CaseDefault value="ZagaraMutaliskWeaponImpactSet3" />
   </CEffectSwitch>
+  <CEffectSet id="ZagaraMutaliskWeaponImpactSet3">
+    <EffectArray value="StormSummonedWeaponPhysicalDamageDummy" />
+    <EffectArray value="ZagaraMutaliskWeaponDamage3" />
+  </CEffectSet>
   <CEffectDamage id="ZagaraMutaliskWeaponDamage3" parent="StormSummonedUnitWeapon">
     <Amount value="$ZagaraHunterKillerMutaliskDamageBounce2" />
     <MultiplicativeModifierArray index="PackInstinct" Validator="ZagaraPackInstinctTalentProcCombine" Modifier="0.2" Crit="1" />
@@ -2320,9 +2341,10 @@
     <CaseDefault value="ZagaraMutaliskWeaponImpactSet1" />
   </CEffectSwitch>
   <CEffectSet id="ZagaraMutaliskWeaponImpactSet1">
+    <EffectArray value="StormSummonedWeaponPhysicalDamageDummy" />
     <EffectArray value="ZagaraMutaliskWeaponDamage1" />
     <EffectArray value="ZagaraHunterKillerBileDropCorrosiveSalivaPercentDamage" />
-    <EffectArray value="ZagaraMutaliskWeaponSearchArea1" />
+    <EffectArray value="ZagaraMutaliskWeaponSearchArea1Switch" />
     <EffectArray value="ZagaraMutaliskApplyBenignTarget" />
     <EffectArray value="ZagaraHunterKillerPackInstinctsTalentApplyTargetMarker" />
   </CEffectSet>
@@ -2330,6 +2352,7 @@
     <CaseDefault value="ZagaraMutaliskWeaponImpactSet2" />
   </CEffectSwitch>
   <CEffectSet id="ZagaraMutaliskWeaponImpactSet2">
+    <EffectArray value="StormSummonedWeaponPhysicalDamageDummy" />
     <EffectArray value="ZagaraMutaliskWeaponDamage2" />
     <EffectArray value="ZagaraMutaliskWeaponSearchArea2" />
   </CEffectSet>
@@ -2350,19 +2373,26 @@
     <AmmoUnit value="ZagaraMutaliskMissile3" />
     <SharedFlags index="ValidateWeapon" value="0" />
   </CEffectLaunchMissile>
+  <CEffectSwitch id="ZagaraMutaliskWeaponSearchArea1Switch">
+    <CaseArray Validator="TargetIsBenign" Effect="ZagaraMutaliskWeaponSearchArea1IncludeBenign" />
+    <CaseDefault value="ZagaraMutaliskWeaponSearchArea1" />
+  </CEffectSwitch>
   <CEffectEnumArea id="ZagaraMutaliskWeaponSearchArea1">
     <ExcludeArray Value="Outer" />
     <ExcludeArray Value="Target" />
-    <SearchFilters value="Visible;Player,Ally,Neutral,ImmuneToAOE,Missile,Destructible,Stasis,Dead,Hidden,Invulnerable" />
+    <SearchFilters value="Visible;Self,Player,Ally,Neutral,Missile,Item,Stasis,Dead,Hidden,Invulnerable,Benign" />
     <AreaArray Effect="ZagaraMutaliskWeaponLaunchMissile2">
       <Radius value="4" />
     </AreaArray>
     <MaxCount value="1" />
   </CEffectEnumArea>
+  <CEffectEnumArea id="ZagaraMutaliskWeaponSearchArea1IncludeBenign" parent="ZagaraMutaliskWeaponSearchArea1">
+    <SearchFilters value="Visible;Self,Player,Ally,Neutral,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
+  </CEffectEnumArea>
   <CEffectEnumArea id="ZagaraMutaliskWeaponSearchArea2">
     <ExcludeArray Value="Outer" />
     <ExcludeArray Value="Target" />
-    <SearchFilters value="Visible;Player,Ally,Neutral,ImmuneToAOE,Missile,Destructible,Stasis,Dead,Hidden,Invulnerable" />
+    <SearchFilters value="Visible;Self,Player,Ally,Neutral,Missile,Item,Stasis,Dead,Hidden,Invulnerable,Benign" />
     <AreaArray Effect="ZagaraMutaliskWeaponLaunchMissile3">
       <Radius value="4" />
     </AreaArray>

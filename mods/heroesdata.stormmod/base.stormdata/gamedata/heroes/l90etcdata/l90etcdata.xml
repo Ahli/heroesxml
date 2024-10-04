@@ -4,6 +4,7 @@
     <Effect value="RockstarDummyEffect" />
     <CmdButtonArray index="Execute" DefaultButtonFace="L90ETCRockstar" />
     <Flags index="ValidateButtonState" value="0" />
+    <SharedFlags index="AllowQuickCastCustomization" value="0" />
   </CAbilEffectInstant>
   <CAbilEffectInstant id="L90ETCMoshPit">
     <Effect value="L90ETCMoshPitCastSet" />
@@ -141,6 +142,7 @@
     <On Terms="Behavior.Powerslide.Off" Send="AnimClear SpellE" />
     <On Terms="Behavior.ETCPowerslideCrowdSurferTalent.Off" Send="AnimClear SpellE" />
     <On Terms="Effect.ETCPowerslideCrowdSurferPersistentFinalSet.Start; At Caster; !ValidateUnit ETCHasCrowdSurferMissileMover" Send="AnimClear SpellE" />
+    <On Terms="Effect.L90ETCPowerslideCrowdSurferRefundCheck.Start; At Caster" Send="AnimClear SpellE" />
     <On Terms="Abil.L90ETCFaceMelt.SourceCastStart" Send="AnimPlay Spell Spell,C 0 -1.000000 -1.000000 1.000000 AsTimeScale" />
     <On Terms="Abil.L90ETCGuitarSolo.SourceCastStart" Send="AnimPlay Spell Spell,A 0 -1.000000 -1.000000 1.000000 AsTimeScale" />
     <On Terms="Abil.L90ETCGuitarSolo.SourceCastStart" Send="Create L90ETCGuitarSoloCast" />
@@ -1064,6 +1066,7 @@
   <CEffectModifyBehaviorBuffDuration id="ETCGuiltarSoloGuitarHeroModifyBuffDuration">
     <ValidatorArray value="ETCHasGuitarHero" />
     <ValidatorArray value="HasL90ETCGuitarSoloGuitarHero" />
+    <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
     <Value value="0.5" />
     <Behavior value="L90ETCGuitarSoloHeroHeal" />
   </CEffectModifyBehaviorBuffDuration>
@@ -1165,6 +1168,14 @@
     <PlacementRange value="7" />
     <Movers Link="ETCCrowdSurferMissileMover" />
   </CEffectLaunchMissileAdvanced>
+  <CEffectModifyUnit id="L90ETCPowerslideCrowdSurferRefundCheck">
+    <ValidatorArray value="CasterIsGroundMover" />
+    <ImpactUnit Value="Caster" />
+    <Cost Abil="L90ETCPowerslide,Execute" CooldownOperation="Set" />
+    <VitalArray index="Energy">
+      <Change value="60" />
+    </VitalArray>
+  </CEffectModifyUnit>
   <CEffectApplyBehavior id="ETCMoshPitApplySuppressMovementSuppression">
     <ValidatorArray index="0" value="HasETCTourBus" />
     <WhichUnit Value="Caster" />
@@ -1186,6 +1197,8 @@
   <CEffectCreatePersistent id="ETCPowerslideCrowdSurferOffsetPersistent">
     <TimeScaleSource Value="Caster" />
     <InitialEffect value="ETCPowerslideCrowdSurferLaunchMissile" />
+    <PeriodCount value="1" />
+    <PeriodicEffectArray value="L90ETCPowerslideCrowdSurferRefundCheck" />
     <ExpireDelay value="0.5625" />
   </CEffectCreatePersistent>
   <CEffectSet id="ETCPowerslideCrowdSurferPersistentInitialSet">
@@ -1526,6 +1539,7 @@
     <VitalArray index="Energy">
       <Change value="60" />
     </VitalArray>
+    <FloaterCreation value="Force" />
   </CEffectModifyUnit>
   <CEffectDestroyPersistent id="L90ETCMoshPitDestroyPersistent">
     <Effect value="L90ETCMoshPitPersistentPeriodic" />
@@ -1534,6 +1548,7 @@
     <RequireCaster Value="Caster" />
   </CEffectDestroyPersistent>
   <CEffectCreateHealer id="L90ETCGuitarSoloAllyHeal" parent="StormHealingSpell">
+    <SourceButtonFace value="ETCProgRockTalent" />
     <RechargeVitalRate value="50" />
   </CEffectCreateHealer>
   <CEffectApplyBehavior id="L90ETCGuitarSoloApplyBonusDamageRune">
@@ -1783,6 +1798,7 @@
     <EffectArray value="GuitarSoloLifeStealVisualDummy" />
     <EffectArray value="ETCGuitarSoloAggressiveShreddingTalentModifyCooldown" />
     <EffectArray value="ETCGuiltarSoloGuitarHeroModifyBuffDuration" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectDamage id="L90ETCWeaponDamage" parent="StormWeapon">
     <Amount value="99" />
@@ -2148,6 +2164,7 @@
     <AllowedMountCategoryArray value="Ridebeast" />
     <AllowedMountCategoryArray value="Ridebike" />
     <AllowedMountCategoryArray value="Ridesurf" />
+    <Difficulty value="Hard" />
     <Ratings>
       <Damage value="4" />
       <Utility value="6" />
@@ -2156,6 +2173,7 @@
     </Ratings>
     <Flags index="GoodForModeA" value="1" />
     <HeroSpecificUIArray Location="Status" DescName="ETC/ETCFrame" />
+    <HeroSpecificUIArray Location="CommandButton02Status" DescName="ETC/L90ETCGuitarSoloButtonOverride" />
     <VoiceLineArray value="L90ETCBase_VoiceLine01" />
     <VoiceLineArray value="L90ETCBase_VoiceLine02" />
     <VoiceLineArray value="L90ETCBase_VoiceLine03" />

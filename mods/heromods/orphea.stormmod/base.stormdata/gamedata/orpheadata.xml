@@ -73,6 +73,7 @@
       <Cooldown TimeUse="14" />
     </Cost>
     <Range value="12" />
+    <RangeSlop value="5" />
     <Arc value="360" />
     <UninterruptibleArray index="Cast" value="1" />
     <UninterruptibleArray index="Channel" value="1" />
@@ -114,6 +115,7 @@
       <Cooldown TimeUse="50" />
     </Cost>
     <Range value="14" />
+    <RangeSlop value="5" />
     <Arc value="360" />
     <CastIntroTime value="0.125" />
     <UninterruptibleArray index="Cast" value="1" />
@@ -132,6 +134,7 @@
       <Cooldown TimeUse="70" />
     </Cost>
     <Range value="9" />
+    <RangeSlop value="5" />
     <Arc value="360" />
     <UninterruptibleArray index="Cast" value="1" />
     <UninterruptibleArray index="Channel" value="1" />
@@ -219,6 +222,12 @@
   <CAccumulatorToken id="OrpheaEnPointeDamageAccumulator" parent="BaseAccumulator">
     <TokenId value="OrpheaEnPointeToken" />
     <Scale value="0.5" />
+  </CAccumulatorToken>
+  <CAccumulatorToken id="OrpheaInvasiveMiasmaHealAccumulator" parent="BaseAccumulator">
+    <MaxAccumulation value="15" />
+    <TokenId value="OrpheaInvasiveMiasmaHitCounter" />
+    <Scale value="1" />
+    <Offset value="-1" />
   </CAccumulatorToken>
   <CActorUnit id="HeroOrphea" parent="StormHeroStandard" unitName="HeroOrphea">
     <GroupIcon>
@@ -548,6 +557,7 @@
     <On Terms="Behavior.OrpheaFinalToccata.Off" Send="AnimBracketStop BSD" />
     <On Terms="Behavior.OrpheaEldritchConduitEmpowered.On" Send="Create" />
     <On Terms="Behavior.OrpheaEldritchConduitEmpowered.Off" Send="AnimBracketStop BSD" />
+    <On Terms="Behavior.Dead.On" Send="Destroy" />
     <HostSiteOps Ops="SOpAttachCenter SOpPointSouthWorld" HoldRotation="1" />
   </CActorModel>
   <CActorSound id="Orphea_ShadowWaltz_Launch" parent="SoundOneShot">
@@ -1316,6 +1326,7 @@
     <InfoFlags index="Hidden" value="1" />
     <TokenId value="OrpheaOverflowingChaosChaoticAssaultToken" />
     <Max value="1" />
+    <InitEvents Effect="OrpheaChaoticAssaultTalentModifyTokenInitial" />
   </CBehaviorTokenCounter>
   <CBehaviorBuff id="OrpheaShadowWaltzDashAttackSuppress">
     <Alignment value="Positive" />
@@ -1346,9 +1357,10 @@
     <BehaviorCategories index="Restorable" value="1" />
     <DisplayPriority value="1001" />
     <Duration value="2" />
-    <InitialEffect value="OrpheaShadowWaltzRefundMana" />
     <StartWalkingEffect value="OrpheaShadowWaltzDashStartWalkingSet" />
-    <RefreshEffect value="OrpheaShadowWaltzRefundMana" />
+  </CBehaviorBuff>
+  <CBehaviorBuff id="OrpheaShadowWaltzRefundController">
+    <CancelEffect value="OrpheaShadowWaltzRefundMana" />
   </CBehaviorBuff>
   <CBehaviorBuff id="OrpheaChompKnockback" parent="PushPullParent">
     <Duration value="0.25" />
@@ -1454,7 +1466,7 @@
     <BuffFlags index="Countdown" value="0" />
     <BuffFlags index="UpdateDurationWhileDisabled" value="1" />
     <Duration value="2" />
-    <ExpireEffect value="OrpheaInvasiveMiasmaSearch" />
+    <ExpireEffect value="OrpheaInvasiveMiasmaExpireSet" />
     <DisplayDuration index="Self" value="1" />
     <RemoveValidatorArray value="CasterNotDead" />
     <RemoveValidatorArray value="TargetNotSpecialDeathState" />
@@ -1563,6 +1575,9 @@
     <SortIndex value="100" />
   </CBehaviorBuff>
   <CBehaviorBuff id="OrpheaInvasiveMiasmaCarry" parent="CarryBehaviorParent" />
+  <CBehaviorTokenCounter id="OrpheaInvasiveMiasmaHitCounter" parent="StormGenericToken">
+    <Max value="15" />
+  </CBehaviorTokenCounter>
   <CBehaviorBuff id="OrpheaInvasiveMiasmaAbilityReady">
     <BehaviorFlags index="Permanent" value="1" />
     <BehaviorFlags index="EnabledWhileDead" value="1" />
@@ -1610,6 +1625,7 @@
   <CBehaviorAbility id="OrpheaLurkingTerrorAbility">
     <Buttons Face="OrpheaLurkingTerror" Type="AbilCmd" AbilCmd="OrpheaLurkingTerror,Execute" />
     <DisableValidatorArray value="OrpheaNotCurrentlyCastingChomp" />
+    <ButtonOverrideDataFrame value="Orphea/OrpheaLurkingTerrorButtonOverlayFrame" />
   </CBehaviorAbility>
   <CBehaviorAbility id="OrpheaFinalToccataAbility">
     <Buttons Face="OrpheaFinalToccata" Type="AbilCmd" AbilCmd="OrpheaFinalToccata,Execute" />
@@ -1663,8 +1679,10 @@
     </Modification>
     <DisplayPriority value="10" />
     <SortIndex value="1001" />
+    <RefreshEffect value="OrpheaEldritchConduitApplyEmpowered" />
   </CBehaviorBuff>
-  <CBehaviorBuff id="OrpheaEldritchConduitEmpowered">
+  <CBehaviorBuff id="OrpheaEldritchConduitEmpowered" parent="StormDamageIncrease">
+    <RemoveValidatorArray value="OrpheaEldritchConduitHas10Stacks" />
     <Alignment value="Positive" />
     <BuffFlags index="RefreshStack" value="1" />
     <Duration value="10" />
@@ -1900,6 +1918,10 @@
     <Operation value="Set" />
     <Value value="0" />
   </CEffectModifyTokenCount>
+  <CEffectModifyTokenCount id="OrpheaChaoticAssaultTalentModifyTokenInitial" parent="BaseEffectModifyTokenCount">
+    <ValidatorArray value="OrpheaHas3OverflowingChaos" />
+    <TokenId value="OrpheaOverflowingChaosChaoticAssaultToken" />
+  </CEffectModifyTokenCount>
   <CEffectSet id="OrpheaShadowWaltzExpireSet">
     <EffectArray value="OrpheaShadowWaltzCancelMoveOrder" />
     <EffectArray value="OrpheaShadowWaltzFinishApply" />
@@ -1912,6 +1934,7 @@
   <CEffectSet id="OrpheaShadowWaltzFXSet">
     <EffectArray value="LockFacingRemoveBehaviors" />
     <EffectArray value="DismountDecloakCasterSet" />
+    <EffectArray value="OrpheaApplyShadowWaltzApplyRefundController" />
     <TargetLocationType value="Point" />
   </CEffectSet>
   <CEffectApplyBehavior id="OrpheaShadowWaltzDashApply">
@@ -1968,6 +1991,7 @@
     <EffectArray value="OrpheaShadowWaltzChaosIncrease" />
     <EffectArray value="OrpheaShadowWaltzDashAllowedApply" />
     <EffectArray value="OrpheaShadowWaltzHeroHitModifyCooldown" />
+    <EffectArray value="OrpheaShadowWaltzRefundManaCancelBehavior" />
     <EffectArray value="OrpheaWeaponAddShortCooldown" />
     <EffectArray value="CameraShakeMediumCasterDummySet" />
     <EffectArray value="ApplyAbilityImpactReveal" />
@@ -1984,6 +2008,16 @@
     <ValidatorArray value="TargetIsHero" />
     <ValidatorArray value="OrpheaHasSwiftnessTalent" />
   </CEffectApplyBehavior>
+  <CEffectApplyBehavior id="OrpheaApplyShadowWaltzApplyRefundController">
+    <WhichUnit Value="Caster" />
+    <Behavior value="OrpheaShadowWaltzRefundController" />
+  </CEffectApplyBehavior>
+  <CEffectRemoveBehavior id="OrpheaShadowWaltzRefundManaCancelBehavior">
+    <ValidatorArray value="TargetIsHero" />
+    <WhichUnit Value="Caster" />
+    <BehaviorLink value="OrpheaShadowWaltzRefundController" />
+    <CancelBehavior value="1" />
+  </CEffectRemoveBehavior>
   <CEffectDamage id="OrpheaShadowWaltzDamage" parent="StormSpell">
     <Amount value="165">
       <AccumulatorArray value="OrpheaBlackWaltzDamageAccumulator" />
@@ -2182,6 +2216,7 @@
   </CEffectLaunchMissile>
   <CEffectSet id="OrpheaWeaponImpactSet">
     <EffectArray value="OrpheaWeaponDamage" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectApplyBehavior id="OrpheaOverflowingChaosArmorApply">
     <Behavior value="OrpheaOverflowingChaosArmor" />
@@ -2339,6 +2374,7 @@
     <Behavior value="OrpheaDreadStun" />
   </CEffectApplyBehavior>
   <CEffectModifyUnit id="OrpheaWeaponAddShortCooldown">
+    <ValidatorArray value="OrpheaWeaponNotInSwing" />
     <ImpactUnit Value="Caster" />
     <Weapon Weapon="OrpheaWeapon" CooldownOperation="Max" CooldownAmount="0.25" />
   </CEffectModifyUnit>
@@ -2436,7 +2472,7 @@
     <OrphanFromEffectChain value="1" />
   </CEffectSet>
   <CEffectEnumArea id="OrpheaEternalFeastOuterSearch">
-    <SearchFilters value="-;Player,Ally,ImmuneToAOE,Missile,Item,Stasis,Hidden,Invulnerable" />
+    <SearchFilters value="-;Player,Ally,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
     <AreaArray Effect="OrpheaEternalFeastImpactSet">
       <Radius value="4.5" />
     </AreaArray>
@@ -2451,12 +2487,19 @@
     <EffectArray value="OrpheaEternalFeastDamage" />
     <EffectArray value="OrpheaEternalFeastImpactApply" />
     <EffectArray value="OrpheaMonsterWithinModifyToken" />
+    <EffectArray value="OrpheaMonsterWithinChaoticAssaultTalentModifyToken" />
     <EffectArray value="ApplyAbilityImpactReveal" />
   </CEffectSet>
   <CEffectModifyTokenCount id="OrpheaMonsterWithinModifyToken" parent="BaseEffectModifyTokenCount">
     <ValidatorArray value="TargetIsHero" />
     <ValidatorArray value="OrpheaHasMonsterWithinTalent" />
     <TokenId value="OrpheaOverflowingChaosToken" />
+  </CEffectModifyTokenCount>
+  <CEffectModifyTokenCount id="OrpheaMonsterWithinChaoticAssaultTalentModifyToken" parent="BaseEffectModifyTokenCount">
+    <ValidatorArray value="TargetIsHero" />
+    <ValidatorArray value="OrpheaHasChaoticAssaultTalentAnd3OverflowingChaos" />
+    <ValidatorArray value="OrpheaHasMonsterWithinTalent" />
+    <TokenId value="OrpheaOverflowingChaosChaoticAssaultToken" />
   </CEffectModifyTokenCount>
   <CEffectDamage id="OrpheaEternalFeastDamage" parent="StormSpell">
     <Amount value="210" />
@@ -2493,6 +2536,7 @@
     <EffectArray value="OrpheaOverflowingChaosResetToken" />
     <EffectArray value="OrpheaOverflowingChaosChaoticAssaultTalentResetToken" />
     <EffectArray value="UniversalWeaponLaunchSet" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
     <ValidatorArray value="OrpheaOverflowingChaosAttackCombine" />
   </CEffectSet>
   <CEffectSet id="OrpheaCrushingJawsInitialSet">
@@ -2693,6 +2737,7 @@
     <ValidatorArray value="SourceIsHeroAndNotHallucinationAndNotVehicleAndNotStructureReplacement" />
   </CEffectModifyTokenCount>
   <CEffectApplyBehavior id="OrpheaRavenousHungerApply">
+    <ValidatorArray value="SylvanasTargetUnPossessed" />
     <Behavior value="OrpheaRavenousHungerDeathChecker" />
   </CEffectApplyBehavior>
   <CEffectDamage id="OrpheaRavenousHungerMinionDamage" parent="StormSpell">
@@ -2772,8 +2817,13 @@
   <CEffectSet id="OrpheaInvasiveMiasmaInitialSet">
     <EffectArray value="OrpheaInvasiveMiasmaApply" />
   </CEffectSet>
+  <CEffectSet id="OrpheaInvasiveMiasmaExpireSet">
+    <EffectArray value="OrpheaInvasiveMiasmaSearch" />
+    <EffectArray value="OrpheaInvasiveMiasmaHeal" />
+    <EffectArray value="OrpheaInvasiveMiasmaHealResetTokens" />
+  </CEffectSet>
   <CEffectEnumArea id="OrpheaInvasiveMiasmaSearch">
-    <SearchFilters value="-;Player,Ally,ImmuneToAOE,Missile,Item,Stasis,Hidden,Invulnerable" />
+    <SearchFilters value="-;Player,Ally,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
     <AreaArray Effect="OrpheaInvasiveMiasmaImpactSet">
       <Radius value="4.5" />
     </AreaArray>
@@ -2784,19 +2834,30 @@
   </CEffectEnumArea>
   <CEffectSet id="OrpheaInvasiveMiasmaImpactSet">
     <EffectArray value="OrpheaInvasiveMiasmaDamage" />
-    <EffectArray value="OrpheaInvasiveMiasmaHeal" />
+    <EffectArray value="OrpheaInvasiveMiasmaIncrementTokenCount" />
     <EffectArray value="ApplyAbilityImpactReveal" />
   </CEffectSet>
   <CEffectDamage id="OrpheaInvasiveMiasmaDamage" parent="StormSpell">
     <Amount value="150" />
     <MultiplicativeModifierArray index="0" Validator="OrpheaAncestralStrengthDamageValidator" Modifier="0.15" Crit="1" />
   </CEffectDamage>
+  <CEffectModifyTokenCount id="OrpheaInvasiveMiasmaIncrementTokenCount" parent="BaseEffectModifyTokenCount">
+    <ValidatorArray value="TargetIsHero" />
+    <TokenId value="OrpheaInvasiveMiasmaHitCounter" />
+  </CEffectModifyTokenCount>
   <CEffectCreateHealer id="OrpheaInvasiveMiasmaHeal" parent="StormSelfOnlyHealingSpell">
-    <RechargeVitalRate value="182" />
+    <RechargeVitalRate value="182">
+      <AccumulatorArray value="OrpheaInvasiveMiasmaHealAccumulator" />
+    </RechargeVitalRate>
     <SourceButtonFace value="OrpheaInvasiveMiasma" />
     <ImpactUnit Value="Caster" />
-    <ValidatorArray value="TargetIsHero" />
+    <ValidatorArray value="OrpheaInvasiveMiasmaHasGE1HitToken" />
   </CEffectCreateHealer>
+  <CEffectModifyTokenCount id="OrpheaInvasiveMiasmaHealResetTokens">
+    <TokenId value="OrpheaInvasiveMiasmaHitCounter" />
+    <ContextUnit Value="Caster" />
+    <Operation value="Set" />
+  </CEffectModifyTokenCount>
   <CEffectDamage id="OrpheaInvasiveMiasmaDummyCurrentCharge" />
   <CEffectDamage id="OrpheaInvasiveMiasmaDummyMaximumCharge">
     <Amount value="9" />
@@ -2897,15 +2958,16 @@
     <AreaArray Effect="OrpheaDeadMagicDamage">
       <Radius value="2.5" />
     </AreaArray>
-    <RevealerParams Duration="1">
+    <RevealerParams Duration="0.75" ShapeExpansion="1">
       <RevealFlags index="Unfog" value="1" />
     </RevealerParams>
-    <SearchFilters value="-;Player,Ally,Neutral,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
+    <SearchFilters value="-;Self,Player,Ally,Neutral,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
     <ValidatorArray value="OrpheaHasDeadMagicTalent" />
     <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
     <SearchFlags index="DoActorSearch" value="1" />
   </CEffectEnumArea>
   <CEffectDamage id="OrpheaDeadMagicDamage" parent="StormSpell">
+    <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
     <Amount value="90" />
   </CEffectDamage>
   <CEffectApplyBehavior id="OrpheaEternalFeastImpactApply">
@@ -2939,6 +3001,7 @@
     <EffectArray value="OrpheaShadowWaltzChaosIncrease" />
     <EffectArray value="OrpheaShadowWaltzDashAllowedApply" />
     <EffectArray value="OrpheaShadowWaltzHeroHitModifyCooldown" />
+    <EffectArray value="OrpheaShadowWaltzRefundManaCancelBehavior" />
     <EffectArray value="OrpheaWeaponAddShortCooldown" />
     <EffectArray value="CameraShakeMediumCasterDummySet" />
     <EffectArray value="ApplyAbilityImpactReveal" />
@@ -3025,6 +3088,11 @@
     <WhichUnit Value="Caster" />
     <Behavior value="OrpheaEldritchConduitEmpowered" />
     <ValidatorArray value="OrpheaEldritchConduitHas9Stacks" />
+  </CEffectApplyBehavior>
+  <CEffectApplyBehavior id="OrpheaEldritchConduitApplyEmpowered">
+    <WhichUnit Value="Caster" />
+    <Behavior value="OrpheaEldritchConduitEmpowered" />
+    <ValidatorArray value="OrpheaEldritchConduitHas10Stacks" />
   </CEffectApplyBehavior>
   <CEffectApplyBehavior id="OrpheaEternalFeastApplyCasterBehavior">
     <Behavior value="OrpheaEternalFeastCasterBehavior" />
@@ -3113,7 +3181,7 @@
     </TalentTreeArray>
     <TalentTreeArray Talent="OrpheaEldritchConduit" Tier="7" Column="3" />
     <TalentTreeArray Talent="OrpheaFinalToccata" Tier="7" Column="4" />
-    <Difficulty value="Medium" />
+    <Difficulty value="Hard" />
     <Universe value="Retro" />
     <UniverseIcon value="Assets\Textures\ui_glues_store_gameicon_nexus.dds" />
     <ProductId value="44250" />
@@ -3618,6 +3686,7 @@
     <Trait value="1" />
     <RankArray>
       <BehaviorArray value="OrpheaInvasiveMiasmaCarry" />
+      <BehaviorArray value="OrpheaInvasiveMiasmaHitCounter" />
     </RankArray>
     <Active value="1" />
   </CTalent>
@@ -3874,6 +3943,11 @@
     <Behavior value="OrpheaChompKnockback" />
     <WhichUnit Value="Caster" />
   </CValidatorUnitCompareBehaviorCount>
+  <CValidatorUnitCompareWeaponLegacyState id="OrpheaWeaponNotInSwing">
+    <Compare value="NE" />
+    <Value value="Swing" />
+    <Weapon value="OrpheaWeapon" />
+  </CValidatorUnitCompareWeaponLegacyState>
   <CValidatorCombine id="OrpheaWeaponNormalAttackValidator">
     <CombineArray value="OrpheaHas0OverflowingChaos" />
     <CombineArray value="TargetNotHero" />
@@ -4066,6 +4140,12 @@
     <WhichUnit Value="Caster" />
     <Behavior value="OrpheaInvasiveMiasmaCarry" />
   </CValidatorUnitCompareBehaviorCount>
+  <CValidatorUnitCompareTokenCount id="OrpheaInvasiveMiasmaHasGE1HitToken">
+    <WhichUnit Value="Caster" />
+    <Compare value="GE" />
+    <Value value="1" />
+    <TokenId value="OrpheaInvasiveMiasmaHitCounter" />
+  </CValidatorUnitCompareTokenCount>
   <CValidatorUnitCompareBehaviorCount id="OrpheaDoesNotHaveInvasiveMiasmaAbilityReady">
     <WhichUnit Value="Caster" />
     <Behavior value="OrpheaInvasiveMiasmaAbilityReady" />

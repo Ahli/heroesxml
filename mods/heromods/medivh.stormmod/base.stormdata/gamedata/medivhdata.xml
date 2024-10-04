@@ -264,6 +264,7 @@
     </Cost>
     <TargetFilters value="Heroic;Player,Ally,Neutral,Minion,Merc,ImmuneToAOE,Structure,Missile,Item,Stasis,Dead,Hidden,Invulnerable,Unstoppable" />
     <Range value="7" />
+    <RangeSlop value="5" />
     <Arc value="360" />
     <CastIntroTime value="0.15" />
     <UninterruptibleArray index="Cast" value="1" />
@@ -287,6 +288,7 @@
     </Cost>
     <TargetFilters value="Heroic;Neutral,Enemy,ImmuneToFriendlyAbilities,Stasis,Summoned" />
     <Range value="9" />
+    <RangeSlop value="5" />
     <Arc value="219.9902" />
     <CastIntroTime value="0.1" />
     <UninterruptibleArray index="Cast" value="1" />
@@ -1286,7 +1288,7 @@
     <Scale value="9.625000" />
   </CActorSplat>
   <CActorModel id="MedivhDustofDisappearanceImpact" parent="StormModelAnimationStyleOneShotUnit">
-    <On Terms="Effect.MedivhDustofDisappearanceCloakApply.Start; At Target" Send="Create" />
+    <On Terms="Effect.MedivhDustOfDisappearanceApplyUnrevealableCloakBehaviorTarget.Start; At Target" Send="Create" />
     <On Terms="ActorCreation" Send="Create MedivhInvisibilityImpactSound" />
     <HostSiteOps Ops="SOpAttachCenter" HoldPosition="1" HoldRotation="1" />
     <Model value="MedivhInvisibilityImpact" />
@@ -1350,6 +1352,13 @@
   <CBehaviorUnitTracker id="MedivhPortalUnitTracker">
     <MaxTrackedUnits value="1" />
   </CBehaviorUnitTracker>
+  <CBehaviorBuff id="MedivhPortalCasterDuration">
+    <TimeScaleSource Value="Global" />
+    <Duration value="6" />
+    <DurationOverride Duration="9">
+      <ValidatorArray value="MedivhHasPortalStablePortalTalent" />
+    </DurationOverride>
+  </CBehaviorBuff>
   <CBehaviorBuff id="MedivhRavenFamiliarCloakingBehavior">
     <Alignment value="Positive" />
     <BehaviorCategories index="TemporaryCloak" value="1" />
@@ -1422,7 +1431,7 @@
     <RemoveValidatorArray value="MedivhCasterHasTransformRaven" />
     <Duration value="5" />
     <Modification>
-      <UnifiedMoveSpeedFactor value="0.4" />
+      <UnifiedMoveSpeedFactor value="0.3" />
     </Modification>
   </CBehaviorBuff>
   <CBehaviorBuff id="MedivhTransformRavenBirdsEyeView" parent="StormSprint">
@@ -1644,9 +1653,9 @@
   <CBehaviorBuff id="MedivhArcaneRiftHeroHit" />
   <CBehaviorBuff id="MedivhPortalMageArmor" parent="StormArmor">
     <Alignment value="Positive" />
-    <Duration value="4" />
+    <Duration value="5" />
     <ArmorModification>
-      <AllArmorBonus value="30" />
+      <AllArmorBonus value="40" />
     </ArmorModification>
   </CBehaviorBuff>
   <CBehaviorBuff id="MedivhPortalMageArmorMarker">
@@ -1688,10 +1697,10 @@
     <Icon value="Assets\Textures\storm_ui_icon_medivh_arcanemissile.dds" />
   </CButton>
   <CButton id="MedivhForceofMagic" parent="StormButtonParent">
-    <Icon value="Assets\Textures\storm_ui_icon_medivh_forceofwill_b.dds" />
+    <Icon value="Assets\Textures\storm_ui_icon_medivh_forceofwill_a.dds" />
   </CButton>
   <CButton id="MedivhForceofMagicToken" parent="StormButtonParent">
-    <Icon value="Assets\Textures\storm_ui_icon_medivh_forceofwill_b.dds" />
+    <Icon value="Assets\Textures\storm_ui_icon_medivh_forceofwill_a.dds" />
     <HotkeyAlias value="MedivhForceofMagic" />
   </CButton>
   <CButton id="MedivhMysticAssault" parent="StormButtonParent">
@@ -1869,7 +1878,16 @@
   <CEffectSet id="MedivhPortalCooldownSet">
     <EffectArray value="MedivhPortalSetCooldown" />
     <EffectArray value="MedivhPortalPortalMasteryTalentModifyPlayerCooldown" />
+    <EffectArray value="MedivhPortalCreateCasterDurationPersistent" />
   </CEffectSet>
+  <CEffectCreatePersistent id="MedivhPortalCreateCasterDurationPersistent">
+    <WhichLocation Value="CasterUnit" />
+    <InitialDelay value="0.75" />
+    <InitialEffect value="MedivhPortalApplyDurationMarker" />
+  </CEffectCreatePersistent>
+  <CEffectApplyBehavior id="MedivhPortalApplyDurationMarker">
+    <Behavior value="MedivhPortalCasterDuration" />
+  </CEffectApplyBehavior>
   <CEffectApplyBehavior id="MedivhPortalDisableCancelApplyBehavior">
     <WhichUnit Value="Caster" />
     <Behavior value="MedivhPortalDisableCancel" />
@@ -2102,6 +2120,7 @@
   </CEffectSet>
   <CEffectModifyUnit id="MedivhTemporalFluxCooldownModifierAutoAttack">
     <ValidatorArray value="MedivhHasTemporalFlux" />
+    <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
     <ImpactUnit Value="Caster" />
     <Cost Abil="MedivhLeyLineSeal,Execute" CooldownOperation="Add">
       <Fraction Cooldown="-0.03" />
@@ -2141,6 +2160,7 @@
     <EffectArray value="MedivhWeaponDamage" />
     <EffectArray value="MedivhMysticAssaultRemoveBehavior" />
     <EffectArray value="MedivhTemporalFluxCooldownModifierAutoAttack" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectDamage id="MedivhWeaponDamage" parent="StormWeapon">
     <MultiplicativeModifierArray index="MysticAssaultBonus" Validator="MedivhHasMysticAssaultDamageBehavior" Modifier="0.5" Crit="1" />
@@ -2173,7 +2193,7 @@
     <Behavior value="MedivhForceOfWillArcaneExplosionMarker" />
   </CEffectApplyBehavior>
   <CEffectEnumArea id="MedivhForceOfWillArcaneExplosionSearch">
-    <SearchFilters value="-;Self,Player,Ally,Neutral,ImmuneToAOE,Invulnerable" />
+    <SearchFilters value="-;Self,Player,Ally,Neutral,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
     <AreaArray Effect="MedivhForceOfWillArcaneExplosionDamage">
       <Radius value="3.5" />
     </AreaArray>
@@ -3081,6 +3101,7 @@
     <VoiceLineArray value="MedivhBase_VoiceLine03" />
     <VoiceLineArray value="MedivhBase_VoiceLine04" />
     <VoiceLineArray value="MedivhBase_VoiceLine05" />
+    <HeroSpecificUIArray Location="CommandButton02Status" DescName="Medivh/MedivhPortalButtonOverride" />
     <VOArray index="AIAttack" value="MedivhBase_AI_Attack" />
     <VOArray index="AICaution" value="MedivhBase_AI_Caution" />
     <VOArray index="AIGoodJob" value="MedivhBase_AI_GoodJob" />
@@ -4196,6 +4217,7 @@
     <BehaviorArray Link="MedivhPortalTimedLife" />
     <BehaviorArray Link="UnitCanBeSmartCommandInteracted" />
     <BehaviorArray Link="MedivhPortalAIUseLink" />
+    <BehaviorArray Link="UntargetableByFriendlyAbilities" />
     <SeparationRadius value="0" />
     <InnerRadius value="0.5" />
     <MinimapRadius value="0.75" />
@@ -4213,6 +4235,7 @@
     <BehaviorArray index="0" Link="MedivhPortalMarkerCarry" />
     <BehaviorArray index="1" Link="MedivhPortalUnitTracker" />
     <BehaviorArray index="2" removed="1" />
+    <BehaviorArray index="3" removed="1" />
     <CardLayouts>
       <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Slot="Stop" />
       <LayoutButtons Face="MedivhPortal" Type="AbilCmd" AbilCmd="MedivhPortal2,Execute" Slot="Ability3" />
@@ -4231,6 +4254,7 @@
     <BehaviorArray index="0" Link="MedivhPortalCreationTimedLife" />
     <BehaviorArray index="1" removed="1" />
     <BehaviorArray index="2" removed="1" />
+    <BehaviorArray index="3" removed="1" />
     <CardLayouts>
       <LayoutButtons Face="Stop" Type="AbilCmd" AbilCmd="stop,Stop" Slot="Stop" />
     </CardLayouts>

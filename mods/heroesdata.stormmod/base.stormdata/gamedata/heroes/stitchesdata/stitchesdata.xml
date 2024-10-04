@@ -987,6 +987,7 @@
     <Period value="1" />
     <PeriodCount value="5" />
     <PeriodicEffect value="StitchesDevourDigestiveJuicesTalentDoTDamage" />
+    <PeriodicDisplayEffect value="StitchesDevourDigestiveJuicesTalentDoTDamage" />
   </CBehaviorBuff>
   <CBehaviorBuff id="StitchesSlamPlaytimeTalentDelayBuff">
     <MaxStackCount value="10" />
@@ -1112,7 +1113,6 @@
       <DamageDealtFraction index="Basic" value="-0.5" />
       <DamageDealtFraction index="Ability" value="-0.5" />
     </Modification>
-    <PeriodicDisplayEffect value="StitchesDevourDigestiveJuicesTalentDoTDamage" />
   </CBehaviorBuff>
   <CBehaviorBuff id="StitchesHookMeatHookTalentHoT">
     <Face value="StitchesMeatHook" />
@@ -1660,7 +1660,7 @@
     <ValidatorArray value="TargetNotDeadAndNoSpecialDeathState" />
     <Chance value="0" />
     <EffectArray value="StitchesVileGasApplyBehavior" />
-    <EffectArray value="StitchesVileGasApplyPutrefactionTalentDebuff" />
+    <EffectArray value="StitchesVileGasPutrefactionApplySwitch" />
   </CEffectSet>
   <CEffectApplyBehavior id="StitchesVileGasApplyBehaviorBasicAttack">
     <Behavior value="StitchesVileGas" />
@@ -1670,7 +1670,7 @@
     <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
     <ValidatorArray value="TargetNotDead" />
     <EffectArray value="StitchesVileGasApplyBehaviorBasicAttack" />
-    <EffectArray value="StitchesVileGasApplyPutrefactionTalentDebuff" />
+    <EffectArray value="StitchesVileGasPutrefactionApplySwitch" />
   </CEffectSet>
   <CEffectModifyPlayer id="StitchesHookLevel13ExtendedHookResetPlayer">
     <EffectArray Operation="Set" Reference="Effect,StitchesHookLaunchCreatePersistent,PeriodicOffsetArray[0].Y" Value="-12" />
@@ -1786,6 +1786,7 @@
   <CEffectSet id="StitchesShamblingHorrorFinalSet">
     <EffectArray value="StitchesPatchworkCreationResetPlayer" />
     <EffectArray value="StitchesShamblingHorrorSetCooldown" />
+    <EffectArray value="StitchesShamblingHorrorPutrefactionTargetSearch" />
   </CEffectSet>
   <CEffectModifyTokenCount id="StitchesPutridBileGiftFromTheEmbalmerTalentModifyToken" parent="BaseEffectModifyTokenCount">
     <ValidatorArray value="TargetIsHero" />
@@ -2043,7 +2044,7 @@
   </CEffectSwitch>
   <CEffectSet id="StitchesVileGasBlightTalentSearchImpactSet">
     <EffectArray value="StitchesVileCleaverVileGasSwitch" />
-    <EffectArray value="StitchesVileGasApplyPutrefactionTalentDebuff" />
+    <EffectArray value="StitchesVileGasPutrefactionApplySwitch" />
   </CEffectSet>
   <CEffectCreatePersistent id="StitchesHookMeatHookTalentPersistent">
     <ValidatorArray value="TargetIsEnemyHero" />
@@ -2132,8 +2133,32 @@
   <CEffectSet id="StitchesHookMissileScanSet">
     <EffectArray value="StitchesHookMissileSearch" />
   </CEffectSet>
+  <CEffectEnumArea id="StitchesShamblingHorrorPutrefactionTargetSearch">
+    <ImpactLocation Value="SourceUnit" />
+    <SearchFilters value="Heroic;Self,Player,Ally,Neutral,Missile,Stasis,Dead,Hidden" />
+    <AreaArray Effect="StitchesVilePutrefactionRemoveBehavior">
+      <Radius value="26" />
+    </AreaArray>
+    <SearchFlags index="ExtendByUnitRadius" value="1" />
+  </CEffectEnumArea>
+  <CEffectSwitch id="StitchesVileGasPutrefactionApplySwitch">
+    <ValidatorArray value="TargetIsHero" />
+    <ValidatorArray value="TargetNotInvulnerable" />
+    <ValidatorArray value="NotVehicle" />
+    <ValidatorArray value="TargetNotDeadAndNoSpecialDeathState" />
+    <CaseArray Validator="StitchesTargetHasPutrefaction" Effect="StitchesVileGasPutrefactionExtendDuration" />
+    <CaseDefault value="StitchesVileGasApplyPutrefactionTalentDebuff" />
+  </CEffectSwitch>
+  <CEffectModifyBehaviorBuffDuration id="StitchesVileGasPutrefactionExtendDuration">
+    <WhichUnit Value="Target" />
+    <Behavior value="StitchesVileGasPutrefactionTalentDebuff" />
+    <Operation value="Set" />
+    <Value value="4" />
+  </CEffectModifyBehaviorBuffDuration>
+  <CEffectRemoveBehavior id="StitchesVilePutrefactionRemoveBehavior">
+    <BehaviorLink value="StitchesVileGasPutrefactionTalentDebuff" />
+  </CEffectRemoveBehavior>
   <CEffectApplyBehavior id="StitchesVileGasApplyPutrefactionTalentDebuff">
-    <ValidatorArray index="0" value="TargetIsHero" />
     <Behavior value="StitchesVileGasPutrefactionTalentDebuff" />
   </CEffectApplyBehavior>
   <CEffectSet id="StitchesVileGasBlightTalentCastSet">
@@ -2311,6 +2336,7 @@
   </CEffectSet>
   <CEffectCreateUnit id="StitchesPutridBileCreateUnit">
     <SpawnUnit value="StitchesPutridPilePool" />
+    <SpawnEffect value="StitchesPutridBileApplyPool" />
   </CEffectCreateUnit>
   <CEffectAddTrackedUnit id="StitchesGorgeAddTrackedUnit">
     <TrackedUnit Value="Target" />
@@ -2693,7 +2719,7 @@
   </CEffectSet>
   <CEffectSet id="StitchesVileGasApplySet">
     <EffectArray value="StitchesVileGasApplyBehavior" />
-    <EffectArray value="StitchesVileGasApplyPutrefactionTalentDebuff" />
+    <EffectArray value="StitchesVileGasPutrefactionApplySwitch" />
     <ValidatorArray value="TargetNotDeadAndNoSpecialDeathState" />
   </CEffectSet>
   <CEffectApplyBehavior id="StitchesVileGasApplyBehavior">
@@ -2728,6 +2754,7 @@
     <EffectArray value="StitchesHeroWeaponMeatHookTalentProcSet" />
     <EffectArray value="StitchesSlamPlaytimeTalentModifyUnit" />
     <EffectArray value="StitchesHeroWeaponChopChopTalentModifyDuration" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectApplyBehavior id="StitchesPutridBileApplyCasterBehavior">
     <WhichUnit Value="Caster" />
@@ -3107,6 +3134,9 @@
     </AINotifySettings>
     <ValidatorArray value="CasterNotStasis" />
   </CEffectCreatePersistent>
+  <CEffectApplyBehavior id="StitchesPutridBileApplyPool">
+    <Behavior value="StitchesPutridBilePool" />
+  </CEffectApplyBehavior>
   <CEffectEnumArea id="StitchesPutridBileSearch">
     <SearchFilters value="-;Player,Ally,Neutral,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
     <AreaArray Effect="StitchesPutridBileSet">
@@ -3229,7 +3259,7 @@
     <TalentTreeArray Talent="StitchesHookMasterHooker" Tier="7" Column="3" />
     <TalentTreeArray Talent="StitchesGasBag" Tier="7" Column="4" />
     <VariationIcon value="Assets\Textures\UI_Glues_Swatch_Gray_Green.dds" />
-    <Difficulty value="Medium" />
+    <Difficulty value="Hard" />
     <AIComplexityTier value="Mid" />
     <HeroTierAchievementId value="5216701565561504638" />
     <Universe value="Warcraft" />
@@ -3431,6 +3461,7 @@
       <TalentsArray value="StitchesGasBag" />
     </TalentAIBuildsArray>
     <HeroSpecificUIArray Location="HeroSpecificStackingBuffsStatus" DescName="Stitches/StitchesMeatHookFrameContainer" />
+    <HeroSpecificUIArray Location="CommandButton05Status" DescName="Stitches/StitchesShamblingHorrorButtonOverride" />
     <Rarity value="Epic" />
   </CHero>
   <CHeroMastery id="StitchesMasteryRing1" parent="MasteryRingRank1">
@@ -3808,6 +3839,7 @@
   </CTalent>
   <CTalent id="StitchesFlareUp">
     <Face value="StitchesFlareUp" />
+    <Trait value="1" />
     <RankArray>
       <BehaviorArray value="StitchesGasFlareCarry" />
     </RankArray>
@@ -4184,7 +4216,6 @@
     <FlagArray index="Untargetable" value="1" />
     <FlagArray index="Undetectable" value="1" />
     <Sight value="4" />
-    <BehaviorArray Link="StitchesPutridBilePool" />
     <BehaviorArray Link="StitchesPutridBileTimedLife" />
   </CUnit>
   <CUnit id="StitchesHookInvisibleMissile" parent="MISSILE_INVULNERABLE" />
@@ -4294,9 +4325,6 @@
     <CombineArray value="StitchesHasVileCleaverTalent" />
     <CombineArray value="StitchesTargetHasVileGas" />
   </CValidatorCombine>
-  <CValidatorCombine id="AbilButtonActiveDDamage">
-    <CombineArray value="StitchesHasShamblingHorrorActive" />
-  </CValidatorCombine>
   <CValidatorUnitCompareBehaviorCount id="StitchesHasShamblingHorrorActive">
     <WhichUnit Value="Source" />
     <Compare value="GT" />
@@ -4364,6 +4392,9 @@
     <Value value="1" />
     <Behavior value="StitchesVileGas" />
   </CValidatorUnitCompareBehaviorCount>
+  <CValidatorUnitHasBehavior id="StitchesTargetHasPutrefaction">
+    <Behavior value="StitchesVileGasPutrefactionTalentDebuff" />
+  </CValidatorUnitHasBehavior>
   <CValidatorPlayerTalent id="StitchesHasSecondHelpingTalent">
     <WhichPlayer Value="Caster" />
     <Find value="1" />

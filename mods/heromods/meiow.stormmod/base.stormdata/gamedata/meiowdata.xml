@@ -37,6 +37,7 @@
       <Cooldown TimeUse="$MeiOWBlizzardCooldown" />
     </Cost>
     <Range value="$MeiOWBlizzardRange" />
+    <RangeSlop value="5" />
     <Arc value="360" />
     <CastIntroTime value="0.125" />
     <UninterruptibleArray index="Cast" value="1" />
@@ -145,6 +146,7 @@
       <Cooldown TimeUse="60" />
     </Cost>
     <Range value="$MeiOWIceWallRange" />
+    <RangeSlop value="5" />
     <Arc value="360" />
     <CursorEffect value="MeiOWIceWallSearchArea" />
     <VectorRange value="12,12" />
@@ -172,6 +174,7 @@
       <Cooldown TimeUse="2" />
     </Cost>
     <Range value="9" />
+    <RangeSlop value="5" />
     <Arc value="360" />
     <CastIntroTime value="0.125" />
     <UninterruptibleArray index="Cast" value="1" />
@@ -205,13 +208,17 @@
     <TrackingBehavior value="MeiOWAvalancheUnitTracker" />
     <TrackedUnitFilters value="Heroic;-" />
   </CAccumulatorTrackedUnitCount>
-  <CActorForceCylinder id="MeiOWBlizzardForceCylinder">
-    <On Terms="Effect.MeiOWBlizzardSearchArea.Start; At Effect" Send="Create" />
+  <CActorForceSphere id="MeiOWBlizzardSphereForce">
+    <Magnitude value="-0.100000" />
+    <Radius value="3.950000" />
+    <Duration value="-1.000000" />
+    <On Terms="Effect.MeiOWBlizzardSearchPersistent.Start; At Effect" Send="Create" />
+    <On Terms="Effect.MeiOWBlizzardSearchPersistent.Stop; FromEffectTreeDescendant" Send="Destroy" />
+    <ForceFlags index="FallOff" value="0" />
+    <ForceFlags index="ApplyAtCenter" value="1" />
     <Field value="Vortex" />
-    <Magnitude value="15.000000" />
-    <Radius value="3.750000" />
-    <Length value="1.000000" />
-  </CActorForceCylinder>
+    <IsHemisphere value="1" />
+  </CActorForceSphere>
   <CActorModel id="MeiOWCryoFreezeBuffDeathFX" parent="StormModelAnimationStyleOneShotUnit">
     <Macros value="EffectVisibilityMacro" />
     <Macros value="PolymorphMacroEffects" />
@@ -292,10 +299,10 @@
   <CActorForceSphere id="MeiOWBlizzardFinalForceSphere">
     <On Terms="Effect.MeiOWBlizzardFinalSearch.Start; At Effect" Send="Create" />
     <Duration value="0.062500" />
-    <Magnitude value="65.000000" />
+    <Magnitude value="35.000000" />
     <ForceFlags index="FallOff" value="0" />
     <ForceFlags index="ApplyAtCenter" value="1" />
-    <Radius value="3.750000" />
+    <Radius value="3.950000" />
     <IsHemisphere value="1" />
   </CActorForceSphere>
   <CActorForceSphere id="MeiOWIceWallForceSphere">
@@ -435,7 +442,7 @@
     <On Terms="ActorCreation" Send="SetTintColor 225,160,25 0.000000 OneShot BaseTint" />
     <On Terms="ActorDestruction" Target="_MeiOWIcingGuideRegion" Send="Destroy" />
     <On Terms="ActorOrphan" Send="Destroy" />
-    <On Terms="ActorCreation" Send="Create MeiOWIcingBlackIceTalentRegionCircle" />
+    <On Terms="ActorCreation; IsActorLocalPlayer" Send="Create MeiOWIcingBlackIceTalentRegionCircle" />
     <On Terms="ActorDestruction" Target="MeiOWIcingBlackIceTalentRegionCircle" Send="Destroy Immediate" />
     <On Terms="ActorCreation" Send="SetOpacity 0.000000 0.000000 FadeIn" />
     <On Terms="ActorCreation" Send="ClearOpacity 0.250000 FadeIn" />
@@ -537,7 +544,7 @@
     <FogVisibility value="Visible" />
     <On Terms="Behavior.MeiOWIcingDashBuff.On" Send="Create" />
     <On Terms="Behavior.MeiOWIcingDashBuff.Off" Send="Destroy Immediate" />
-    <On Terms="ActorCreation" Send="Create MeiOWIcingRegionCircle" />
+    <On Terms="ActorCreation; IsActorLocalPlayer" Send="Create MeiOWIcingRegionCircle" />
     <On Terms="ActorCreation" Send="SetTintColor 225,160,25 0.000000 OneShot BaseTint" />
     <On Terms="ActorDestruction" Target="_MeiOWIcingGuideRegion" Send="Destroy" />
     <On Terms="ActorOrphan" Send="Destroy" />
@@ -873,8 +880,7 @@
   <CActorModelMaterial id="MeiOWIceWallGlaze" parent="StormModelAnimationStyleContinuous">
     <Inherits index="CloakEffect" value="1" />
     <Inherits index="Visibility" value="1" />
-    <On Terms="Behavior.MeiOWIceWallTimeStopPrep.On" Send="Create" />
-    <On Terms="Effect.MeiOWIceWallTimeStopDebuffApplyBehavior.Stop; !ValidateUnit MeiOWIceWallTargetHasTimeStopDebuff" Send="AnimBracketStop BSD" />
+    <On Terms="Behavior.MeiOWIceWallTimeStopDebuff.On" Send="Create" />
     <On Terms="ActorCreation" Send="ModelMaterialApplyTo ::Main" />
     <On Terms="Behavior.MeiOWIceWallTimeStopDebuff.Off" Send="AnimBracketStop BSD" />
   </CActorModelMaterial>
@@ -943,6 +949,9 @@
     <On Terms="ActorCreation" Send="ModelMaterialApplyTo ::Main" />
     <ModelFlags index="AutomateGlobalLoops" value="1" />
   </CActorModelMaterial>
+  <CActorModel id="BlockBuff">
+    <On Terms="Behavior.MeiOWIcingSkatingAwayTalentArmorBuff.On" Send="Create" />
+  </CActorModel>
   <CBehaviorBuff id="MeiOWAcclimationArmorCarry" parent="StormArmor">
     <BehaviorFlags index="Permanent" value="1" />
     <BehaviorFlags index="EnabledWhileDead" value="1" />
@@ -954,12 +963,13 @@
   <CBehaviorBuff id="MeiOWAvalancheSnowballMissileMarker" />
   <CBehaviorBuff id="MeiOWCryoFreezeFlashFreezeTalentMarker">
     <Duration value="3.125" />
+    <FinalEffect value="MeiOWCryoFreezeFlashFreezeRedirectMissile" />
   </CBehaviorBuff>
   <CBehaviorBuff id="MeiOWPolarVortexAttackSpeedSlow" parent="StormDamageReductionAttackSpeedSlow">
     <Alignment value="Negative" />
     <Duration value="0.5625" />
     <Modification>
-      <UnifiedAttackSpeedFactor value="-0.2" />
+      <AdditiveAttackSpeedFactor value="-0.2" />
     </Modification>
   </CBehaviorBuff>
   <CBehaviorBuff id="MeiOWSnowBlindSlushballTalentStructureDisable" parent="StormStructureDisable">
@@ -1027,6 +1037,7 @@
       <Priority value="16" />
       <Fatal value="1" />
       <RestoreLifeAfterFatal value="1" />
+      <RecordBehaviorShieldDamage value="1" />
       <ModifyFraction value="0" />
       <ValidatorArray value="MeiOWFlashFreezeNotOnCooldown" />
       <ProvideCategories index="Shield" value="1" />
@@ -1034,6 +1045,7 @@
     </DamageResponse>
   </CBehaviorBuff>
   <CBehaviorBuff id="MeiOWIceWallShatterTalentArmorDebuff" parent="StormArmor">
+    <BehaviorCategories index="DebuffVulnerable" value="1" />
     <Duration value="5" />
     <ArmorModification>
       <AllArmorBonus value="-25" />
@@ -1111,6 +1123,10 @@
     </Modification>
   </CBehaviorBuff>
   <CBehaviorBuff id="MeiOWSnowBlindBlind" parent="StormBlind">
+    <Duration value="1.75" />
+  </CBehaviorBuff>
+  <CBehaviorBuff id="MeiOWSnowBlindNonHeroesBlind" parent="StormBlindNonHeroes">
+    <RemoveValidatorArray value="MeiOWTargetHasSnowBlindBlind" />
     <Duration value="1.75" />
   </CBehaviorBuff>
   <CBehaviorBuff id="MeiOWIcingPrepBuff">
@@ -1264,14 +1280,6 @@
     <RefreshEffect value="MeiOWCCApplicationSet" />
   </CBehaviorBuff>
   <CBehaviorBuff id="MeiOWIceWallController" parent="CarryBehaviorParent" />
-  <CBehaviorBuff id="MeiOWIceWallTimeStopPrep" parent="StormTimeStopParent">
-    <RemoveValidatorArray value="MeiOWCasterHasIceWallController" />
-    <FinalEffect value="MeiOWIceWallTimeStopDebuffApplyBehavior" />
-    <Modification>
-      <ModifyFlags index="SuppressMoving" value="1" />
-      <CollideDisableFlags index="HeroWalkable" value="1" />
-    </Modification>
-  </CBehaviorBuff>
   <CBehaviorBuff id="MeiOWIceWallTimeStopDebuff" parent="StormTimeStopParent">
     <InfoFlags index="AlwaysUseGameText" value="1" />
     <BehaviorCategories index="Restorable" value="1" />
@@ -1279,7 +1287,6 @@
     <DisplayDuration index="Ally" value="1" />
     <DisplayDuration index="Neutral" value="1" />
     <DisplayDuration index="Enemy" value="1" />
-    <DisplayPriority value="1001" />
     <Duration value="$MeiOWIceWallDuration" />
     <Modification>
       <ModifyFlags index="SuppressMoving" value="1" />
@@ -1576,10 +1583,9 @@
     <WhichUnit Value="Caster" />
   </CEffectApplyBehavior>
   <CEffectApplyBehavior id="MeiOWSnowBlindCascadeTalentSlowApply" parent="StormSlowApply">
-    <ValidatorArray index="0" value="MeiOWSnowBlindSlowApplyTargetFilters" />
     <Behavior value="MeiOWSnowBlindSlow" />
     <Flags index="UseDuration" value="1" />
-    <Duration value="1.5" />
+    <Duration value="1.75" />
   </CEffectApplyBehavior>
   <CEffectRemoveBehavior id="MeiOWBackupBatteryRemoveBehaviorCategories">
     <BehaviorCategories index="Slow" value="1" />
@@ -1708,6 +1714,7 @@
   <CEffectSet id="MeiOWAvalancheCascadeTalentSnowballImpactSet">
     <EffectArray value="MeiOWSnowBlindDamage" />
     <EffectArray value="MeiOWSnowBlindBlindDebuffApply" />
+    <EffectArray value="MeiOWSnowBlindBlindDebuffNonHeroesApply" />
     <EffectArray value="MeiOWSnowBlindCascadeTalentSlowApply" />
   </CEffectSet>
   <CEffectSet id="MeiOWAvalancheCascadeTalentSnowballLaunchSet">
@@ -1793,6 +1800,7 @@
     <ValidatorArray value="TargetIsHero" />
     <EffectArray value="MeiOWSnowBlindSlushballTheBigOneTalentDamage" />
     <EffectArray value="MeiOWSnowBlindBlindDebuffApply" />
+    <EffectArray value="MeiOWSnowBlindBlindDebuffNonHeroesApply" />
     <EffectArray value="MeiOWSnowBlindSlowSwitch" />
     <EffectArray value="ApplyAbilityImpactReveal" />
   </CEffectSet>
@@ -1819,6 +1827,7 @@
     <ValidatorArray value="noMarkers" />
     <EffectArray value="MeiOWSnowBlindTheBigOneDamage" />
     <EffectArray value="MeiOWSnowBlindBlindDebuffApply" />
+    <EffectArray value="MeiOWSnowBlindBlindDebuffNonHeroesApply" />
     <EffectArray value="MeiOWSnowBlindSlowSwitch" />
     <EffectArray value="MeiOWSnowBlindSlushballTalentApplyStructureDebuff" />
     <EffectArray value="ApplyAbilityImpactReveal" />
@@ -1879,6 +1888,11 @@
     <EffectArray value="MeiOWCryoFreezeFlashFreezeTalentModifyCooldown" />
     <EffectArray value="MeiOWCryoFreezeFlashFreezeTalentMarkerApply" />
   </CEffectSet>
+  <CEffectRedirectMissile id="MeiOWCryoFreezeFlashFreezeRedirectMissile">
+    <ValidatorArray value="CasterIsNotGroundMover" />
+    <WhichUnit Value="Caster" />
+    <ImpactLocation Value="CasterUnit" />
+  </CEffectRedirectMissile>
   <CEffectSet id="MeiOWCryoFreezeFlashFreezeTalentDummySet">
     <ValidatorArray value="AlwaysReturnsFalse" />
   </CEffectSet>
@@ -1984,6 +1998,7 @@
     <CaseDefault value="MeiOWCryoFreezeShieldBuffApplyBehavior" />
   </CEffectSwitch>
   <CEffectApplyBehavior id="MeiOWHeroWeaponCoolingServosTalentApplySlow" parent="StormSlowApply">
+    <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
     <Chance value="0" />
     <Behavior value="MeiOWCoolingServosSlow" />
   </CEffectApplyBehavior>
@@ -2061,6 +2076,7 @@
     <ValidatorArray value="noMarkers" />
     <EffectArray value="MeiOWSnowBlindDamage" />
     <EffectArray value="MeiOWSnowBlindBlindDebuffApply" />
+    <EffectArray value="MeiOWSnowBlindBlindDebuffNonHeroesApply" />
     <EffectArray value="MeiOWSnowBlindSlowSwitch" />
     <EffectArray value="MeiOWSnowBlindSlushballTalentApplyStructureDebuff" />
     <EffectArray value="ApplyAbilityImpactReveal" />
@@ -2070,11 +2086,15 @@
   </CEffectApplyBehavior>
   <CEffectSet id="MeiOWIcicleExplosionImpactSet">
     <EffectArray value="MeiOWSnowBlindBlindDebuffApply" />
+    <EffectArray value="MeiOWSnowBlindBlindDebuffNonHeroesApply" />
     <EffectArray value="MeiOWIcicleSnowBlindQuestProgressControllerApplyBehavior" />
     <EffectArray value="MeiOWSnowBlindDamage" />
   </CEffectSet>
   <CEffectApplyBehavior id="MeiOWSnowBlindBlindDebuffApply" parent="StormBlindApply">
     <Behavior value="MeiOWSnowBlindBlind" />
+  </CEffectApplyBehavior>
+  <CEffectApplyBehavior id="MeiOWSnowBlindBlindDebuffNonHeroesApply" parent="StormBlindApply">
+    <Behavior value="MeiOWSnowBlindNonHeroesBlind" />
   </CEffectApplyBehavior>
   <CEffectDamage id="MeiOWSnowBlindDamage" parent="StormSpell">
     <MultiplicativeModifierArray index="Slushball" Validator="MeiOWSnowBlindSlushballTalentProcCombine" Modifier="0.75" />
@@ -2503,10 +2523,20 @@
   </CEffectEnumArea>
   <CEffectSet id="MeiOWIceWallImpactSet">
     <EffectArray value="MeiOWIceWallControllerApplyBehavior" />
-    <EffectArray value="MeiOWIceWallTimeStopPrepApplyBehavior" />
+    <EffectArray value="MeiOWIceWallTimeStopPrepPersistentHandler" />
+    <EffectArray value="MeiOWIceWallTimeStopDebuffApplyUntimedBehavior" />
   </CEffectSet>
-  <CEffectApplyBehavior id="MeiOWIceWallTimeStopPrepApplyBehavior">
-    <Behavior value="MeiOWIceWallTimeStopPrep" />
+  <CEffectCreatePersistent id="MeiOWIceWallTimeStopPrepPersistentHandler">
+    <WhichLocation Value="TargetUnit" />
+    <TimeScaleSource Value="Global" />
+    <FinalEffect value="MeiOWIceWallTimeStopDebuffApplyBehavior" />
+    <ExpireDelay value="1.0625" />
+    <PeriodicValidator value="MeiOWCasterHasIceWallController" />
+  </CEffectCreatePersistent>
+  <CEffectApplyBehavior id="MeiOWIceWallTimeStopDebuffApplyUntimedBehavior">
+    <Behavior value="MeiOWIceWallTimeStopDebuff" />
+    <Flags index="UseDuration" value="1" />
+    <Duration value="-1" />
   </CEffectApplyBehavior>
   <CEffectApplyBehavior id="MeiOWIceWallTimeStopDebuffApplyBehavior">
     <Behavior value="MeiOWIceWallTimeStopDebuff" />
@@ -2584,6 +2614,7 @@
   <CEffectSet id="MeiOWHeroWeaponImpactSet">
     <EffectArray value="MeiOWHeroWeaponDamage" />
     <EffectArray value="MeiOWHeroWeaponCoolingServosTalentApplySlow" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectDamage id="MeiOWHeroWeaponDamage" parent="StormWeapon">
     <MultiplicativeModifierArray index="HeatTransfer" Validator="MeiOWHeatTransferTalentProcCombine" Modifier="0.33" Crit="1" />
@@ -2600,6 +2631,7 @@
   </CEffectApplyBehavior>
   <CEffectApplyBehavior id="MeiOWBlizzardInduceHibernationTalentApplyDamageReduction">
     <ValidatorArray value="MeiOWHasInduceHibernationTalent" />
+    <ValidatorArray value="TargetIsHero" />
     <Behavior value="MeiOWBlizzardInduceHibernationTalentDamageReductionDebuff" />
   </CEffectApplyBehavior>
   <CEffectSet id="MeiOWSnowBlindLaunchSet">
@@ -2616,6 +2648,7 @@
   </CEffectSet>
   <CEffectApplyBehavior id="MeiOWBlizzardInduceHibernationTalentApplyDamageReductionBonusDebuff">
     <ValidatorArray value="MeiOWHasInduceHibernationTalent" />
+    <ValidatorArray value="TargetIsHero" />
     <Behavior value="MeiOWBlizzardInduceHibernationTalentDamageReductionBonusDebuff" />
   </CEffectApplyBehavior>
   <CEffectLaunchMissile id="MeiOWSnowBlindLaunchMissile">
@@ -2639,7 +2672,7 @@
   <CEffectDamage id="MeiOWSnowBlindTheBigOneDamage" parent="MeiOWSnowBlindDamage">
     <ValidatorArray value="noMarkers" />
     <Marker Link="Effect/MeiOWSnowballDamage" />
-    <MultiplicativeModifierArray index="Slushball" Validator="MeiOWHasSlushballTalent" Modifier="0.5" />
+    <MultiplicativeModifierArray index="Slushball" Validator="MeiOWHasSlushballTalent" Modifier="0.75" />
     <MultiplicativeModifierArray index="TheBigOne" Modifier="2" Crit="1" />
   </CEffectDamage>
   <CGame id="Dflt">
@@ -2721,7 +2754,7 @@
     </TalentTreeArray>
     <TalentTreeArray Talent="MeiOWTheBigOne" Tier="7" Column="3" />
     <TalentTreeArray Talent="MeiOWFlashFreeze" Tier="7" Column="4" />
-    <Difficulty value="Medium" />
+    <Difficulty value="Hard" />
     <Gender value="Female" />
     <Universe value="Overwatch" />
     <UniverseIcon value="assets\textures\ui_glues_store_gameicon_ow.dds" />
@@ -4045,6 +4078,10 @@
     <Compare value="GT" />
     <Behavior value="MeiOWIcingSlowDebuff" />
     <RequireCasterUnit Value="Caster" />
+  </CValidatorUnitCompareBehaviorCount>
+  <CValidatorUnitCompareBehaviorCount id="MeiOWTargetHasSnowBlindBlind">
+    <Compare value="GT" />
+    <Behavior value="MeiOWSnowBlindBlind" />
   </CValidatorUnitCompareBehaviorCount>
   <CValidatorPlayerTalent id="MeiOWHasIceStormTalent">
     <Find value="1" />

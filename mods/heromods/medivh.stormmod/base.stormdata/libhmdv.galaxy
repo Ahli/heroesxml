@@ -62,7 +62,7 @@ void libHMDV_gf_HeroMedivhIncrementHeroCountFunction () {
         TriggerEnable(libHMDV_gt_HeroMedivhRavenFamiliarPostSpawnCloak, true);
         TriggerEnable(libHMDV_gt_HeroMedivhLeyLineSealOverlayOff, true);
         TriggerEnable(libHMDV_gt_HeroMedivhPortalTeleport, true);
-        TriggerEnable(libHMDV_gt_HeroMedivhPortalCameraPan, true);
+        TriggerEnable(libHMDV_gt_HeroMedivhPortalCameraPan, false);
         TriggerEnable(libHMDV_gt_HeroMedivhPortalPortalMasterySelectionClamping, true);
         TriggerEnable(libHMDV_gt_HeroMedivhPortalPortalMasteryMorphBackToMedivh, true);
         TriggerEnable(libHMDV_gt_HeroMedivhForceofWillBehaviorResponses, true);
@@ -604,6 +604,7 @@ bool libHMDV_gt_HeroMedivhPortalPortalMasteryMorphBackToMedivh_Func (bool testCo
     lv_medivh = libGame_gv_players[lv_portal2Owner].lv_heroUnit;
     UnitCreateEffectUnit(lv_medivh, "MedivhAbilityPrepareSet", lv_medivh);
     UnitCreateEffectUnit(lv_medivh, "MedivhPortalCooldown", lv_medivh);
+    UnitCreateEffectUnit(lv_medivh, "MedivhPortalCreateCasterDurationPersistent", lv_medivh);
     UnitBehaviorAdd(lv_medivh, "MedivhPortalPortalMasteryCastStun", lv_medivh, 1);
     libNtve_gf_MakeUnitFacePoint(lv_medivh, EventUnitTargetPoint(), 0.0625);
     if ((UnitOrderCount(lv_medivh) <= 1)) {

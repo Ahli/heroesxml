@@ -20,7 +20,7 @@
   <const id="$YrelAvengingWrathRange" value="8" />
   <const id="$YrelAvengingWrathMinimumRange" value="2.5" />
   <const id="$YrelAvengingWrathSlowDuration" value="1" />
-  <const id="$YrelAvengingWrathAegisOfLightArmorDuration" value="4" />
+  <const id="$YrelAvengingWrathAegisOfLightArmorDuration" value="5" />
   <const id="$YrelArdentDefenderDamageTrackerDuration" value="3" />
   <const id="$YrelArdentDefenderWordOfGlorySearchRadius" value="12" />
   <const id="$YrelSacredGroundRadius" value="5.5" />
@@ -200,8 +200,7 @@
     <Flags index="ClearLastMoveTarget" value="1" />
     <Flags index="RequireTargetVision" value="0" />
     <Cost>
-      <Vital index="Energy" value="40" />
-      <Cooldown TimeUse="40" />
+      <Cooldown TimeUse="25" />
     </Cost>
     <UninterruptibleArray index="Cast" value="1" />
     <UninterruptibleArray index="Channel" value="1" />
@@ -505,7 +504,7 @@
     <On Terms="Effect.YrelAvengingWrathInitialSet.Start; At Caster" Send="Create" />
     <On Terms="Effect.YrelAvengingWrathInitialSet.Start; ValidateEffect YrelAvengingWrathCasterHasMaxChargeBehavior" Send="AnimBracketStart BSD Birth,B Stand Death ContentPlayOnce" />
     <On Terms="Effect.YrelAvengingWrathInitialSet.Start; !ValidateEffect YrelAvengingWrathCasterHasMaxChargeBehavior" Send="AnimBracketStart BSD Birth,A Stand Death ContentPlayOnce" />
-    <HostSiteOps Ops="SOpAttachWeaponRightSync SOpShadow" />
+    <HostSiteOps Ops="SOpAttachWeaponRightSync" />
   </CActorModel>
   <CActorModel id="YrelAvengingWrathImpactGroundFX" parent="StormModelAnimationStyleOneShot">
     <Remove Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death ContentPlayOnce" />
@@ -878,7 +877,7 @@
     <On Terms="Behavior.YrelAvengingWrathChannelBuff.On" Send="Create" />
     <On Terms="Behavior.YrelAvengingWrathChannelBuff.Off" Send="Destroy" />
     <On Terms="Behavior.YrelAvengingWrathInFlight.On" Send="Destroy" />
-    <On Terms="ActorCreation" Send="Create YrelAvengingWrathCastGuideRegionCircle" />
+    <On Terms="ActorCreation; IsActorLocalPlayer" Send="Create YrelAvengingWrathCastGuideRegionCircle" />
     <On Terms="ActorCreation" Send="SetTintColor 225,160,25 0.000000 OneShot BaseTint" />
     <On Terms="ActorDestruction" Target="_AvengingWrathGuideRegion" Send="Destroy" />
     <On Terms="ActorOrphan" Send="Destroy" />
@@ -915,7 +914,7 @@
     <On Terms="Behavior.YrelAvengingWrathChannelBuff.On; ValidatePlayer YrelAvengingWrathAegisOfLightHasTalent" Send="Create" />
     <On Terms="Behavior.YrelAvengingWrathChannelBuff.Off" Send="Destroy" />
     <On Terms="Behavior.YrelAvengingWrathInFlight.On" Send="Destroy" />
-    <On Terms="ActorCreation" Send="Create YrelAvengingWrathAegisOfLightCastGuideRegionCircle" />
+    <On Terms="ActorCreation; IsActorLocalPlayer" Send="Create YrelAvengingWrathAegisOfLightCastGuideRegionCircle" />
     <On Terms="ActorCreation" Send="SetTintColor 225,160,25 0.000000 OneShot BaseTint" />
     <On Terms="ActorDestruction" Target="_YrelAvengingWrathAegisOfLightCastGuideRegion" Send="Destroy" />
     <On Terms="ActorOrphan" Send="Destroy" />
@@ -1055,7 +1054,7 @@
     <On Terms="ActorOrphan" Send="Destroy" />
     <On Terms="ActorCreation" Send="SetTintColor 225,160,25 0.000000 OneShot BaseTint" />
     <On Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death" />
-    <On Terms="ActorCreation" Send="Create YrelRighteousHammerCastGuideRegionArc" />
+    <On Terms="ActorCreation; IsActorLocalPlayer" Send="Create YrelRighteousHammerCastGuideRegionArc" />
     <On Terms="Behavior.YrelRighteousHammerChannelBuff.On" Send="Create" />
     <On Terms="Behavior.YrelRighteousHammerChannelBuff.Off" Send="Destroy Immediate" />
     <On Terms="Behavior.YrelRighteousHammerMaxCharge.On" Send="AnimPlay Stand Stand PlayForever" />
@@ -1202,7 +1201,7 @@
     <On Terms="Behavior.YrelVindicationChannelBuff.On" Send="Create" />
     <On Terms="Behavior.YrelVindicationChannelBuff.Off" Send="Destroy Immediate" />
     <On Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death" />
-    <On Terms="ActorCreation" Send="Create YrelVindicationCastGuideRegionArc" />
+    <On Terms="ActorCreation; IsActorLocalPlayer" Send="Create YrelVindicationCastGuideRegionArc" />
     <On Terms="ActorDestruction" Target="_VindicationGuideRegion" Send="Destroy" />
     <On Terms="ActorOrphan" Send="Destroy" />
     <On Terms="Behavior.YrelVindicationMaxCharge.On" Send="AnimPlay Stand Stand PlayForever" />
@@ -1304,6 +1303,9 @@
     <On Terms="Effect.YrelArdentDefenderWordOfGloryCreateHealer.Start; At Target" Send="Create" />
     <HostSiteOps Ops="SOpAttachOrigin SOpPointSouthWorld" HoldRotation="1" />
     <Terms value="Cap 1" />
+  </CActorModel>
+  <CActorModel id="BlockBuff">
+    <On Terms="Behavior.YrelDauntlessArmorBuff.On" Send="Create" />
   </CActorModel>
   <CActorRange id="YrelArdentDefenderWordOfGloryRange" parent="StormRangeAbilPlusSplat" abil="YrelArdentDefender" />
   <CActorSplat id="YrelArdentDefenderWordOfGloryRangeSplat" parent="StormRangeSplat">
@@ -1462,7 +1464,7 @@
     <BehaviorCategories index="BuffResistant" value="1" />
     <Duration value="$YrelAvengingWrathAegisOfLightArmorDuration" />
     <ArmorModification>
-      <AllArmorBonus value="30" />
+      <AllArmorBonus value="40" />
     </ArmorModification>
   </CBehaviorBuff>
   <CBehaviorBuff id="YrelSacredGroundArmor" parent="StormArmor">
@@ -1586,7 +1588,7 @@
     <BehaviorCategories index="DebuffVulnerable" value="1" />
     <Duration value="4" />
     <ArmorModification>
-      <AllArmorBonus value="-20" />
+      <AllArmorBonus value="-15" />
     </ArmorModification>
   </CBehaviorBuff>
   <CBehaviorBuff id="YrelVindicationAldorPeacekeeperDamageReduction" parent="StormDamageReduction">
@@ -1703,7 +1705,10 @@
     <BuffFlags index="RefreshStack" value="1" />
     <BuffFlags index="UpdateDurationWhileDisabled" value="1" />
     <Duration value="$YrelArdentDefenderDamageTrackerDuration" />
-    <DamageResponse Chance="1" Priority="96" ModifyFraction="0" />
+    <DamageResponse Chance="1" Priority="96" ModifyFraction="0">
+      <ModifyScoreArray Value="SelfHealing" />
+      <RecordBehaviorShieldDamage value="1" />
+    </DamageResponse>
   </CBehaviorBuff>
   <CBehaviorBuff id="YrelVelensChosenAbilityPowerBuff" parent="StormDamageIncrease">
     <Alignment value="Positive" />
@@ -1956,23 +1961,23 @@
     <ValidatorArray value="YrelHolyWrathCasterHasBuff" />
     <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
     <ExcludeArray Effect="YrelWeaponImpactSet" Value="Target" />
-    <SearchFilters value="-;Player,Ally,Neutral,ImmuneToAOE,Item,Stasis,Dead,Invulnerable,PhaseShifted" />
+    <SearchFilters value="-;Self,Player,Ally,Neutral,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
     <AreaArray Effect="YrelHolyWrathImpactSet">
       <Radius value="$YrelHolyWrathSearchRadius" />
     </AreaArray>
-    <RevealerParams Duration="1" ShapeExpansion="1">
+    <RevealerParams Duration="0.75" ShapeExpansion="1">
       <RevealFlags index="Unfog" value="1" />
     </RevealerParams>
     <SearchFlags index="DoActorSearch" value="1" />
   </CEffectEnumArea>
   <CEffectSet id="YrelHolyWrathImpactSet">
     <EffectArray value="YrelHolyWrathDamage" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectDamage id="YrelHolyWrathDamage" parent="StormWeapon">
     <MultiplicativeModifierArray index="HolyWrath" Validator="YrelHolyWrathCasterHasBuff" Modifier="0.35" Crit="1" />
     <Amount value="$YrelWeaponDamageAmount" />
     <SourceButtonFace value="YrelHolyWrath" />
-    <ResponseExclusionFlags index="Proc" value="1" />
   </CEffectDamage>
   <CEffectSet id="YrelAvengingWrathChannelBuffFinalSet">
     <EffectArray value="DisableDanceAndTauntRemoveBehavior" />
@@ -1989,9 +1994,6 @@
     <AreaArray Effect="YrelAvengingWrathAegisOfLightArmorApplyBehavior">
       <Radius value="$YrelVindicationAegisOfLightSearchRadius" />
     </AreaArray>
-    <RevealerParams Duration="1" ShapeExpansion="1">
-      <RevealFlags index="Unfog" value="1" />
-    </RevealerParams>
   </CEffectEnumArea>
   <CEffectApplyBehavior id="YrelAvengingWrathAegisOfLightArmorApplyBehavior">
     <Behavior value="YrelAvengingWrathAegisOfLightArmor" />
@@ -2064,6 +2066,7 @@
     <EffectArray value="YrelAvengingWrathDamage" />
     <EffectArray value="YrelAvengingWrathSlowApplyBehavior" />
     <EffectArray value="YrelMaraadsInsightBuffApplyBehavior" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
   </CEffectSet>
   <CEffectModifyUnit id="YrelAvengingWrathHolyAvengerCooldownModifyUnit">
     <ValidatorArray value="TargetIsHero" />
@@ -2278,6 +2281,7 @@
     <EffectArray value="YrelRighteousHammerKnockbackCreatePersistent" />
     <EffectArray value="CameraShakeMediumTauntingTotemSet" />
     <EffectArray value="YrelMaraadsInsightBuffApplyBehavior" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
   </CEffectSet>
   <CEffectDamage id="YrelRighteousHammerDamage" parent="StormSpell">
     <Amount value="125">
@@ -2286,7 +2290,7 @@
   </CEffectDamage>
   <CEffectDamage id="YrelRighteousHammerTemplarsVerdictDamage" parent="StormSpellPercentDamage">
     <Chance value="0" />
-    <VitalFractionMax index="Life" value="0.07" />
+    <VitalFractionMax index="Life" value="0.06" />
     <ValidatorArray value="TargetIsHero" />
   </CEffectDamage>
   <CEffectApplyBehavior id="YrelRighteousHammerTemplarsVerdictDebuffApplyBehavior">
@@ -2468,7 +2472,7 @@
   </CEffectSet>
   <CEffectCreateHealer id="YrelMaraadsInsightCreateHealer" parent="StormSelfOnlyHealingSpell">
     <ImpactUnit Value="Caster" />
-    <RechargeVitalRate value="140" />
+    <RechargeVitalRate value="160" />
     <SourceButtonFace value="YrelMaraadsInsight" />
   </CEffectCreateHealer>
   <CEffectRemoveBehavior id="YrelMaraadsInsightBuffRemoveBehavior">
@@ -2559,6 +2563,7 @@
     <EffectArray value="YrelVindicationAldorPeacekeeperDamageReductionApplyBehavior" />
     <EffectArray value="YrelVindicationDamage" />
     <EffectArray value="YrelMaraadsInsightBuffApplyBehavior" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
   </CEffectSet>
   <CEffectCreateHealer id="YrelVindicationCreateHealer" parent="StormSelfOnlyHealingSpell">
     <MultiplicativeModifierArray index="LightOfKarabor" Validator="YrelVindicationLightOfKaraborHasTalent" Accumulator="YrelVindicationLightOfKaraborHealingAccumulator" />
@@ -2832,6 +2837,7 @@
     <EffectArray value="YrelHolyWrathSearchArea" />
     <EffectArray value="YrelHolyWrathBuffRemoveBehavior" />
     <EffectArray value="UniversalWeaponImpact" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectDamage id="YrelWeaponDamage" parent="StormWeapon">
     <Amount value="$YrelWeaponDamageAmount" />
@@ -2872,7 +2878,7 @@
     </TalentTreeArray>
     <TalentTreeArray Talent="YrelBubbleHearth" Tier="7" Column="3" />
     <TalentTreeArray Talent="YrelSeraphim" Tier="7" Column="4" />
-    <Difficulty value="Medium" />
+    <Difficulty value="Hard" />
     <Ratings>
       <Damage value="5" />
       <Utility value="4" />

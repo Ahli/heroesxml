@@ -279,12 +279,6 @@
     <Angle value="65.000000" />
     <Length value="7.000000" />
   </CActorForceConeRoundedEnd>
-  <CActorModel id="NonPersistentBlockBuff" parent="StormModelAnimationStyleOneShotUnit">
-    <On Terms="Effect.TalentBlockApplyStack.Start; At Target" Send="Create" />
-    <On Terms="Effect.GreymaneDarkflightThickSkinBlockApply.Start; At Caster" Send="Create" />
-    <HostSiteOps Ops="SOpAttachCenter" HoldRotation="1" />
-    <Model value="BlockBuff" />
-  </CActorModel>
   <CActorModel id="GreymaneInnerBeastSwordFX" parent="StormModelAddition">
     <On Terms="Behavior.GreymaneWorgenForm.Off; ValidateUnit GreymaneInnerBeastCasterHasBuff" Send="Create" />
     <On Terms="Behavior.GreymaneInnerBeast.On; !ValidateUnit GreymaneSourceHasWorgenForm" Send="Create" />
@@ -1594,6 +1588,7 @@
   <CEffectSet id="GreymaneHuntersBlunderbussTargetSet">
     <EffectArray value="HeroGenericExecutionerSet" />
     <EffectArray value="GreymaneHuntersBlunderbussDamage" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectSet id="GreymaneWeaponLaunchInnerBeastSet">
     <EffectArray value="HeroGreymaneWeaponLaunchSet" />
@@ -1607,15 +1602,22 @@
   </CEffectSet>
   <CEffectSet id="HeroGreymaneHumanMeleeWeaponImpactSet">
     <EffectArray value="UniversalWeaponLaunchSet" />
-    <EffectArray value="GreymaneInnerBeastAttackProcSet" />
     <EffectArray value="HeroGreymaneWeaponImpactSet" />
     <EffectArray value="GreymaneInnerBeastInsatiableManaRefund" />
     <EffectArray value="GreymaneInsatiableModifyHealingFountainCooldown" />
   </CEffectSet>
-  <CEffectModifyUnit id="DisengageHeroicUseModifyCooldown">
+  <CEffectSwitch id="GreymaneDisengageHeroicUseSwitch">
     <ValidatorArray value="GreymaneNotInWorgenForm" />
+    <CaseArray Validator="GreymaneHasDarkflightDisengageRunningWild" Effect="DisengageHeroicUseModifyCooldownRunningWild" />
+    <CaseDefault value="DisengageHeroicUseModifyCooldown" />
+  </CEffectSwitch>
+  <CEffectModifyUnit id="DisengageHeroicUseModifyCooldown">
     <ImpactUnit Value="Caster" />
     <Cost Abil="GreymaneDisengage,Execute" CooldownOperation="Set" CooldownTimeUse="5" />
+  </CEffectModifyUnit>
+  <CEffectModifyUnit id="DisengageHeroicUseModifyCooldownRunningWild">
+    <ImpactUnit Value="Caster" />
+    <Cost Abil="GreymaneDisengage,Execute" CooldownOperation="Set" CooldownTimeUse="4" />
   </CEffectModifyUnit>
   <CEffectApplyBehavior id="GreymaneInnerBeastInsatiableApply">
     <WhichUnit Value="Caster" />
@@ -1653,9 +1655,17 @@
   </CEffectModifyUnit>
   <CEffectSet id="GreymaneDarkflightThickSkinRemoveSet">
     <EffectArray value="BlockDummyDamage" />
-    <EffectArray value="BlockDummyDamageTarget" />
+    <EffectArray value="GreymaneThickSkinBlockDummyDamageTarget" />
     <EffectArray value="GreymaneDarkflightThickSkinRemoveArmor" />
   </CEffectSet>
+  <CEffectDamage id="GreymaneThickSkinBlockDummyDamageTarget">
+    <LaunchLocation Effect="GreymaneDarkflightThickSkinRemoveSet" Value="CasterUnit" />
+    <ImpactLocation Value="TargetUnit" />
+    <Flags index="NoScaledDealtBonus" value="1" />
+    <Flags index="NoFractionDealtBonus" value="1" />
+    <Flags index="NoBehaviorResponse" value="1" />
+    <Flags index="NoDamageTimerReset" value="1" />
+  </CEffectDamage>
   <CEffectRemoveBehavior id="GreymaneDarkflightThickSkinBlockRemove">
     <Chance value="0" />
     <WhichUnit Value="Caster" />
@@ -1744,6 +1754,7 @@
   <CEffectSet id="GreymaneToothAndClawImpactSet">
     <EffectArray value="HeroGenericExecutionerSet" />
     <EffectArray value="GreymaneToothAndClawDamage" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectEnumArea id="GreymaneToothAndClawSearchArea">
     <SearchFilters value="-;Self,Player,Ally,ImmuneToAOE,Missile,Item,Stasis,Dead,Invulnerable" />
@@ -1862,9 +1873,6 @@
   <CEffectSet id="HeroGreymaneWeaponLaunchSet">
     <EffectArray value="HeroGreymaneWeaponLaunchSwitch" />
     <EffectArray value="UniversalWeaponLaunchSet" />
-    <EffectArray value="GreymaneInnerBeastAttackProcSet" />
-    <EffectArray value="GreymaneInnerBeastInsatiableManaRefund" />
-    <EffectArray value="GreymaneInsatiableModifyHealingFountainCooldown" />
   </CEffectSet>
   <CEffectLaunchMissile id="HeroGreymaneWeaponLaunchMissile">
     <ValidatorArray index="0" value="TargetNotDead" />
@@ -1879,6 +1887,10 @@
     <EffectArray value="HeroGreymaneWeaponDamage" />
     <EffectArray value="GreymaneWizenedDuelistIncrementTokenCounterHuman" />
     <EffectArray value="GreymaneHuntersBlunderbussImpactSet" />
+    <EffectArray value="GreymaneInnerBeastAttackProcSet" />
+    <EffectArray value="GreymaneInnerBeastInsatiableManaRefund" />
+    <EffectArray value="GreymaneInsatiableModifyHealingFountainCooldown" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectSwitch id="HeroGreymaneWeaponLaunchSwitch">
     <CaseArray Validator="GreymaneWeaponDistanceCheck" Effect="HeroGreymaneWeaponLaunchMissile" />
@@ -1889,8 +1901,10 @@
     <EffectArray value="UniversalWeaponImpact" />
     <EffectArray value="GreymaneInnerBeastAttackProcSet" />
     <EffectArray value="HeroGreymaneWorgenWeaponDamage" />
+    <EffectArray value="GreymaneAlphaKillerDamage" />
     <EffectArray value="GreymaneWizenedDuelistIncrementTokenCounterWorgen" />
     <EffectArray value="GreymaneWorgenWeaponImpactSecondarySet" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectDamage id="HeroGreymaneWeaponDamage" parent="StormWeapon">
     <Amount value="148" />
@@ -1899,7 +1913,8 @@
     <Marker Link="Effect/GreymaneHuntersBlunderbussDamage" />
   </CEffectDamage>
   <CEffectDamage id="HeroGreymaneWorgenWeaponDamage" parent="StormWeapon">
-    <Amount value="207.2" />
+    <Amount value="148" />
+    <MultiplicativeModifierArray index="WorgenForm" Modifier="0.4" />
   </CEffectDamage>
   <CEffectDamage id="GreymaneToothAndClawDamage" parent="HeroGreymaneWorgenWeaponDamage">
     <Marker Link="Effect/GreymaneToothAndClawDamage" />
@@ -2317,14 +2332,14 @@
     <EffectArray value="GreymaneGoForTheThroatBaseImpactSet" />
   </CEffectSet>
   <CEffectSet id="GreymaneGoForTheThroatCastSet">
-    <EffectArray value="DisengageHeroicUseModifyCooldown" />
+    <EffectArray value="GreymaneDisengageHeroicUseSwitch" />
     <EffectArray value="GreymaneGoForTheThroatWorgenFormApplySwitch" />
     <EffectArray value="GreymaneGoForTheThroatApplyDeathResponseBehavior" />
     <EffectArray value="GreymaneGoForTheThroatRangeSwitch" />
   </CEffectSet>
   <CEffectSet id="GreymaneGoForTheThroatFreeCastCastSet">
     <EffectArray value="GreymaneGoForTheThroatResetPlayerCooldown" />
-    <EffectArray value="DisengageHeroicUseModifyCooldown" />
+    <EffectArray value="GreymaneDisengageHeroicUseSwitch" />
     <EffectArray value="GreymaneWorgenFormApplySet" />
     <EffectArray value="GreymaneGoForTheThroatApplyDeathResponseBehavior" />
     <EffectArray value="GreymaneGoForTheThroatRangeSwitch" />
@@ -2391,6 +2406,9 @@
     <ValidatorArray value="CasterHasLE1Orders" />
   </CEffectIssueOrder>
   <CEffectDamage id="GreymaneAlphaKillerDamage" parent="StormSpellPercentDamage">
+    <ValidatorArray value="GreymaneHasWorgenFormAlphaKiller" />
+    <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
+    <ValidatorArray value="TargetIsHero" />
     <VitalFractionMax index="Life" value="0.03" />
   </CEffectDamage>
   <CEffectEnumArea id="GreymaneGoForTheThroatViableKillSearchArea">
@@ -3591,9 +3609,6 @@
   </CTalent>
   <CTalent id="GreymaneWorgenFormAlphaKiller">
     <Face value="GreymaneAlphaKillerTalent" />
-    <RankArray>
-      <BehaviorArray value="GreymaneAlphaKiller" />
-    </RankArray>
     <Trait value="1" />
   </CTalent>
   <CUnit id="GreymaneCursedBulletMissile" parent="MISSILE_INVULNERABLE" />

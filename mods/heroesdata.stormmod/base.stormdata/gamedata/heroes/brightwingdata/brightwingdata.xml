@@ -114,6 +114,7 @@
       <Cooldown Link="Abil/FaerieDragonManaFlare" TimeUse="6" />
     </Cost>
     <Range value="8" />
+    <RangeSlop value="5" />
     <CastIntroTime value="0.15" />
     <UninterruptibleArray index="Cast" value="1" />
     <CursorEffect value="ArcaneFlareOuterSearch" />
@@ -138,6 +139,7 @@
     </Cost>
     <TargetFilters value="-;Player,Ally,Neutral,Structure,Missile,Item,Stasis,Dead,Hidden,Invulnerable,Unstoppable" />
     <Range value="7" />
+    <RangeSlop value="5" />
     <CastIntroTime value="0.2" />
     <UninterruptibleArray index="Cast" value="1" />
     <CmdButtonArray index="Execute" DefaultButtonFace="BrightwingPolymorph">
@@ -145,7 +147,6 @@
     </CmdButtonArray>
     <PrepEffect value="DismountDecloakCasterSet" />
     <Arc value="360" />
-    <RangeSlop value="3" />
     <SetLastTarget value="Attack" />
   </CAbilEffectTarget>
   <CAbilEffectTarget id="FaerieDragonBlinkHealDash">
@@ -300,6 +301,8 @@
   </CActorRange>
   <CActorModel id="BrightwingPolymorphUnstableAnomalyCastModel" parent="StormModelAnimationStyleContinuousUnit">
     <On Terms="Effect.BrightwingPolymorphUnstableAnomalySearchArea.Start; At Target" Send="Create" />
+    <On Terms="ActorCreation" Send="TimerSet 0.750000 DelayDestroy" />
+    <On Terms="TimerExpired; TimerName DelayDestroy" Send="Destroy" />
     <HostSiteOps Ops="SOpAttachCenter" />
   </CActorModel>
   <CActorSound id="FaerieDragon_Polymorph_UnstableAnomaly_Impact" parent="SoundOneShot">
@@ -1086,12 +1089,6 @@
     <Duration value="0.5" />
     <FinalEffect value="BrightwingBlinkHealInvisibleFriendsApplyCloakBehavior" />
   </CBehaviorBuff>
-  <CBehaviorBuff id="BrightwingCalmingMistMagicSpitCarryBehavior" parent="CarryBehaviorParent">
-    <DamageResponse Chance="1" Handled="BrightwingCalmingMistMagicSpitModifyCooldown" Location="Attacker">
-      <ValidatorArray value="UserCategoryTargetNotEvading" />
-      <Kind index="Ability" value="0" />
-    </DamageResponse>
-  </CBehaviorBuff>
   <CBehaviorTokenCounter id="BrightwingArcaneFlareSoothingPrecisionToken" parent="StormQuestToken">
     <Face value="BrightwingArcaneFlareSoothingPrecisionTalentToken" />
     <ConditionalEvents Compare="GE" CompareValue="20">
@@ -1389,12 +1386,18 @@
     <Duration value="1.5" />
     <ExpireEffect value="BrightwingPolymorphUnstableAnomalySearchArea" />
     <Modification>
-      <UnifiedMoveSpeedFactor value="-0.3" />
       <DeathResponse Chance="1" Effect="BrightwingPolymorphUnstableAnomalySearchArea" />
     </Modification>
     <AINotifySettings AreaEffect="BrightwingPolymorphUnstableAnomalySearchArea">
       <Flags index="Disabled" value="1" />
     </AINotifySettings>
+  </CBehaviorBuff>
+  <CBehaviorBuff id="BrightwingPolymorphSlow" parent="StormSlowParent">
+    <RemoveValidatorArray value="BrightwingTargetHasBrightwingPolymorphBehavior" />
+    <Duration value="1.5" />
+    <Modification>
+      <UnifiedMoveSpeedFactor value="-0.3" />
+    </Modification>
   </CBehaviorBuff>
   <CBehaviorBuff id="EmeraldWindKnockback" parent="PushPullParent">
     <Duration value="0.1875" />
@@ -1412,11 +1415,13 @@
   </CBehaviorBuff>
   <CBehaviorBuff id="BrightwingInvisibleFriendsCloak" parent="StormTempCloak">
     <InfoFlags index="AlwaysUseGameText" value="1" />
+    <Face value="BrightwingInvisibleFriends" />
     <RemoveValidatorArray value="DoesNotHavePermanentCloak" />
     <FinalEffect value="RemoveHoldFireBehavior" />
     <DamageResponse Chance="1" Handled="BrightwingInvisibleFriendsRemoveCloakBehavior" Priority="127" />
     <Period value="1" />
     <PeriodicEffect value="BrightwingBlinkHealInvisibleFriendsCreateHealer" />
+    <PeriodicDisplayEffect value="BrightwingBlinkHealInvisibleFriendsCreateHealer" />
     <Duration value="9" />
   </CBehaviorBuff>
   <CBehaviorBuff id="BrightwingInvisibleFriendsHoldFire">
@@ -1489,6 +1494,7 @@
   </CButton>
   <CButton id="BrightwingSoothingMistCalmingMist" parent="StormButtonParentTrait">
     <Icon value="Assets\Textures\storm_ui_icon_brightwing_soothingmist.dds" />
+    <TooltipAppender Validator="BrightwingHasMagicSpit" Face="BrightwingMagicSpit" />
     <TooltipAppender Validator="BrightwingHasCriticalMist" Face="BrightwingCalmingMistCriticalMist" />
   </CButton>
   <CButton id="FaerieDragonPixieCharm" parent="StormButtonParent">
@@ -1676,7 +1682,6 @@
     <EffectArray value="BrightwingArcaneFlareHushApplySilenceBehavior" />
   </CEffectSet>
   <CEffectDamage id="BrightwingPolymorphUnstableAnomalyDamage" parent="StormSpellPercentDamage">
-    <ValidatorArray value="TargetIsHero" />
     <VitalFractionMax index="Life" value="0.02" />
   </CEffectDamage>
   <CEffectApplyBehavior id="BrightwingSoothingMistSoothingPrecisionActiveApplyBehavior">
@@ -1707,7 +1712,7 @@
   <CEffectModifyUnit id="BrightwingPhaseShiftHyperShiftModifyUnit">
     <ValidatorArray value="UserCategoryTargetNotEvading" />
     <ImpactUnit Value="Caster" />
-    <Cost Abil="BrightwingPhaseShift,Execute" CooldownOperation="Add" CooldownTimeUse="-1" />
+    <Cost Abil="BrightwingPhaseShift,Execute" CooldownOperation="Add" CooldownTimeUse="-.5" />
   </CEffectModifyUnit>
   <CEffectModifyTokenCount id="BrightwingPixieCharmAddMinionTokenCount" parent="BaseEffectModifyTokenCount">
     <Chance value="0" />
@@ -1793,8 +1798,8 @@
     <Cost Abil="FaerieDragonPolymorph,Execute" CooldownOperation="Add" CooldownTimeUse="-7" />
   </CEffectModifyUnit>
   <CEffectModifyUnit id="BrightwingCalmingMistMagicSpitModifyCooldown">
-    <ValidatorArray value="UserCategoryTargetNotEvading" />
-    <ValidatorArray value="TargetIsHero" />
+    <ValidatorArray value="BrightwingMagicSpitCombine" />
+    <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
     <ImpactUnit Value="Caster" />
     <Cost Abil="BrightwingCalmingMist,Execute" CooldownOperation="Add" CooldownTimeUse="-4" />
   </CEffectModifyUnit>
@@ -1887,7 +1892,7 @@
   <CEffectEnumArea id="BrightwingPhaseShiftPrepFindTargetSearch">
     <SearchFilters value="Heroic;Player,Neutral,Enemy,ImmuneToFriendlyAbilities,Stasis,Dead" />
     <AreaArray MaxCount="1" Effect="BrightwingPhaseShiftPrepPersistent">
-      <Radius value="5" />
+      <Radius value="6" />
     </AreaArray>
     <TargetSorts>
       <SortArray value="TSDistanceToTarget" />
@@ -1896,6 +1901,7 @@
   <CEffectSet id="BrightwingPhaseShiftPrepSet">
     <EffectArray value="DismountDecloakCasterSet" />
     <EffectArray value="BrightwingPhaseShiftPrepSwitch" />
+    <EffectArray value="BrightwingPhaseShiftPrepRefundPersistent" />
   </CEffectSet>
   <CEffectSwitch id="BrightwingPhaseShiftPrepSwitch">
     <CaseArray Validator="TargetIsHeroAndNotStasis" Effect="BrightwingPhaseShiftPrepPersistent" />
@@ -1907,7 +1913,34 @@
     <PeriodicValidator value="BrightwingPhaseShiftIsCastingPhaseShift" />
     <Flags index="PersistUntilDestroyed" value="1" />
     <InitialEffect value="BrightwingPhaseShiftTrackCurrentTarget" />
+    <PeriodicEffectArray value="BrightwingPhaseShiftSetFacing" />
+    <FinalEffect value="BrightwingPhaseShiftPrepPersistentCleanup" />
   </CEffectCreatePersistent>
+  <CEffectCreatePersistent id="BrightwingPhaseShiftPrepPersistentCleanup">
+    <WhichLocation Value="CasterUnit" />
+    <ExpireDelay value="0.25" />
+    <FinalEffect value="BrightwingPhaseShiftClearTrackedUnit" />
+  </CEffectCreatePersistent>
+  <CEffectClearTrackedUnits id="BrightwingPhaseShiftClearTrackedUnit">
+    <BehaviorLink value="BrightwingPhaseShiftTargetTracker" />
+  </CEffectClearTrackedUnits>
+  <CEffectModifyUnit id="BrightwingPhaseShiftSetFacing">
+    <ImpactUnit Value="Caster" />
+    <ModifyFlags index="InterpolateFacing" value="1" />
+    <FacingLocation Value="TargetUnit" />
+    <FacingType value="LookAt" />
+  </CEffectModifyUnit>
+  <CEffectCreatePersistent id="BrightwingPhaseShiftPrepRefundPersistent">
+    <ValidatorArray value="BrightwingPhaseShiftDoesNotHaveTargetsTracked" />
+    <WhichLocation Value="CasterUnit" />
+    <ExpireDelay value="0.0625" />
+    <FinalEffect value="BrightwingPhaseShiftRefundCooldown" />
+  </CEffectCreatePersistent>
+  <CEffectModifyUnit id="BrightwingPhaseShiftRefundCooldown">
+    <ValidatorArray value="BrightwingPhaseShiftDoesNotHaveTargetsTracked" />
+    <ImpactUnit Value="Caster" />
+    <Cost Abil="BrightwingPhaseShift,Execute" CooldownOperation="Add" CooldownTimeUse="-40" />
+  </CEffectModifyUnit>
   <CEffectSet id="BrightwingPhaseShiftInitialSet">
     <ValidatorArray value="CasterNotRooted" />
     <ValidatorArray value="BrightingPhaseShiftTargetsNearCursorOrAlreadyCasting" />
@@ -1922,6 +1955,7 @@
   <CEffectSet id="BrightwingPhaseShiftTeleportSet">
     <EffectArray value="BrightwingPhaseShiftTeleportImpactPauseApplyBehavior" />
     <EffectArray value="BrightwingPhaseShiftTeleportOffsetPersistent" />
+    <EffectArray value="BrightwingPhaseShiftImpactSet" />
     <EffectArray value="BrightwingPhaseShiftPhaseShieldApplyBehaviorTarget" />
     <EffectArray value="BrightwingPhaseShiftPhaseShieldApplyBehaviorCaster" />
   </CEffectSet>
@@ -2107,14 +2141,18 @@
   </CEffectRemoveBehavior>
   <CEffectEnumArea id="BrightwingPolymorphUnstableAnomalySearchArea">
     <ValidatorArray value="HasBrightwingUnstableAnomalyPolymorph" />
-    <SearchFilters value="-;Player,Ally,Neutral,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
-    <AreaArray Effect="BrightwingPolymorphUnstableAnomalyDamage">
+    <SearchFilters value="Heroic;Player,Ally,Neutral,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
+    <AreaArray Effect="BrightwingPolymorphUnstableAnomalyImpactSet">
       <Radius value="3" />
     </AreaArray>
-    <RevealerParams Duration="1.5" ShapeExpansion="1">
+    <RevealerParams Duration="0.75" ShapeExpansion="1">
       <RevealFlags index="Unfog" value="1" />
     </RevealerParams>
   </CEffectEnumArea>
+  <CEffectSet id="BrightwingPolymorphUnstableAnomalyImpactSet">
+    <EffectArray value="BrightwingPolymorphUnstableAnomalyDamage" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
+  </CEffectSet>
   <CEffectSet id="BrightwingSoothingMistMistifiedModifySet">
     <Chance value="0" />
     <EffectArray value="BrightwingSoothingMistMistifiedCooldownModifyBehaviorBuffDuration" />
@@ -2155,6 +2193,8 @@
   <CEffectSet id="FaerieDragonWeaponImpactSet">
     <EffectArray value="UniversalWeaponImpact" />
     <EffectArray value="FaerieDragonWeaponDamage" />
+    <EffectArray value="BrightwingCalmingMistMagicSpitModifyCooldown" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectModifyUnit id="FaerieDragonHardenedFocusModifyCooldowns">
     <Cost Abil="FaerieDragonArcaneFlare,Execute" CooldownOperation="Add" CooldownTimeUse="-0.125" />
@@ -2178,7 +2218,6 @@
     <TimeScaleSource Value="Caster" />
     <InitialEffect value="BrightwingPhaseShiftTeleport" />
     <InitialOffset Y="0.75" />
-    <FinalEffect value="BrightwingPhaseShiftImpactSet" />
   </CEffectCreatePersistent>
   <CEffectApplyBehavior id="EmeraldWindChargeUpApplyBehaviorActorDestroy">
     <WhichUnit Value="Caster" />
@@ -2467,6 +2506,7 @@
     <RevealerParams Duration="0.75" ShapeExpansion="1">
       <RevealFlags index="Unfog" value="1" />
     </RevealerParams>
+    <SearchFlags index="DoActorSearch" value="1" />
   </CEffectEnumArea>
   <CEffectEnumArea id="EmeraldWindGrowingSearchNoExclusion">
     <LaunchLocation Effect="EmeraldWindCreatePersistent" Value="TargetPoint" />
@@ -2521,6 +2561,7 @@
     <RechargeVitalRate value="200" />
     <MultiplicativeModifierArray index="SafetryDust" Validator="BrightwingPixieDustSafetyDustCombine" Modifier="$BrightwingPixieDustSafetyDustBonusHealing" />
     <ValidatorArray value="TargetIsHero" />
+    <ValidatorArray value="NotVehicle" />
   </CEffectCreateHealer>
   <CEffectTeleport id="BlinkHealTeleport">
     <WhichUnit Value="Caster" />
@@ -2657,8 +2698,12 @@
   <CEffectApplyBehavior id="PolymorphApplyBehavior">
     <Behavior value="BrightwingPolymorph" />
   </CEffectApplyBehavior>
+  <CEffectApplyBehavior id="PolymorphApplySlowBehavior" parent="StormSlowApply">
+    <Behavior value="BrightwingPolymorphSlow" />
+  </CEffectApplyBehavior>
   <CEffectSet id="PolymorphSet">
     <EffectArray value="PolymorphApplyBehavior" />
+    <EffectArray value="PolymorphApplySlowBehavior" />
     <EffectArray value="PolymorphModifyWeaponCooldown" />
     <EffectArray value="FaerieDragonPolymorphApplyCritterizeTalentVulnerable" />
     <EffectArray value="SiegeModeRemoveSet" />
@@ -2887,7 +2932,6 @@
     <TalentTreeArray Talent="BrightwingSpeedyDragon" Tier="7" Column="3" />
     <TalentTreeArray Talent="BrightwingFaerieProtector" Tier="7" Column="4" />
     <VariationIcon value="Assets\Textures\UI_Glues_Swatch_Blue_Green.dds" />
-    <Difficulty value="Hard" />
     <HeroTierAchievementId value="5216701565563149920" />
     <Gender value="Female" />
     <Universe value="Warcraft" />
@@ -3385,9 +3429,6 @@
   </CTalent>
   <CTalent id="BrightwingMagicSpit">
     <Face value="BrightwingMagicSpit" />
-    <RankArray>
-      <BehaviorArray value="BrightwingCalmingMistMagicSpitCarryBehavior" />
-    </RankArray>
     <AbilityModificationArray>
       <Modifications>
         <Type value="FlatModification" />
@@ -3591,7 +3632,7 @@
         <Catalog value="Effect" />
         <Entry value="BrightwingPhaseShiftCreateHealer" />
         <Field value="RechargeVitalFraction" />
-        <Value value="0.060000" />
+        <Value value="0.040000" />
       </Modifications>
     </AbilityModificationArray>
   </CTalent>
@@ -3769,7 +3810,7 @@
       <Modifications>
         <Type value="FlatModification" />
         <Catalog value="Behavior" />
-        <Entry value="BrightwingPolymorph" />
+        <Entry value="BrightwingPolymorphSlow" />
         <Field value="Modification.UnifiedMoveSpeedFactor" />
         <Value value="-0.150000" />
       </Modifications>
@@ -4140,6 +4181,9 @@
   </CValidatorCombine>
   <CValidatorCompareTrackedUnitsCount id="BrightwingPhaseShiftHasTrackedTarget">
     <Compare value="GT" />
+    <BehaviorLink value="BrightwingPhaseShiftTargetTracker" />
+  </CValidatorCompareTrackedUnitsCount>
+  <CValidatorCompareTrackedUnitsCount id="BrightwingPhaseShiftDoesNotHaveTargetsTracked">
     <BehaviorLink value="BrightwingPhaseShiftTargetTracker" />
   </CValidatorCompareTrackedUnitsCount>
   <CValidatorCombine id="BrightwingSoothingMistCombine">

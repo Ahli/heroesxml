@@ -10,6 +10,7 @@
       <Cooldown TimeUse="0.5" />
     </Cost>
     <CmdButtonArray index="Execute" AutoQueueId="" DefaultButtonFace="HoggerCancelHoggWild" ShowValidator="HoggerCasterHasHoggWildCasterBuff" />
+    <ParentAbil value="HoggerHoggWild" />
   </CAbilEffectInstant>
   <CAbilEffectInstant id="HoggerCancelLootHoard">
     <Effect value="HoggerDestroyLootHoardInitialSet" />
@@ -20,6 +21,7 @@
     <CmdButtonArray index="Execute" DefaultButtonFace="HoggerDestroyLootHoard" Requirements="HoggerHasLootHoardUnitActive">
       <Flags index="Continuous" value="0" />
     </CmdButtonArray>
+    <ParentAbil value="HoggerLootHoard" />
   </CAbilEffectInstant>
   <CAbilEffectInstant id="HoggerCancelHoardapult">
     <Effect value="HoggerDestroyHoardapultInitialSet" />
@@ -30,6 +32,7 @@
     <CmdButtonArray index="Execute" DefaultButtonFace="HoggerDestroyHoardapult" Requirements="HoggerHasHoardapultUnitActive">
       <Flags index="Continuous" value="0" />
     </CmdButtonArray>
+    <ParentAbil value="HoggerHoardapult" />
   </CAbilEffectInstant>
   <CAbilEffectTarget id="HoggerEzThroDynamite">
     <Effect value="HoggerEzThroDynamiteInitialSet" />
@@ -37,6 +40,7 @@
       <Cooldown TimeUse="8" />
     </Cost>
     <Range value="6" />
+    <RangeSlop value="5" />
     <CastIntroTime value="0.125" />
     <UninterruptibleArray index="Cast" value="1" />
     <UninterruptibleArray index="Channel" value="1" />
@@ -59,6 +63,7 @@
       <Cooldown TimeUse="60" />
     </Cost>
     <Range value="9" />
+    <RangeSlop value="5" />
     <CmdButtonArray index="Execute" DefaultButtonFace="HoggerNoControl">
       <Flags index="AllowSelfCast" value="0" />
     </CmdButtonArray>
@@ -75,7 +80,7 @@
   <CAbilEffectInstant id="HoggerOnTheProwl">
     <Effect value="HoggerOnTheProwlInitialSet" />
     <Cost>
-      <Cooldown TimeUse="40" />
+      <Cooldown TimeUse="45" />
     </Cost>
     <CmdButtonArray index="Execute" DefaultButtonFace="HoggerOnTheProwl" />
     <PrepEffect value="DismountDecloakCasterSet" />
@@ -89,6 +94,7 @@
     </Cost>
     <Placeholder value="HoggerRiverpawLootHoard" />
     <Range value="8" />
+    <RangeSlop value="5" />
     <MinimumRange value="1.25" />
     <Arc value="360" />
     <CastIntroTime value="0.125" />
@@ -111,6 +117,7 @@
       <Cooldown TimeUse="60" />
     </Cost>
     <Range value="15" />
+    <RangeSlop value="5" />
     <MinimumRange value="1.25" />
     <Arc value="360" />
     <CastIntroTime value="0.375" />
@@ -576,6 +583,7 @@
     <On Terms="Behavior.HoggerNoControlCasterBuff.On" Send="Create" />
     <On Terms="Behavior.HoggerNoControlCasterBuff.Off" Send="AnimBracketStop BSD" />
     <HostSiteOps Ops="SOpAttachOrigin" />
+    <Inherits index="Visibility" value="1" />
   </CActorModel>
   <CActorSound id="HoggerLootHoardGarbageFireTalentLoopSound" parent="SoundContinuous">
     <On Terms="Behavior.HoggerLootHoardGarbageFireTalentBuff.On" Send="Create" />
@@ -1129,7 +1137,7 @@
     <DisableValidatorArray value="HoggerCasterDoesNotHoggWildCasterBuff" />
     <DisableValidatorArray value="HoggerDoesNotHaveNoControlCasterBuff" />
     <Modification>
-      <VitalRegenArray index="Energy" value="-10" />
+      <VitalRegenArray index="Energy" value="-13" />
     </Modification>
   </CBehaviorBuff>
   <CBehaviorBuff id="HoggerGnollFrenzyDecayCoolup">
@@ -1170,9 +1178,9 @@
   <CBehaviorBuff id="HoggerHoggWildDummyMissileBuff" />
   <CBehaviorBuff id="HoggerHoggWildDustDevilTalentArmor" parent="StormArmor">
     <DisableValidatorArray value="HoggerLT50Rage" />
-    <Duration value="3" />
+    <Duration value="4" />
     <ArmorModification>
-      <AllArmorBonus value="20" />
+      <AllArmorBonus value="25" />
     </ArmorModification>
     <BuffFlags index="UpdateDurationWhileDisabled" value="1" />
     <Period value="0.0625" />
@@ -1180,7 +1188,7 @@
   </CBehaviorBuff>
   <CBehaviorBuff id="HoggerHoggWildDustDevilTalentBonusArmor" parent="StormArmor">
     <DisableValidatorArray value="HoggerGTE50Rage" />
-    <Duration value="3" />
+    <Duration value="4" />
     <ArmorModification>
       <AllArmorBonus value="40" />
     </ArmorModification>
@@ -1400,9 +1408,9 @@
     <BuffFlags index="RefreshStack" value="1" />
     <Duration value="2" />
     <Modification>
-      <HealDealtAdditiveMultiplier index="Life" value="-0.5" />
-      <HealDealtAdditiveMultiplier index="Shields" value="-0.5" />
-      <DamageDealtFraction index="Ability" value="-0.5" />
+      <HealDealtAdditiveMultiplier index="Life" value="-0.3" />
+      <HealDealtAdditiveMultiplier index="Shields" value="-0.3" />
+      <DamageDealtFraction index="Ability" value="-0.3" />
     </Modification>
     <BehaviorCategories index="DebuffAbilityPower" value="1" />
     <RemoveValidatorArray value="TargetNotSpecialDeathState" />
@@ -1416,6 +1424,7 @@
     </ArmorModification>
   </CBehaviorBuff>
   <CBehaviorBuff id="HoggerLootHoardGarbageFireTalentBuff">
+    <Face value="HoggerGarbageFire" />
     <Period value="0.5" />
     <PeriodicEffect value="HoggerLootHoardGarbageFireTalentSearch" />
   </CBehaviorBuff>
@@ -1653,7 +1662,7 @@
     <Icon value="Assets\Textures\storm_ui_icon_hogger_q.dds" />
   </CButton>
   <CButton id="HoggerSeeingRed" parent="StormButtonParent">
-    <Icon value="Assets\Textures\storm_ui_icon_hogger_combo_q_e.dds" />
+    <Icon value="Assets\Textures\storm_ui_icon_hogger_rage.dds" />
   </CButton>
   <CButton id="HoggerOnTheProwl" parent="StormButtonParent">
     <Icon value="Assets\Textures\storm_ui_icon_hogger_rage.dds" />
@@ -2127,7 +2136,7 @@
   <CEffectModifyTokenCount id="HoggerStaggeringBlowBruteForceTalentAddBonusTokens" parent="BaseEffectModifyTokenCount">
     <ValidatorArray value="TargetIsHero" />
     <TokenId value="HoggerStaggeringBlowBruteForceTalentTokenCounter" />
-    <Value value="8" />
+    <Value value="6" />
   </CEffectModifyTokenCount>
   <CEffectSet id="HoggerStaggeringBlowDenseBlastingPowderTalentLaunchSet">
     <EffectArray value="MakePrecursor" />
@@ -2337,12 +2346,13 @@
     </VitalArray>
   </CEffectModifyUnit>
   <CEffectCreateHealer id="HoggerOnTheProwlCreateHealer" parent="StormSelfOnlyHealingSpell">
-    <RechargeVitalRate value="8">
+    <RechargeVitalRate value="7">
       <AccumulatorArray value="HoggerOnTheProwlHealingAccumulator" />
     </RechargeVitalRate>
     <SourceButtonFace value="HoggerOnTheProwl" />
   </CEffectCreateHealer>
   <CEffectSet id="HoggerOnTheProwlInitialSet">
+    <EffectArray value="HoggerGnollFrenzyDecayCoolupApply" />
     <EffectArray value="HoggerOnTheProwlApplyBuff" />
   </CEffectSet>
   <CEffectModifyUnit id="HoggerStaggeringBlowCollisionProcGnollFrenzyRage">
@@ -2443,7 +2453,8 @@
     <Count value="1" />
   </CEffectRemoveBehavior>
   <CEffectDamage id="HoggerEzThroDynamiteDirectHitDamage" parent="StormSpell">
-    <MultiplicativeModifierArray index="Kablooie" Validator="HoggerHasKablooieTalent" Modifier="0.5" Crit="1" />
+    <MultiplicativeModifierArray index="Kablooie" Validator="HoggerHasKablooieTalent" Modifier="0.5" />
+    <Flags index="Crit" value="1" />
     <Amount value="180" />
   </CEffectDamage>
   <CEffectCreatePersistent id="HoggerEzThroDynamiteDirectHitWarningPersistent">
@@ -3125,7 +3136,7 @@
   </CEffectSet>
   <CEffectDamage id="HoggerLootHoardGroundImpactDamage" parent="StormSpell">
     <Amount value="102" />
-    <MultiplicativeModifierArray index="BruteForce" Validator="HoggerHasBruteForceTalent" Modifier="0.5" Crit="1" />
+    <MultiplicativeModifierArray index="BruteForce" Validator="HoggerHasBruteForceTalent" Modifier="0.5" />
   </CEffectDamage>
   <CEffectEnumArea id="HoggerLootHoardGroundImpactSearch">
     <SearchFilters value="-;Player,Ally,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
@@ -3348,6 +3359,8 @@
   <CEffectDamage id="HoggerStaggeringBlowHeadbangerTalentDamage" parent="StormSpellPercentDamage">
     <VitalFractionMax index="Life" value="0.08" />
     <ValidatorArray value="TargetIsHero" />
+    <LeechValidator index="Life" value="HoggerBloodthirstProcCombine" />
+    <LeechFraction index="Life" value="0.33" />
   </CEffectDamage>
   <CEffectApplyBehavior id="HoggerStaggeringBlowBruteForceTalentApplySlowBonus" parent="StormSlowApply">
     <ValidatorArray index="0" value="TargetNotUnstoppable" />
@@ -3532,6 +3545,7 @@
   <CEffectSet id="HoggerHeroWeaponAttackSet">
     <EffectArray value="UniversalWeaponLaunchSet" />
     <EffectArray value="HoggerHeroWeaponImpactSet" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectSet id="HoggerHeroWeaponImpactSet">
     <EffectArray value="HoggerHeroWeaponDamage" />
@@ -3646,7 +3660,7 @@
     <Behavior value="HoggerHoggWildCasterBuff" />
   </CEffectApplyBehavior>
   <CEffectEnumArea id="HoggerHoggWildSearch">
-    <SearchFilters value="-;Self,Player,Ally,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
+    <SearchFilters value="-;Self,Player,Ally,ImmuneToAOE,Structure,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
     <AreaArray Effect="HoggerHoggWildImpactSet">
       <Radius value="2.625" />
     </AreaArray>
@@ -3682,6 +3696,7 @@
   <CHero id="Hogger">
     <AttributeId value="HOGG" />
     <Flags index="GoodForModeA" value="1" />
+    <Flags index="GoodForModeB" value="1" />
     <Role value="Damage" />
     <RolesMultiClass value="Damage" />
     <Melee value="1" />
@@ -3705,6 +3720,11 @@
       <Flags index="AffectedByCooldownReduction" value="1" />
       <Flags index="AffectedByOverdrive" value="1" />
       <Flags index="Trait" value="1" />
+    </HeroAbilArray>
+    <HeroAbilArray Button="HoggerRage">
+      <Flags index="ShowInHeroSelect" value="1" />
+      <Flags index="AffectedByOverdrive" value="1" />
+      <Flags index="HideHotkey" value="1" />
     </HeroAbilArray>
     <HeroAbilArray Abil="HoggerHoardapult" Button="HoggerHoardapult">
       <Flags index="ShowInHeroSelect" value="1" />
@@ -3730,9 +3750,9 @@
     <TalentTreeArray Talent="HoggerBruteForce" Tier="2" Column="1" />
     <TalentTreeArray Talent="HoggerAggroRange" Tier="2" Column="2" />
     <TalentTreeArray Talent="HoggerHoggersJoggers" Tier="2" Column="3" />
-    <TalentTreeArray Talent="HoggerSeeingRed" Tier="3" Column="1" />
-    <TalentTreeArray Talent="HoggerDenseBlastingPowder" Tier="3" Column="2" />
-    <TalentTreeArray Talent="HoggerGarbageFire" Tier="3" Column="3" />
+    <TalentTreeArray Talent="HoggerDenseBlastingPowder" Tier="3" Column="1" />
+    <TalentTreeArray Talent="HoggerGarbageFire" Tier="3" Column="2" />
+    <TalentTreeArray Talent="HoggerSeeingRed" Tier="3" Column="3" />
     <TalentTreeArray Talent="HoggerHoardapult" Tier="4" Column="1" />
     <TalentTreeArray Talent="HoggerShockwave" Tier="4" Column="2" />
     <TalentTreeArray Talent="HoggerDustDevil" Tier="5" Column="1" />
@@ -3749,7 +3769,7 @@
     </TalentTreeArray>
     <TalentTreeArray Talent="HoggerNoControl" Tier="7" Column="3" />
     <TalentTreeArray Talent="HoggerAngerManagement" Tier="7" Column="4" />
-    <Difficulty value="Medium" />
+    <Difficulty value="Hard" />
     <Ratings>
       <Damage value="7" />
       <Utility value="8" />
@@ -4669,7 +4689,6 @@
   </CTalent>
   <CTalent id="HoggerSeeingRed">
     <Face value="HoggerSeeingRed" />
-    <Abil value="HoggerStaggeringBlow" />
     <RankArray>
       <BehaviorArray value="HoggerSeeingRedCarry" />
     </RankArray>
@@ -4943,16 +4962,18 @@
     <Radius value="0.875" />
     <InitializerFunction value="libHHOG_gf_HeroHoggerIncrementHeroCountFunction" />
     <DestructionFunction value="libHHOG_gf_HeroHoggerDecrementHeroCountFunction" />
+    <TauntDuration index="Dance" value="8.7" />
     <TauntDuration index="Tease" value="3" />
     <AIThinkTree value="AI\Hogger.aitree" />
-    <TauntDuration index="Dance" value="8.7" />
   </CUnit>
   <CUnit id="HoggerEzThroDynamite" parent="StormSummonFigment">
+    <FlagArray index="Untargetable" value="1" />
     <Race value="Zerg" />
     <DeathTime value="0.25" />
     <Sight value="3" />
   </CUnit>
   <CUnit id="HoggerEzThroDynamiteDenseBlastingPowderTalentUnit" parent="StormSummonFigment">
+    <FlagArray index="Untargetable" value="1" />
     <DeathTime value="0.25" />
     <HotkeyAlias value="HoggerEzThroDynamite" />
   </CUnit>
@@ -4971,10 +4992,11 @@
     <BehaviorArray Link="HoggerHoggWildDummyMissileBuff" />
   </CUnit>
   <CUnit id="HoggerRiverpawLootHoard" parent="StormSummonFigment">
-    <DeathTime value="0.25" />
-    <Race value="Zerg" />
+    <FlagArray index="Untargetable" value="1" />
     <FlagArray index="ForceCollisionCheck" value="1" />
     <FlagArray index="VisionTestCenterOnly" value="0" />
+    <DeathTime value="0.25" />
+    <Race value="Zerg" />
     <PushPriority value="7777" />
     <Collide index="Ground" value="1" />
     <Collide index="ForceField" value="1" />
@@ -4991,11 +5013,12 @@
     <BehaviorArray Link="HallOfStormsKnockbackKillable" />
   </CUnit>
   <CUnit id="HoggerHoardapult" parent="StormSummonFigment">
+    <FlagArray index="Untargetable" value="1" />
+    <FlagArray index="ForceCollisionCheck" value="1" />
+    <FlagArray index="VisionTestCenterOnly" value="0" />
     <DeathTime value="0.25" />
     <ReviveType value="HoggerRiverpawLootHoard" />
     <Race value="Zerg" />
-    <FlagArray index="ForceCollisionCheck" value="1" />
-    <FlagArray index="VisionTestCenterOnly" value="0" />
     <FogVisibility value="Snapshot" />
     <PushPriority value="7777" />
     <Collide index="Ground" value="1" />
@@ -5016,6 +5039,7 @@
     <BehaviorArray Link="HallOfStormsKnockbackKillable" />
   </CUnit>
   <CUnit id="HoggerRiverpawLootHoardMeatUnit" parent="StormSummonFigment">
+    <FlagArray index="Untargetable" value="1" />
     <Race value="Zerg" />
     <DeathTime value="0.125" />
   </CUnit>

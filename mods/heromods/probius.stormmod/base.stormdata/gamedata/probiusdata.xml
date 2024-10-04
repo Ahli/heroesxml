@@ -6,6 +6,7 @@
       <Cooldown TimeUse="14" />
     </Cost>
     <Range value="3" />
+    <RangeSlop value="5" />
     <CmdButtonArray index="Execute" DefaultButtonFace="ProbiusWarpInPylon" />
     <PrepEffect value="DismountDecloakCasterSet" />
     <Placeholder value="ProbiusPylonPlaceholderDummy" />
@@ -53,6 +54,7 @@
       </Charge>
     </Cost>
     <Range value="7" />
+    <RangeSlop value="5" />
     <FinishTime value="0.125" />
     <CmdButtonArray index="Execute" DefaultButtonFace="ProbiusWarpRift" />
     <Flags index="ClearLastMoveTarget" value="1" />
@@ -69,6 +71,7 @@
       <Cooldown TimeUse="15" />
     </Cost>
     <Range value="3" />
+    <RangeSlop value="5" />
     <CmdButtonArray index="Execute" DefaultButtonFace="ProbiusPhotonCannon" />
     <Flags index="ClearLastMoveTarget" value="1" />
     <Flags index="RequireTargetVision" value="0" />
@@ -1315,6 +1318,9 @@
     </Modification>
     <Duration value="5" />
   </CBehaviorBuff>
+  <CBehaviorUnitTracker id="ProbiusDisruptionPulseSourceTracker">
+    <MaxTrackedUnits value="30" />
+  </CBehaviorUnitTracker>
   <CBehaviorTokenCounter id="ProbiusDisruptionPulseParticleAcceleratorTokenCounter" parent="StormGenericToken">
     <Max value="3" />
     <Face value="ProbiusParticleAcceleratorDisruptionPulsetQuestTokenBehavior" />
@@ -1579,7 +1585,7 @@
   <CBehaviorBuff id="ProbiusPhotonCannonPhotonBarrierSpellShield" parent="SpellShieldActive">
     <Name value="Behavior/Name/ProbiusPhotonCannonPhotonBarrierSpellShield" />
     <Tooltip value="Behavior/Tooltip/ProbiusPhotonCannonPhotonBarrierSpellShield" />
-    <DisableValidatorArray index="0" value="TargetNotSpecialDeathState" />
+    <DisableValidatorArray index="0" value="TargetNotDead" />
     <DisableValidatorArray index="1" value="ProbiusCasterHasPhotonCannonPhotonBarrierPoweredBehavior" />
     <Duration value="0" />
     <ArmorModification>
@@ -1687,6 +1693,7 @@
     </Modification>
     <Period value="1" />
     <PeriodicEffect value="ProbiusPylonOverchargeAttackTargetSearch" />
+    <BehaviorCategories index="Invulnerable" value="1" />
     <BehaviorCategories index="BuffAutoattackDPS" value="1" />
     <InitialEffect value="ProbiusPylonOverchargeAttackTargetSearch" />
     <TimeScaleSource Value="Global" />
@@ -1963,6 +1970,12 @@
   <CEffectSet id="ProbiusPowerUserPeriodicSet">
     <EffectArray value="ProbiusWorkerRushTurboChargedPeriodicSet" />
   </CEffectSet>
+  <CEffectSet id="ProbiusWeaponImpactSet">
+    <EffectArray value="UniversalWeaponLaunchSet" />
+    <EffectArray value="UniversalWeaponImpact" />
+    <EffectArray value="ProbiusWeaponDamage" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
+  </CEffectSet>
   <CEffectDamage id="ProbiusWeaponDamage" parent="StormWeapon">
     <Amount value="33" />
   </CEffectDamage>
@@ -2091,11 +2104,12 @@
     <SearchFlags index="CenterAtLaunch" value="1" />
   </CEffectEnumArea>
   <CEffectSet id="ProbiusDisruptionPulseEchoPulseImpactSet">
-    <ValidatorArray value="noMarkers" />
+    <ValidatorArray value="ProbiusDisruptionPulseTargetIsNotTrackedBySource" />
     <EffectArray value="ProbiusDisruptionPulseParticleAcceleratorTokenIncrement" />
     <EffectArray value="ProbiusDisruptionPulseDamage" />
     <EffectArray value="ProbiusDisruptionPulseShootEmUpDamage" />
     <EffectArray value="ProbiusPhotonCannonTowerDefenseReduceCooldown" />
+    <EffectArray value="ProbiusDisruptionPulseAddTargetToSourceTracker" />
   </CEffectSet>
   <CEffectCreatePersistent id="ProbiusDisruptionPulseEchoPulseMissilePersistent">
     <WhichLocation Value="SourceUnit" />
@@ -2124,6 +2138,11 @@
     <Amount value="142" />
     <SourceButtonFace value="ProbiusDisruptionPulse" />
   </CEffectDamage>
+  <CEffectAddTrackedUnit id="ProbiusDisruptionPulseAddTargetToSourceTracker">
+    <BehaviorLink value="ProbiusDisruptionPulseSourceTracker" />
+    <TrackerUnit Value="Source" />
+    <TrackedUnit Value="Target" />
+  </CEffectAddTrackedUnit>
   <CEffectSet id="ProbiusDisruptionPulseDetonateWarpRiftSet">
     <ValidatorArray value="ProbiusTargetIsWarpRift" />
     <ValidatorArray value="ProbiusTargetDoesNotHaveWarpRiftBuildInProgressBehavior" />
@@ -2133,11 +2152,12 @@
     <EffectArray value="ProbiusDisruptionPulseParticleAcceleratorTokenClear" />
   </CEffectSet>
   <CEffectSet id="ProbiusDisruptionPulseImpactSet">
-    <ValidatorArray value="noMarkers" />
+    <ValidatorArray value="ProbiusDisruptionPulseTargetIsNotTrackedBySource" />
     <EffectArray value="ProbiusDisruptionPulseParticleAcceleratorTokenIncrement" />
     <EffectArray value="ProbiusDisruptionPulseDamage" />
     <EffectArray value="ProbiusDisruptionPulseShootEmUpDamage" />
     <EffectArray value="ProbiusPhotonCannonTowerDefenseReduceCooldown" />
+    <EffectArray value="ProbiusDisruptionPulseAddTargetToSourceTracker" />
   </CEffectSet>
   <CEffectCreatePersistent id="ProbiusDisruptionPulseInitialOffset">
     <WhichLocation Value="CasterPoint" />
@@ -2386,6 +2406,7 @@
   <CEffectApplyBehavior id="ProbiusPhotonCannonGatherMineralsApplyDeathResponseBehavior">
     <Behavior value="ProbiusPhotonCannonGatherMineralsDeathResponseBehavior" />
     <ValidatorArray index="0" value="TargetIsMinionAndNotMercLaner" />
+    <ValidatorArray value="SylvanasTargetUnPossessed" />
   </CEffectApplyBehavior>
   <CEffectCreateUnit id="ProbiusPhotonCannonGatherMineralsCreateMineralPickup">
     <WhichLocation Effect="ProbiusPhotonCannonGatherMineralsApplyDeathResponseBehavior" />
@@ -2477,6 +2498,7 @@
     <CaseDefault value="ProbiusPhotonCannonWeaponImpactSet" />
   </CEffectSwitch>
   <CEffectSet id="ProbiusPhotonCannonWeaponImpactSet">
+    <EffectArray value="StormSummonedWeaponPhysicalDamageDummy" />
     <EffectArray value="ProbiusPhotonCannonDamageSwitch" />
   </CEffectSet>
   <CEffectApplyBehavior id="ProbiusPhotonCannonApplyWarpOutBehavior">
@@ -2549,7 +2571,7 @@
     <AttributeFactor index="User1" value="0.25" />
     <AttributeFactor index="MapBoss" value="0.25" />
     <AttributeFactor index="MapCreature" value="0.25" />
-    <Amount value="52" />
+    <Amount value="48" />
     <SourceButtonFace value="ProbiusPylonOvercharge" />
     <DamageModifierSource Value="Creator" />
   </CEffectDamage>
@@ -2907,7 +2929,6 @@
     </LevelScalingArray>
     <Flags index="UsesMount" value="0" />
     <Flags index="GoodForModeA" value="1" />
-    <Flags index="GoodForModeB" value="1" />
     <Role value="Specialist" />
     <RolesMultiClass value="Specialist" />
     <RoleScoreValueOverride value="Support" />
@@ -4366,6 +4387,7 @@
   </CUnit>
   <CUnit id="ProbiusDisruptionPulseMissile" parent="MISSILE_INVULNERABLE">
     <Mover value="ProbiusDisruptionPulseEchoPulseMissileMover" />
+    <BehaviorArray Link="ProbiusDisruptionPulseSourceTracker" />
     <DeathTime value="2" />
   </CUnit>
   <CUnit id="ProbiusDisruptionPulseShootEmUpMissile" parent="MISSILE_INVULNERABLE">
@@ -4373,6 +4395,7 @@
   </CUnit>
   <CUnit id="ProbiusDisruptionPulseEchoPulseMissile" parent="MISSILE_INVULNERABLE">
     <Mover value="ProbiusDisruptionPulseEchoPulseMissileMover" />
+    <BehaviorArray Link="ProbiusDisruptionPulseSourceTracker" />
   </CUnit>
   <CUnit id="ProbiusWarpRift" parent="StormSummonFigment">
     <FlagArray index="Turnable" value="0" />
@@ -4538,6 +4561,11 @@
     <WhichUnit Value="Source" />
     <Value value="ProbiusDisruptionPulseEchoPulseMissile" />
   </CValidatorUnitType>
+  <CValidatorIsUnitTracked id="ProbiusDisruptionPulseTargetIsNotTrackedBySource">
+    <BehaviorLink value="ProbiusDisruptionPulseSourceTracker" />
+    <TrackerUnit Value="Source" />
+    <TrackedUnit Value="Target" />
+  </CValidatorIsUnitTracked>
   <CValidatorLocationEnumArea id="ProbiusPylonHasAllyNearby">
     <AreaArray Compare="GT" Validator="ProbiusSourceIsOverchargedPylon">
       <Radius value="15" />
@@ -4897,7 +4925,7 @@
   <CWeaponLegacy id="ProbiusAttackWeapon" parent="StormHeroMediumWeapon">
     <DisplayEffect value="ProbiusWeaponDamage" />
     <Range value="3" />
-    <Effect value="ProbiusWeaponDamage" />
+    <Effect value="ProbiusWeaponImpactSet" />
     <Period value="0.9" />
   </CWeaponLegacy>
   <CWeaponLegacy id="ProbiusPhotonCannonWeapon" parent="StormHeroMediumWeapon">

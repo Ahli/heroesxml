@@ -26,6 +26,7 @@
       <Flags index="AllowSelfCast" value="0" />
     </CmdButtonArray>
     <MoveLocation ProjectionDistanceScale="4" />
+    <ParentAbil value="TychusRunAndGun" />
   </CAbilEffectTarget>
   <CAbilEffectTarget id="TychusOdinRagnarokMissilesTargeted">
     <PrepEffect value="DismountDecloakCasterSet" />
@@ -361,6 +362,7 @@
   </CActorModel>
   <CActorSiteOpForward id="SOpOverkillForwardGuide">
     <HostForward Subject="::actor.OverkillTarget" Actor="Find" />
+    <HostForwardSiteOps Ops="SOpAttachOrigin SOpShadowRespectsBaseHeight" />
   </CActorSiteOpForward>
   <CActorModel id="OverkillTargetDummy">
     <Model value="Invisible" />
@@ -1407,6 +1409,8 @@
     </Modification>
   </CBehaviorBuff>
   <CBehaviorBuff id="TychusBobAndWeaveAttackRangeBuff">
+    <Name value="Button/Name/TychusRunAndGunBobAndWeaveTalent" />
+    <Tooltip value="Behavior/Tooltip/TychusPressTheAdvantageRangeBuff" />
     <Alignment value="Positive" />
     <InfoFlags index="Hidden" value="0" />
     <InfoIcon value="Assets\Textures\storm_ui_icon_tychus_runandgun.dds" />
@@ -1440,7 +1444,7 @@
     <TooltipAppender Validator="TychusHasRunAndGunBobAndWeaveTalent" Face="TychusRunAndGunBobAndWeaveTalent" />
   </CButton>
   <CButton id="TychusSizzinAttacks" parent="StormButtonParent">
-    <Icon value="Assets\Textures\storm_ui_icon_talent_autoattack_damage.dds" />
+    <Icon value="Assets\Textures\storm_ui_icon_talent_autoattack_searing.dds" />
   </CButton>
   <CButton id="TychusFragGrenadeShredderGrenadeTalent" parent="StormButtonParent">
     <Icon value="Assets\Textures\storm_ui_icon_tychus_fraggrenade.dds" />
@@ -1560,7 +1564,7 @@
     <Icon value="Assets\Textures\storm_ui_icon_tychus_runandgun.dds" />
   </CButton>
   <CButton id="TychusSizzlinAttacks" parent="StormButtonParent">
-    <Icon value="Assets\Textures\storm_ui_icon_talent_autoattack_damage.dds" />
+    <Icon value="Assets\Textures\storm_ui_icon_talent_autoattack_searing.dds" />
   </CButton>
   <CButton id="TychusThatsTheStuff" parent="StormButtonParent">
     <Icon value="Assets\Textures\storm_ui_icon_tychus_minigun.dds" />
@@ -1681,6 +1685,7 @@
     <EffectArray value="TychusMinigunDamageSwitch" />
     <EffectArray value="MiniGunWeaponDamage" />
     <EffectArray value="TychusSizzlinAttacksDamage" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectSet id="TychusOdinAnnihilateSearchImpactSet">
     <EffectArray value="TychusOdinAnnihilateDamage" />
@@ -1974,6 +1979,7 @@
     <EffectArray value="UniversalWeaponImpact" />
     <EffectArray value="TychusOdinWeaponDamage" />
     <EffectArray value="OdinWeaponSplashSearch" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectLaunchMissile id="MiniGunWeaponLaunchMissile">
     <ValidatorArray index="0" value="TargetNotDead" />
@@ -2664,7 +2670,7 @@
   </CEffectApplyBehavior>
   <CHero id="Tychus" parent="LegacyVOHero">
     <AIComplexityTier value="Low" />
-    <Difficulty value="Medium" />
+    <Difficulty value="Hard" />
     <AttributeId value="Tych" />
     <ProductId value="10123" />
     <Role value="Damage" />

@@ -42,6 +42,9 @@
     <Value value="1" />
     <Behavior value="HeroGenericExperienceGlobeReducedXPCarry" />
   </CValidatorUnitCompareBehaviorCount>
+  <CValidatorUnitType id="TargetIsExperienceGlobeMinion">
+    <Value value="ExperienceGlobeMinion" />
+  </CValidatorUnitType>
   <CValidatorUnitBehaviorState id="CasterNotOrderPaused">
     <WhichUnit Value="Caster" />
     <BehaviorState value="OrdersPaused" />
@@ -164,6 +167,12 @@
     <Value value="1" />
     <Behavior value="AbilityImpactReveal" />
   </CValidatorUnitCompareBehaviorCount>
+  <CValidatorUnitCompareBehaviorCount id="CasterNotVisionRemoval" parent="CasterNotParent">
+    <Categories index="VisionRemoval" value="1" />
+  </CValidatorUnitCompareBehaviorCount>
+  <CValidatorUnitCompareBehaviorCount id="TargetNotVisionRemoval" parent="TargetNotParent">
+    <Categories index="VisionRemoval" value="1" />
+  </CValidatorUnitCompareBehaviorCount>
   <CValidatorCombine id="RaynorAceInTheHoleSoundCombine">
     <Type value="And" />
     <CombineArray value="RaynorHasAceInTheHoleTalent" />
@@ -231,6 +240,10 @@
   <CValidatorUnitCompareBehaviorCount id="TargetDoesNotHaveShrubProximityDetectorActive">
     <Behavior value="ShrubProximityDetector" />
   </CValidatorUnitCompareBehaviorCount>
+  <CValidatorUnitType id="TargetIsNotDeadUnitCameraDummy">
+    <Value value="DeadUnitCameraTarget" />
+    <Find value="0" />
+  </CValidatorUnitType>
   <CValidatorUnitType id="TargetIsAbathurSymbiote">
     <Value value="AbathurSymbiote" />
   </CValidatorUnitType>
@@ -1340,6 +1353,22 @@
     <CombineArray value="CasterNotHoldingFireHold" />
     <Type value="And" />
   </CValidatorCombine>
+  <CValidatorUnitOrderQueue id="CasterNotHoldingFireStopQueued">
+    <AbilLink value="HoldFire" />
+    <Find value="0" />
+    <Queued value="1" />
+  </CValidatorUnitOrderQueue>
+  <CValidatorUnitOrderQueue id="CasterNotHoldingFireHoldQueued">
+    <AbilLink value="HoldFire" />
+    <AbilCmdIndex value="1" />
+    <Find value="0" />
+    <Queued value="1" />
+  </CValidatorUnitOrderQueue>
+  <CValidatorCombine id="CasterNotHoldingFireQueuedCombine">
+    <CombineArray value="CasterNotHoldingFireStopQueued" />
+    <CombineArray value="CasterNotHoldingFireHoldQueued" />
+    <Type value="And" />
+  </CValidatorCombine>
   <CValidatorUnitCompareBehaviorCount id="SourceDoesNotHaveDampenMagicActive">
     <WhichUnit Value="Source" />
     <Behavior value="TalentDampenMagicActive" />
@@ -1762,6 +1791,10 @@
     <Behavior value="InCargo" />
   </CValidatorUnitCompareBehaviorCount>
   <CValidatorUnitCompareBehaviorCount id="TargetDoesNotHaveInCargo">
+    <Behavior value="InCargo" />
+  </CValidatorUnitCompareBehaviorCount>
+  <CValidatorUnitCompareBehaviorCount id="SourceDoesNotHaveInCargo">
+    <WhichUnit Value="Source" />
     <Behavior value="InCargo" />
   </CValidatorUnitCompareBehaviorCount>
   <CValidatorUnitCompareField id="TargetHeightGTE1dot5">
@@ -3219,6 +3252,10 @@
   <CValidatorLocationShrub id="SourceInShrub">
     <WhichLocation Value="SourceUnit" />
   </CValidatorLocationShrub>
+  <CValidatorLocationShrub id="SourceNotInShrub">
+    <WhichLocation Value="SourceUnit" />
+    <Find value="0" />
+  </CValidatorLocationShrub>
   <CValidatorCombine id="TargetOrSourceInShrub">
     <CombineArray value="SourceInShrub" />
     <CombineArray value="TargetInShrub" />
@@ -3374,6 +3411,12 @@
     <Type value="And" />
     <CombineArray value="SourceInShrub" />
     <CombineArray value="UserCategorySourceNotRevealed" />
+  </CValidatorCombine>
+  <CValidatorCombine id="SourceInShrubAndSourceNotRevealedAndSourceNotInCargo">
+    <Type value="And" />
+    <CombineArray value="SourceInShrub" />
+    <CombineArray value="UserCategorySourceNotRevealed" />
+    <CombineArray value="UserCategorySourceNotInCargo" />
   </CValidatorCombine>
   <CValidatorCombine id="WatchTowerCombine">
     <Type value="And" />
@@ -3722,6 +3765,9 @@
   </CValidatorUnitCompareVital>
   <CValidatorUnitCompareBehaviorCount id="GenjiTargetDoesNotHaveDodgeBuffBehavior">
     <Behavior value="GenjiDodgeBuff" />
+  </CValidatorUnitCompareBehaviorCount>
+  <CValidatorUnitCompareBehaviorCount id="NexusHunterTargetDoesNotHaveUpstageBuffBehavior">
+    <Behavior value="NexusHunterUpstageEvade" />
   </CValidatorUnitCompareBehaviorCount>
   <CValidatorUnitCompareVital id="CasterHasNoEnergy">
     <WhichUnit Value="Caster" />
@@ -6746,6 +6792,7 @@
     <Type value="And" />
     <CombineArray value="TargetIsEvading" />
     <CombineArray value="GenjiTargetDoesNotHaveDodgeBuffBehavior" />
+    <CombineArray value="NexusHunterTargetDoesNotHaveUpstageBuffBehavior" />
   </CValidatorCombine>
   <CValidatorCombine id="CasterNotDeadAndDoesNotHaveJunglePassive">
     <Type value="And" />
@@ -6839,7 +6886,9 @@
   <CValidatorCombine id="AbilButtonActiveQHealing">
     <CombineArray value="UtherHasHolyLightHolyShockTalentMarkerCaster" />
   </CValidatorCombine>
-  <CValidatorCombine id="AbilButtonActiveQMana" />
+  <CValidatorCombine id="AbilButtonActiveQMana">
+    <CombineArray value="DryadAcceleratedContaminationAttentionCombine" />
+  </CValidatorCombine>
   <CValidatorCombine id="AbilButtonAttentionWDamage">
     <CombineArray value="ArtanisHasTwinBladesPrimed" />
     <CombineArray value="ZeratulHasSeekerInTheDarkController" />
@@ -6850,6 +6899,7 @@
   <CValidatorCombine id="AbilButtonAttentionWHealing" />
   <CValidatorCombine id="AbilButtonAttentionWMana">
     <CombineArray value="HasSecondStrikeBuff" />
+    <CombineArray value="DryadEndlessSporesCooldownAttentionCombine" />
   </CValidatorCombine>
   <CValidatorCombine id="AbilButtonActiveWDamage">
     <CombineArray value="GreymaneInnerBeastCasterHasBuff" />
@@ -7124,6 +7174,33 @@
     <CombineArray value="CasterNotZagara" />
     <Type value="And" />
   </CValidatorCombine>
+  <CValidatorCombine id="CasterIsNotAttackMover">
+    <Type value="And" />
+    <CombineArray value="DVaMechIsNotCaster" />
+    <CombineArray value="TracerIsNotCaster" />
+    <CombineArray value="LucioIsNotCaster" />
+  </CValidatorCombine>
+  <CValidatorUnitType id="DVaMechIsCaster">
+    <Value value="HeroDVaMech" />
+  </CValidatorUnitType>
+  <CValidatorUnitType id="TracerIsCaster">
+    <Value value="HeroTracer" />
+  </CValidatorUnitType>
+  <CValidatorUnitType id="LucioIsCaster">
+    <Value value="HeroLucio" />
+  </CValidatorUnitType>
+  <CValidatorUnitType id="DVaMechIsNotCaster">
+    <Value value="HeroDVaMech" />
+    <Find value="0" />
+  </CValidatorUnitType>
+  <CValidatorUnitType id="TracerIsNotCaster">
+    <Value value="HeroTracer" />
+    <Find value="0" />
+  </CValidatorUnitType>
+  <CValidatorUnitType id="LucioIsNotCaster">
+    <Value value="HeroLucio" />
+    <Find value="0" />
+  </CValidatorUnitType>
   <CValidatorIsUnitTracked id="TowerAttackUnitIsTracked">
     <BehaviorLink value="TowerAttackUnitTracker" />
     <TrackedUnit Value="Target" />

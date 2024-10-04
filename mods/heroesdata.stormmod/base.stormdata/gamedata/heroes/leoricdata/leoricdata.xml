@@ -1432,6 +1432,7 @@
   </CBehaviorBuff>
   <CBehaviorBuff id="LeoricEntombBuriedAliveSilenceDebuff" parent="StormSilence">
     <Duration value="0.5" />
+    <BehaviorCategories index="Unreducible" value="1" />
   </CBehaviorBuff>
   <CBehaviorBuff id="LeoricBurningDespair">
     <Face value="LeoricBurningDespair" />
@@ -1679,13 +1680,16 @@
     <InfoIcon value="Assets\Textures\storm_ui_icon_leoric_Trait.dds" />
     <BehaviorFlags index="Permanent" value="1" />
     <BehaviorFlags index="EnabledWhileDead" value="1" />
+    <RemoveValidatorArray value="TargetDoesNotHaveAbathurUltimateEvolutionControl" />
     <DamageResponse>
       <Chance value="1" />
       <Handled value="LeoricApplyUndyingBehavior" />
       <Priority value="12" />
       <Fatal value="1" />
       <RecordBehaviorShieldDamage value="1" />
+      <RestoreLifeAfterFatal value="1" />
       <ModifyFraction value="0" />
+      <ModifyScoreArray Value="DeadHeroDamagePreventedByAbsorb" />
     </DamageResponse>
   </CBehaviorBuff>
   <CBehaviorBuff id="LeoricUndyingSpecialDeathCase">
@@ -2031,6 +2035,7 @@
     <ValidatorArray value="TargetIsHero" />
     <Chance value="0" />
     <ImpactUnit Value="Caster" />
+    <Flags index="Crit" value="1" />
     <RechargeVitalFraction value="0.05" />
   </CEffectCreateHealer>
   <CEffectCreateHealer id="LeoricOsseinRenewalManaHealer" parent="StormSelfOnlyHealingSpellPercent">
@@ -2042,6 +2047,7 @@
     <EffectArray value="LeoricOsseinRenewalHealer" />
   </CEffectSet>
   <CEffectSet id="LeoricOsseinRenewalCastSet">
+    <ValidatorArray value="LeoricDoesNotHaveUndying" />
     <EffectArray value="LeoricOsseinRenewalApplyHealerBehavior" />
   </CEffectSet>
   <CEffectSet id="LeoricOsseinRenewalGlobeImpactSet">
@@ -2141,6 +2147,7 @@
     <Flags index="NoVitalLeechShields" value="1" />
     <Flags index="NoVitalLeechEnergy" value="1" />
     <Amount value="40" />
+    <CritValidatorArray index="0" removed="1" />
   </CEffectDamage>
   <CEffectEnumArea id="LeoricBurningDespairSearch">
     <ImpactLocation Value="SourceUnit" />
@@ -2184,6 +2191,7 @@
   <CEffectSet id="LeoricWeaponWrathOfTheBoneKingImpactSet">
     <EffectArray value="LeoricWeaponDamageWrathOfTheBoneKing" />
     <EffectArray value="UniversalWeaponImpact" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectCreatePersistent id="LeoricWrathOfTheBoneKingDummyPersistent">
     <ExpireEffect value="LeoricWrathOfTheBoneKingModifyTokenCount" />
@@ -2205,11 +2213,11 @@
   <CEffectEnumArea id="LeoricWrathOfTheBoneKingSearch">
     <ImpactLocation Value="SourceUnit" />
     <ExcludeArray Value="Target" />
-    <SearchFilters value="-;Player,Ally,Neutral,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
+    <SearchFilters value="-;Self,Player,Ally,Neutral,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
     <AreaArray Arc="239.9963" Effect="LeoricWeaponWrathOfTheBoneKingImpactSet">
       <Radius value="3.5" />
     </AreaArray>
-    <RevealerParams Duration="1" ShapeExpansion="1">
+    <RevealerParams Duration="0.75" ShapeExpansion="1">
       <RevealFlags index="Unfog" value="1" />
     </RevealerParams>
   </CEffectEnumArea>
@@ -2221,6 +2229,7 @@
   <CEffectSet id="LeoricWeaponLaunchSet">
     <EffectArray value="LeoricWrathOfTheBoneKingInitialTargetImpactSet" />
     <EffectArray value="LeoricWrathOfTheBoneKingDummyPersistent" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectSet id="LeoricDrainHopeExpireSet">
     <EffectArray value="LeoricDrainHopeCrushingHopeMasteryDamage" />
@@ -2245,6 +2254,7 @@
     <EffectArray value="LeoricSkeletalSwingHeroHitModifyUnit" />
   </CEffectSet>
   <CEffectCreateHealer id="LeoricSkeletalSwingCreateManaHealer" parent="StormManaRestore">
+    <MultiplicativeModifierArray index="RefundProc" Crit="1" />
     <RechargeVitalRate value="35" />
     <ImpactUnit Value="Caster" />
   </CEffectCreateHealer>
@@ -2494,8 +2504,9 @@
   </CEffectSet>
   <CEffectCreateHealer id="LeoricDrainHopeGhostPeriodicHealerBase" parent="StormSelfOnlyHealingSpellPercent">
     <ValidatorArray value="LeoricHasUndying" />
-    <ImpactUnit Value="Caster" />
+    <ImpactUnit Value="Caster" History="Unknown" />
     <RechargeVitalFraction value="0.011" />
+    <AmountScoreArray index="0" removed="1" />
   </CEffectCreateHealer>
   <CEffectSet id="LeoricDrainHopeInitialSet">
     <EffectArray value="LeoricDrainHopeInitialPersistent" />
@@ -2763,6 +2774,7 @@
     <EffectArray value="LeoricEntombBuriedAliveApplySilenceBehavior" />
   </CEffectSet>
   <CEffectDamage id="LeoricEntombBuriedAliveDamage" parent="StormSpell">
+    <SourceButtonFace value="LeoricBuriedAliveTalent" />
     <ImpactLocation Value="TargetUnit" />
     <Amount value="25" />
   </CEffectDamage>
@@ -3400,6 +3412,7 @@
     <ReleaseDate Month="7" Day="21" Year="2015" />
     <Portrait value="Assets\Textures\ui_targetportrait_hero_leoric.dds" />
     <IntroCutsceneSize value="Medium" />
+    <Flags index="GoodForModeB" value="1" />
     <SkinArray value="LeoricUltimate" />
     <SkinArray value="LeoricVrykul" />
     <SkinArray value="LeoricKingVrykul" />
@@ -3586,6 +3599,7 @@
     <AllowedMountCategoryArray value="Ridebeast" />
     <AllowedMountCategoryArray value="Ridebike" />
     <AllowedMountCategoryArray value="Ridesurf" />
+    <Difficulty value="Medium" />
     <Ratings>
       <Damage value="4" />
       <Utility value="5" />
@@ -4075,6 +4089,7 @@
   </CTalent>
   <CTalent id="LeoricBurningDespairTalent">
     <Face value="LeoricBurningDespair" />
+    <Abil value="LeoricDrainHope" />
     <RankArray>
       <BehaviorArray value="LeoricBurningDespair" />
     </RankArray>
@@ -4725,6 +4740,7 @@
     <CombineArray value="LeoricDrainHopeTargetInRangeCombine" />
     <CombineArray value="LeoricDoesNotHaveUndying" />
     <CombineArray value="TargetNotInvulnerableExceptTimeStop" />
+    <CombineArray value="TargetDoesNotHaveInCargo" />
   </CValidatorCombine>
   <CValidatorLocationCompareRange id="LeoricDrainHopeTargetInRange">
     <WhichLocation Effect="LeoricDrainHopeTargetCreatePersistent" Value="TargetUnit" />
@@ -4766,6 +4782,7 @@
     <CombineArray value="LeoricHasUndying" />
     <CombineArray value="TargetNotInvulnerableExceptTimeStop" />
     <CombineArray value="TargetAndCasterIsTimeStoppedOrTargetAndCasterNotTimeStopped" />
+    <CombineArray value="TargetDoesNotHaveInCargo" />
   </CValidatorCombine>
   <CValidatorCombine id="LeoricMarchoftheBlackKingDeathMarchDrainHopePeriodicValidator">
     <Type value="And" />
@@ -4774,6 +4791,7 @@
     <CombineArray value="LeoricMarchoftheBlackKingDeathMarchDrainHopeTargetInRange" />
     <CombineArray value="LeoricDoesNotHaveUndying" />
     <CombineArray value="TargetNotInvulnerable" />
+    <CombineArray value="TargetDoesNotHaveInCargo" />
   </CValidatorCombine>
   <CValidatorLocationCompareRange id="LeoricMarchoftheBlackKingDeathMarchDrainHopeTargetInRange">
     <WhichLocation Effect="LeoricMarchoftheBlackKingDeathMarchDrainHopeCreatePersistent" Value="TargetUnit" />

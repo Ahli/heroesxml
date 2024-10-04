@@ -11,6 +11,7 @@
       <ShowValidator value="GuldanCasterHasGuldanLifeTapDarknessWithinReady" />
       <UseValidator value="GuldanCasterHasGuldanLifeTapDarknessWithinReady" />
     </CmdButtonArray>
+    <ParentAbil value="GuldanLifeTap" />
   </CAbilEffectInstant>
   <CAbilEffectInstant id="GuldanLifeTap">
     <Effect value="GuldanLifeTapCastSet" />
@@ -74,6 +75,7 @@
       <Cooldown TimeUse="80" />
     </Cost>
     <Range value="10" />
+    <RangeSlop value="5" />
     <Arc value="360" />
     <CastOutroTime value="0.3125" />
     <UninterruptibleArray index="Cast" value="1" />
@@ -92,6 +94,7 @@
       <Cooldown TimeUse="14" />
     </Cost>
     <Range value="7" />
+    <RangeSlop value="5" />
     <Arc value="360" />
     <CastIntroTime value="0.125" />
     <CastOutroTime value="0.0625" />
@@ -112,6 +115,7 @@
       <Cooldown TimeUse="0.5" />
     </Cost>
     <CmdButtonArray index="Execute" AutoQueueId="" DefaultButtonFace="GuldanDrainLifeCancel" Requirements="GuldanDrainLifeActive" />
+    <ParentAbil value="GuldanDrainLife" />
   </CAbilEffectInstant>
   <CAbilEffectTarget id="GuldanRainOfDestruction">
     <Activity value="Abil/Name/GuldanRainOfDestruction" />
@@ -148,7 +152,6 @@
     <CmdButtonArray index="Execute" AutoQueueId="" DefaultButtonFace="GuldanRainOfDestructionCancel" Requirements="GuldanRainOfDestructionActive" />
   </CAbilEffectInstant>
   <CAbilEffectInstant id="GuldanHealthstone">
-    <PrepEffect value="DismountDecloakCasterSet" />
     <Effect value="GuldanHealthstoneCreateHealer" />
     <Flags index="NoDeceleration" value="1" />
     <Cost>
@@ -528,12 +531,15 @@
     <UpdateDriveBearings value="1" />
   </CActorSiteBillboard>
   <CActorModel id="GuldanFelFlamePursuitOfFlameModel" parent="StormModelAnimationStyleOneShotUnit">
+    <VisibilityShape Shape="GuldanFelFlamePursuitofFlameVisibilityArc" />
     <On Terms="Effect.GuldanFelFlameCreateSearchPersistent.Start; !ValidateEffect GuldanFelFlamePursuitOfFlameNotComplete" Send="Create" />
     <On Terms="ActorCreation; ValidateEffect GuldanHasFelFlameRampantHellfireTalent" Send="ModelSwap GuldanFelFlameImprovedAndRampantHellfireFlameModel" />
     <On Terms="ActorCreation" Send="AnimBracketStart BSD Birth {} {} ContentPlayOnce -1.000000 AsTimeScale" />
     <On Terms="ActorOrphan" Send="AnimBracketStop BSD 0 1.000000 AsTimeScale" />
     <On Terms="AnimBracketState.*.AfterClosing; AnimName BSD" Send="Destroy" />
     <Host Subject="GuldanFelFlameModelBillboard" Actor="Create" />
+    <HostForProps Subject="GuldanFelFlameMissile" />
+    <HostSiteOps Ops="SOpBasicScopeFollow" />
   </CActorModel>
   <CActorSplat id="GuldanDrainLifeRangeSplat" parent="StormRangeSplat">
     <Scale value="7.250000" />
@@ -790,6 +796,8 @@
     <On Terms="ActorCreation" Send="Create Guldan_DemonicCircle_Teleport" />
     <On Terms="Effect.GuldanDemonicCircleTeleport.Start; At Source" Send="Create" />
     <HostSiteOps Ops="SOpAttachOrigin SOpPointSouthWorld SOpShadow" HoldPosition="1" />
+    <InheritType value="OneShot" />
+    <Flags index="VisionTestCenterOnly" value="1" />
   </CActorModel>
   <CActorModel id="GuldanDemonicCircleCastHandFXRight" parent="StormModelAnimationStyleOneShotUnit">
     <HostSiteOps Ops="SOpAttachHandRight" />
@@ -1129,9 +1137,8 @@
     <Alignment value="Positive" />
     <BehaviorFlags index="Permanent" value="1" />
     <BehaviorFlags index="EnabledWhileDead" value="1" />
-    <DisableValidatorArray value="DoesNotHaveMortalWoundBehavior" />
     <Modification>
-      <HealDealtAdditiveMultiplier index="Life" value="0.4" />
+      <HealDealtAdditiveMultiplier index="Life" value="0.15" />
       <HealTakenAdditiveMultiplier index="Life" value="-0.25" />
     </Modification>
   </CBehaviorBuff>
@@ -1536,6 +1543,7 @@
   <CEffectSet id="GuldanWeaponImpactSet">
     <EffectArray value="UniversalWeaponImpact" />
     <EffectArray value="GuldanWeaponDamage" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectCreateHealer id="GuldanLifeTapManaRestoreModifyUnit" parent="StormManaRestore">
     <ImpactUnit Value="Caster" />
@@ -1592,6 +1600,8 @@
     <ImpactUnit Value="Caster" />
     <RechargeVitalRate value="47" />
     <MultiplicativeModifierArray index="HarvestLife" Validator="GuldanDrainLifeHarvestLifeCombine" Modifier="0.75" Crit="1" />
+    <MultiplicativeModifierArray index="HarvestLifeHFP" Validator="GuldanDrainLifeHarvestLifeHungerForPowerCombine" Modifier="0.2475" />
+    <MultiplicativeModifierArray index="HungerForPower" Validator="GuldanHasLifeTapHungerforPowerTalent" Modifier="0.3833" />
   </CEffectCreateHealer>
   <CEffectSet id="GuldanDrainLifeImpactSet">
     <EffectArray value="GuldanDrainLifeHealthFunnelApplyResponseBehavior" />
@@ -2014,6 +2024,7 @@
     <ImpactUnit Value="Caster" />
     <RechargeVitalFraction value="0.25" />
     <FinalEffect value="GuldanLifeTapDarknessWithinRemoveBehavior" />
+    <MultiplicativeModifierArray index="HungerForPower" Validator="GuldanHasLifeTapHungerforPowerTalent" Modifier="0.3833" />
   </CEffectCreateHealer>
   <CEffectApplyBehavior id="GuldanHorrifyHauntVulnerableApplyBehavior">
     <ValidatorArray value="GuldanHasHorrifyHauntTalent" />
@@ -2062,12 +2073,14 @@
   <CEffectCreateHealer id="GuldanConsumeSoulCreateHealer" parent="StormSelfOnlyHealingSpell">
     <ImpactUnit Value="Caster" />
     <RechargeVitalRate value="365" />
+    <MultiplicativeModifierArray index="HungerForPower" Validator="GuldanHasLifeTapHungerforPowerTalent" Modifier="0.3833" />
   </CEffectCreateHealer>
   <CEffectApplyBehavior id="GuldanCorruptionRuinousAfflictionApplyBehavior">
     <Chance value="0" />
     <Behavior value="GuldanCorruptionRuinousAfflictionStackDummyBehavior" />
   </CEffectApplyBehavior>
   <CEffectDamage id="GuldanCorruptionRuinousAfflictionThreeHitDamage" parent="StormSpell">
+    <Flags index="Crit" value="1" />
     <Amount value="268" />
   </CEffectDamage>
   <CEffectSet id="GuldanCorruptionRuinousAfflictionImpactSet">
@@ -2619,15 +2632,19 @@
     <Arc value="24.994" />
     <Radius value="11" />
   </CShapeArc>
+  <CShapeArc id="GuldanFelFlamePursuitofFlameVisibilityArc">
+    <Arc value="24.994" />
+    <Radius value="12.01" />
+  </CShapeArc>
   <CTalent id="GuldanChaoticEnergy">
     <Face value="GuldanChaoticEnergy" />
     <AbilityModificationArray>
       <Modifications>
-        <Type value="FlatModification" />
+        <Type value="MultiplyLevelModification" />
         <Catalog value="Effect" />
         <Entry value="RegenGlobePickupPercentModifyCreateHealer" />
         <Field value="RechargeVitalFraction" />
-        <Value value="0.009000" />
+        <Value value="1.500000" />
       </Modifications>
       <Modifications>
         <Type value="FlatModification" />
@@ -3162,6 +3179,12 @@
   </CValidatorCombine>
   <CValidatorCombine id="GuldanDrainLifeHarvestLifeCombine">
     <Type value="And" />
+    <CombineArray value="GuldanHasDrainLifeHarvestLifeTalent" />
+    <CombineArray value="TargetIsHero" />
+  </CValidatorCombine>
+  <CValidatorCombine id="GuldanDrainLifeHarvestLifeHungerForPowerCombine">
+    <Type value="And" />
+    <CombineArray value="GuldanHasLifeTapHungerforPowerTalent" />
     <CombineArray value="GuldanHasDrainLifeHarvestLifeTalent" />
     <CombineArray value="TargetIsHero" />
   </CValidatorCombine>

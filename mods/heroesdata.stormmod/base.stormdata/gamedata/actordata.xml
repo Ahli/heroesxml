@@ -423,6 +423,9 @@
     <On Terms="UnitTaunt.*.Start; Taunt Tease; ValidateUnit SourceHasUltimateEvolutionController" Send="Create ##id##TauntUEVO" />
     <On Terms="UnitTaunt.*.Start; Taunt Tease; !ValidateUnit SourceHasUltimateEvolutionController" Send="Create ##id##TauntVO" />
     <On Terms="UnitTaunt.*.Stop; Taunt Tease" Send="AnimClear Taunt" />
+    <On Terms="AnimPlay; AnimName Spell" Send="AnimClear Dance" />
+    <On Terms="AnimPlay; AnimName Attack" Send="AnimClear Dance" />
+    <On Terms="UnitMovementUpdate.*.Walk" Send="AnimClear Dance" />
     <On Terms="ActorCreation" Send="StatusSet InAir 0" />
     <On Terms="UnitHeightUpdate.*.Lift" Send="StatusSet InAir 1" />
     <On Terms="UnitHeightUpdate.*.Land" Send="StatusSet InAir 0" />
@@ -518,6 +521,7 @@
     <On Terms="AnimPlay; AnimName Spell" Send="AnimBaselineSuppressNextStandIntro" />
     <On Terms="AnimPlay; AnimName Channel" Send="AnimBaselineSuppressNextStandIntro" />
     <On Terms="ActorCreation; ValidateUnit IsNotFlying; Option Shadow Low; CompareField ::Main UnitFlags[ShowBlobShadow] Eq 1" Send="Create GroundShadowSmall" />
+    <On Terms="Effect.TargetClearDeathRevealDummy.Start" Send="CombatRevealClearTimers" />
     <Remove Terms="ActorCreation; ValidateUnit IsNotFlying; Option Shadow Low; CompareField ::Main UnitFlags[ShowBlobShadow] Eq 1" Send="Create GroundShadow" />
     <DeathCustoms ModelLink="PolymorphDeath" Name="Polymorph" />
     <DeathCustoms>
@@ -619,6 +623,7 @@
     <On Terms="Behavior.L90ETCMoshPitStun.On" Send="AnimClear Attack" />
     <On Terms="Behavior.L90ETCMoshPitStun.On" Send="AnimPlay Spell Dance PlayForever" />
     <On Terms="Behavior.L90ETCMoshPitStun.Off" Send="AnimClear Spell" />
+    <On Terms="Effect.TargetClearDeathRevealDummy.Start" Send="CombatRevealClearTimers" />
     <DeathArray index="Timeout" ActorModel="UnitDeathModel" />
     <MinimapIconType value="Minion" />
   </CActorUnit>
@@ -1450,6 +1455,10 @@
     <On Terms="Signal.*.Reduce" Send="AnimBracketStart BSD Birth Stand Death" />
     <Host Subject="_Unit" />
     <Aliases value="_ExperienceGlobeArt" />
+    <ModelAspectSets>
+      <Aspects Person="Observer" ModelOwnerHasPlayerId="11" Model="ExperienceGlobeAlly" />
+      <Aspects Person="Observer" ModelOwnerHasPlayerId="12" Model="ExperienceGlobeEnemy" />
+    </ModelAspectSets>
   </CActorModel>
   <CActorModel id="ExperienceGlobeAlly" parent="StormModelAnimationStyleContinuous">
     <Filter index="All" value="1" />
@@ -1471,6 +1480,10 @@
     <Host Subject="_Unit" />
     <Aliases value="_ExperienceGlobeArt" />
     <FogVisibility value="Visible" />
+    <ModelAspectSets>
+      <Aspects Person="Observer" ModelOwnerHasPlayerId="11" Model="ExperienceGlobeAlly" />
+      <Aspects Person="Observer" ModelOwnerHasPlayerId="12" Model="ExperienceGlobeEnemy" />
+    </ModelAspectSets>
   </CActorModel>
   <CActorOverrides id="StormHeroBaseAnimOverrides">
     <ActorOverrides>
@@ -2812,7 +2825,7 @@
     <Filter index="Ally" value="1" />
     <Filter index="Neutral" value="1" />
     <Filter index="Enemy" value="1" />
-    <On Terms="BehaviorTokenCounter.*.QuestIncrease" Send="Create" />
+    <On Terms="BehaviorTokenCounter.*.QuestIncrease; !ValidateUnit SourceHasAbathurUltimateEvolutionControl" Send="Create" />
     <On Terms="Effect.TalentQuestProgressDummySet.Start" Send="Create" />
   </CActorSound>
   <CActorSound id="TalentQuestResetSound" parent="SoundOneShot">
@@ -3238,7 +3251,7 @@
   </CActorBeamSimple>
   <CActorModel id="HardenedShieldsBuff" parent="StormModelAnimationStyleContinuousUnit">
     <On Terms="Behavior.AnubarakTheTraitorKingBuff.On" Send="Create" />
-    <On Terms="Behavior.AnubarakTheTraitorKingBuff.Off" Send="Destroy" />
+    <On Terms="Behavior.AnubarakTheTraitorKingBuff.Off" Send="AnimBracketStop BSD" />
     <On Terms="Behavior.HardenedShield.On" Send="Create" />
     <On Terms="Behavior.HardenedShield.Off" Send="AnimBracketStop BSD" />
     <On Terms="Behavior.BarbarianIgnorePain.On" Send="Create" />
@@ -5018,6 +5031,13 @@
     <On Terms="Effect.AbathurSymbioteStabMissileScan.Start; At Effect" Send="Create" />
     <On Terms="Effect.StabMissileScan2.Start; At Effect" Send="Create" />
     <On Terms="Effect.ToxicNestSearchAreaDamage.Start; At Effect" Send="Create" />
+    <On Terms="Effect.AnubarakImpaleSearch.Start; At Effect" Send="Create" />
+    <On Terms="Effect.AzmodanDemonicInvasionExplodeSearch.Start; At Effect" Send="Create" />
+    <On Terms="Effect.ArtanisSpearofAdunPurifierBeamSearch.Start; At Effect" Send="Create" />
+    <On Terms="Effect.ArtanisBladeDashSecondTargetSearch.Start; At Effect" Send="Create" />
+    <On Terms="Effect.ArtanisBladeDashFirstTargetSearch.Start; At Effect" Send="Create" />
+    <On Terms="Effect.ArthasHowlingBlastSearch.Start; At Effect" Send="Create" />
+    <On Terms="Effect.ArthasHowlingBlastFrostPresenceSearchArea.Start; At Effect" Send="Create" />
     <On Terms="Effect.ArcaneFlareOuterSearch.Start; At Effect" Send="Create" />
     <On Terms="Effect.EmeraldWindInitialGrowingSearch.Start; At Effect" Send="Create" />
     <On Terms="Effect.EmeraldWindGrowingSearch.Start; At Effect" Send="Create" />
@@ -5027,7 +5047,7 @@
     <On Terms="Effect.EmeraldWindGrowingMasterySearch2.Start; At Effect" Send="Create" />
     <On Terms="Effect.HammerangMissileScan.Start; At Effect" Send="Create" />
     <On Terms="Effect.StormBoltMissileScan.Start; At Effect" Send="Create" />
-    <On Terms="Effect.DwarfTossDamageSearch.Start; At Effect" Send="Create" />
+    <On Terms="Effect.MuradinDwarfTossDamageSearch.Start; At Effect" Send="Create" />
     <On Terms="Effect.DethLazorCharged1Search.Start; At Effect" Send="Create" />
     <On Terms="Effect.DethLazorCharged2Search.Start; At Effect" Send="Create" />
     <On Terms="Effect.DethLazorCharged1RelicSearch.Start; At Effect" Send="Create" />
@@ -5063,6 +5083,7 @@
   </CActorRegionCircle>
   <CActorRegionCircle id="DoodadImpactSearch3">
     <Radius value="3.000000" />
+    <On Terms="Effect.AnubarakBurrowChargeImpactSearch.Start; At Effect" Send="Create" />
     <On Terms="Effect.XplodiumBombSearch.Start; At Effect" Send="Create" />
     <On Terms="Effect.DethLazorCharged3Search.Start; At Effect" Send="Create" />
     <On Terms="Effect.DethLazorCharged3RelicSearch.Start; At Effect" Send="Create" />
@@ -5086,8 +5107,11 @@
   </CActorRegionCircle>
   <CActorRegionCircle id="DoodadImpactSearch4">
     <Radius value="4.000000" />
+    <On Terms="Effect.AnubarakUrticatingSpinesSearch.Start; At Effect" Send="Create" />
     <On Terms="Effect.SindragosaImpactSearchWithModel.Start; At Effect" Send="Create" />
     <On Terms="Effect.ArthasFrozenTempestSearch.Start; At Effect" Send="Create" />
+    <On Terms="Effect.AzmodanGlobeOfAnnihilationSearch.Start; At Effect" Send="Create" />
+    <On Terms="Effect.AzmodanAllShallBurnMasterOfDestructionTalentFinalExplosionSearch.Start; At Effect" Send="Create" />
     <On Terms="Effect.PowerSlideTargetSearch.Start; At Effect" Send="Create" />
     <On Terms="Effect.LeoricEntombForcePersistent.Start; At Effect" Send="Create" />
     <On Terms="Effect.EntanglingRootsSearch5Final.Start; At Effect" Send="Create" />
@@ -5308,7 +5332,7 @@
   </CActorModel>
   <CActorModel id="ConfirmationLocalGround">
     <Remove Terms="Confirmation.*.Start; Game Local; !AbilCmd attack; ValidateUnit IsNotFlying" Send="Create" />
-    <On Terms="Confirmation.*.Start; Game Local; !AbilCmd attack" Send="Create" />
+    <On Terms="Confirmation.*.Start; Game Local; !AbilCmd attack; ValidateUnit CasterIsNotAttackMover" Send="Create" />
     <On Terms="ActorCreation" Send="SetTintColor 0,255,0" />
     <ModelFlags index="AllowHitTest" value="0" />
     <ModelAspectSets>
@@ -5317,7 +5341,7 @@
   </CActorModel>
   <CActorModel id="ConfirmationSyncGround">
     <Remove Terms="Confirmation.*.Start; Game Sync; !AbilCmd attack; ValidateUnit IsNotFlying" Send="Create" />
-    <On Terms="Confirmation.*.Start; Game Sync; !AbilCmd attack" Send="Create" />
+    <On Terms="Confirmation.*.Start; Game Sync; !AbilCmd attack; ValidateUnit CasterIsNotAttackMover" Send="Create" />
     <On Terms="ActorCreation" Send="SetTintColor 0,255,0" />
     <ModelFlags index="AllowHitTest" value="0" />
     <ModelAspectSets>
@@ -6074,7 +6098,7 @@
     <HostSiteOps Ops="SOpAttachOverhead" />
   </CActorModel>
   <CActorModel id="QuestTalentCompleteModel" parent="StormModelAnimationStyleOneShotUnit">
-    <On Terms="BehaviorTokenCounter.*.QuestComplete" Send="Create" />
+    <On Terms="BehaviorTokenCounter.*.QuestComplete; !ValidateUnit SourceHasAbathurUltimateEvolutionControl" Send="Create" />
     <On Terms="ActorCreation" Send="Create TalentQuestCompletionSound" />
     <On Terms="ActorCreation" Send="Create TalentQuestAllyCompletionSound" />
     <On Terms="ActorCreation" Send="Create TalentQuestEnemyCompletionSound" />
@@ -6427,7 +6451,7 @@
     <On Terms="TimerExpired; TimerName Clear" Target="ShrubBuff" Send="ClearScale 0.250000 DamageScale" />
     <On Terms="Behavior.ShrubProximityRevealed.On" Send="TimerSet 0.062500 DamageProc" />
     <On Terms="Behavior.AttackReveal.Create" Target="ShrubBuff" Send="Destroy" />
-    <On Terms="Behavior.AttackReveal.Destroy; ValidateUnit SourceInShrubAndSourceNotRevealed" Send="Create ShrubBuff" />
+    <On Terms="Behavior.AttackReveal.Destroy; ValidateUnit SourceInShrubAndSourceNotRevealedAndSourceNotInCargo" Send="Create ShrubBuff" />
   </CActorEventMacro>
   <CActorEventMacro id="ShrubMacroRemove">
     <Remove Terms="Behavior.ShrubStatusController.On" Send="Create ShrubBuff" />
@@ -11137,6 +11161,9 @@
     <On Terms="Signal.*.CritCheckPlayer12; IsStatus CritReadyPlayer12 12" Send="StatusSet CritReadyPlayer12 0" />
     <On Terms="Signal.*.RainOn" Send="Create StormKingscrestRain" />
     <On Terms="Signal.*.RainOff" Target="StormKingscrestRain" Send="Destroy" />
+    <On Terms="SceneEffectSearchNotifyResults.ArtanisSpearofAdunSuppressionPulseSearch" Send="SceneEffectSearchResponse DoodadImpactable" />
+    <On Terms="SceneEffectSearchNotifyResults.ArthasSummonSindragosaImpactSearch" Send="SceneEffectSearchResponse DoodadImpactable" />
+    <On Terms="SceneEffectSearchNotifyResults.EmeraldWindGrowingSearch" Send="SceneEffectSearchResponse DoodadImpactable" />
     <On Terms="SceneEffectSearchNotifyResults.HamstringSearchArea" Send="SceneEffectSearchResponse DoodadImpactable" />
     <On Terms="SceneEffectSearchNotifyResults.ButcherFurnaceBlastCastSearchArea" Send="SceneEffectSearchResponse DoodadImpactable" />
     <On Terms="SceneEffectSearchNotifyResults.CrusaderFallingSwordSearchArea" Send="SceneEffectSearchResponse DoodadImpactable" />
@@ -11463,6 +11490,12 @@
     <HostSiteOps Ops="SOpAttachOverhead" />
     <Model value="FearModel" />
     <AutoScaleFactor value="1.000000" />
+  </CActorModel>
+  <CActorModel id="DoubloonWarningModel" parent="StormModelAnimationStyleContinuous">
+    <On Terms="Effect.DoubloonCreatePrelandingWarning.Start" Send="Create" />
+    <On Terms="Effect.DoubloonCreatePrelandingWarning.Stop" Send="Destroy Immediate" />
+    <On Terms="ActorCreation" Send="SetTintColor 225,160,25 0.000000 OneShot BaseTint" />
+    <Scale value="0.500000" />
   </CActorModel>
   <CActorUnit id="ItemCannonball" parent="StormItemBase" unitName="ItemCannonball">
     <Model value="ItemCannonball" />
@@ -12132,6 +12165,7 @@
     <On Terms="Effect.CursedHollowCoreCursePersistent.Start" Send="Create" />
     <On Terms="Effect.CursedHollowCoreCursePreDetonationDummy.Start" Send="AnimBracketStop BSD" />
     <On Terms="Effect.CursedHollowCoreCursePreDetonationDummy.Start" Send="SetOpacity 0.000000 1.000000" />
+    <HostSiteOps Ops="SOpShadow" />
     <Scale value="0.625000" />
   </CActorModel>
   <CActorModel id="CursedHollowCoreCurseDetonate" parent="StormModelAnimationStyleOneShot">
@@ -12223,6 +12257,11 @@
     <On Terms="Behavior.ETCBlockParty.On" Send="Create" />
     <On Terms="Behavior.MonkEarthAllyBlockBuffActorDummy.On" Send="Create" />
     <On Terms="Behavior.MurkyFishtank.On" Send="Create" />
+    <On Terms="Behavior.TalentBucketBlockChargedArmorBehaviorTarget.On; !ValidateUnit IsDead" Send="Create" />
+    <On Terms="Behavior.TalentBucketBlockChargedArmorBehavior.On; !ValidateUnit IsDead" Send="Create" />
+    <On Terms="Behavior.ThrallFeralResilience.On" Send="Create" />
+    <On Terms="Behavior.JainaFrostbiteFrostArmorArmorBehavior.On; !ValidateUnit IsDead" Send="Create" />
+    <On Terms="Behavior.ArthasRimeChargedArmorBehavior.On; !ValidateUnit IsDead" Send="Create" />
     <HostSiteOps Ops="SOpAttachCenterSoft" HoldRotation="1" />
     <AutoScaleFactor value="1.000000" />
   </CActorModel>

@@ -14,6 +14,7 @@
       <Cooldown TimeUse="10" />
     </Cost>
     <Range value="4" />
+    <RangeSlop value="5" />
     <Arc value="360" />
     <CastIntroTime value="0.125" />
     <UninterruptibleArray index="Cast" value="1" />
@@ -2761,6 +2762,7 @@
     <Visibility value="Hidden" />
     <Amount value="140" />
     <SourceButtonFace value="ImperiusAngelicArmamentsHeavenlyHost" />
+    <CollationId value="HeavenlyHost" />
   </CEffectDamage>
   <CEffectSet id="ImperiusCelestialChargeCasterLaunchMissileImpactSet">
     <ValidatorArray value="CasterNotPolymorphed" />
@@ -2858,6 +2860,7 @@
     <EffectArray value="ImperiusValorousBrandComboPointCelestialChargeRemoveBehaviorSwitch" />
     <EffectArray value="ImperiusValorousBrandComboPointMoltenArmorRemoveBehaviorSwitch" />
     <EffectArray value="ImperiusValorousBrandComboPointSolarionsFireRemoveBehaviorSwitch" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectSet id="ImperiusHolyFervorAttackSet">
     <Marker>
@@ -2877,16 +2880,17 @@
     <EffectArray value="ImperiusHolyFervorCooldownMaxModifyUnit" />
     <EffectArray value="HolyFervorRemoveAttackReadyCooldownBehavior" />
     <EffectArray value="ImperiusHolyFervorRemoveMoltenArmorAttackReadyBehavior" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectEnumArea id="ImperiusHolyFervorSearchArea">
     <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
     <ImpactLocation Value="SourceUnit" />
     <ExcludeArray Value="Target" />
-    <SearchFilters value="-;Self,Player,Ally,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
+    <SearchFilters value="-;Self,Player,Ally,Neutral,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
     <AreaArray Arc="180" Effect="ImperiusHolyFervorImpactSet">
       <Radius value="3.5" />
     </AreaArray>
-    <RevealerParams Duration="1" ShapeExpansion="1">
+    <RevealerParams Duration="0.75" ShapeExpansion="1">
       <RevealFlags index="Unfog" value="1" />
     </RevealerParams>
     <SearchFlags index="DoActorSearch" value="1" />
@@ -2898,6 +2902,7 @@
     <EffectArray value="ImperiusValorousBrandComboPointCelestialChargeRemoveBehaviorSwitch" />
     <EffectArray value="ImperiusValorousBrandComboPointMoltenArmorRemoveBehaviorSwitch" />
     <EffectArray value="ImperiusValorousBrandComboPointSolarionsFireRemoveBehaviorSwitch" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectAddTrackedUnit id="ImperiusValorousBrandUnitTrackerAdd">
     <BehaviorLink value="ImperiusValorousBrandUnitTracker" />
@@ -2927,6 +2932,7 @@
   <CEffectDamage id="ImperiusAngelicArmamentsMissileDamage" parent="StormSpell">
     <Amount value="140" />
     <SourceButtonFace value="ImperiusAngelicArmaments" />
+    <CollationId value="AngelicArmaments" />
   </CEffectDamage>
   <CEffectDamage id="ImperiusSolarionsFireDamageCenter" parent="StormSpell">
     <Amount value="$ImperiusSolarionsFireDamage" />

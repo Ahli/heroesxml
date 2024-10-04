@@ -31,6 +31,7 @@
       <Cooldown TimeUse="1" />
     </Cost>
     <Range value="10" />
+    <RangeSlop value="5" />
     <CursorEffect value="FirebatOilSpillSlowSearch" />
     <CmdButtonArray index="Execute" DefaultButtonFace="FirebatOilSpill" />
     <VectorRange value="4.25,4.25" />
@@ -1208,7 +1209,6 @@
     <RevealUnit Value="Caster" />
   </CBehaviorBuff>
   <CBehaviorBuff id="FirebatOilSpillNanomachineCoatingAttackSpeedSlowBehavior" parent="StormDamageReductionAttackSpeedSlow">
-    <BehaviorCategories index="DebuffAutoattackDPS" value="1" />
     <Duration value="3" />
     <Modification>
       <AdditiveAttackSpeedFactor value="-0.5" />
@@ -1232,11 +1232,6 @@
       <StateFlags index="SuppressLifeRegen" value="0" />
       <StateFlags index="SuppressShieldsRegen" value="0" />
       <StateFlags index="SuppressEnergyRegen" value="0" />
-      <AbilClassDisableArray index="CAbilAttack" value="1" />
-      <AbilClassDisableArray index="CAbilAugment" value="1" />
-      <AbilClassDisableArray index="CAbilEffectInstant" value="1" />
-      <AbilClassDisableArray index="CAbilEffectTarget" value="1" />
-      <AbilClassDisableArray index="CAbilMove" value="1" />
       <BehaviorLinkDisableArray value="AbathurSymbioteHostBehavior" />
     </Modification>
     <FinalEffect value="FirebatBunkerDropPassengerUnitInsideBunkerFinalSet" />
@@ -1489,7 +1484,8 @@
     <PeriodicDisplayEffect value="FirebatCombustionDamage" />
   </CBehaviorBuff>
   <CBehaviorBuff id="FirebatFlameStreamCrossfireTargetBehavior">
-    <MaxStackCount value="2" />
+    <MaxStackCount value="20" />
+    <MaxStackCountPerCaster value="2" />
     <Duration value="0.25" />
   </CBehaviorBuff>
   <CBehaviorTokenCounter id="FirebatOilSpillGrillAndKillQuestToken" parent="StormQuestToken">
@@ -1648,7 +1644,9 @@
     <Icon value="Assets\Textures\storm_ui_icon_blaze_pyromania.dds" />
     <TooltipAppender Validator="FirebatHasNewHabitsTalent" Face="FirebatNewHabits" />
     <TooltipAppender Validator="FirebatHasIgniteMeltdownTalent" Face="FirebatIgniteMeltdown" />
+    <TooltipAppender Validator="FirebatHasWeaponIncineratorGauntletsTalent" Face="FirebatWeaponIncineratorGauntlets" />
     <TooltipAppender Validator="FirebatHasIgniteHeatTreatmentTalent" Face="FirebatIgniteHeatTreatment" />
+    <TooltipAppender Validator="FirebatHasWeaponBurnNoticeTalent" Face="FirebatWeaponBurnNotice" />
   </CButton>
   <CButton id="FirebatJetPropulsion" parent="StormButtonParent">
     <Icon value="Assets\Textures\storm_ui_icon_blaze_jet.dds" />
@@ -1702,7 +1700,7 @@
     <Icon value="Assets\Textures\hud_btn_bg_ability_cancel.dds" />
   </CButton>
   <CButton id="FirebatWeaponIncineratorGauntlets" parent="StormButtonParent">
-    <Icon value="Assets\Textures\storm_ui_icon_talent_autoattack_slow.dds" />
+    <Icon value="Assets\Textures\storm_ui_icon_talent_autoattack_building.dds" />
   </CButton>
   <CButton id="FirebatBunkerDropFortifiedBunkerOilSpill" parent="StormButtonParent">
     <Icon value="Assets\Textures\storm_ui_icon_blaze_oil.dds" />
@@ -1872,12 +1870,13 @@
     <DamageModifierSource Value="Source" />
     <LaunchLocation Value="CasterUnit" />
     <Amount value="40" />
+    <LeechValidator index="Life" value="FirebatHasIgniteHeatTreatmentTalent" />
+    <LeechFraction index="Life" value="0.75" />
   </CEffectDamage>
   <CEffectSet id="FirebatIgniteImpactSet">
     <ValidatorArray value="NoJungleBenignTarget" />
     <EffectArray value="ApplyAbilityImpactReveal" />
     <EffectArray value="FirebatIgniteDamage" />
-    <EffectArray value="FirebatIgniteHeal" />
     <EffectArray value="FirebatIgniteMeltdownDebuffApplyBehavior" />
   </CEffectSet>
   <CEffectEnumArea id="FirebatIgniteSearch">
@@ -1972,6 +1971,7 @@
     <EffectArray value="FirebatJetPropulsionStunApplyBehavior" />
     <EffectArray value="FirebatJetPropulsionDamage" />
     <EffectArray value="FirebatJetPropulsionCancelMoveOrder" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
   </CEffectSet>
   <CEffectSet id="FirebatJetPropulsionThermalProtectionSet">
     <Chance value="0" />
@@ -2413,6 +2413,7 @@
     <EffectArray value="FirebatWeaponDamage" />
     <EffectArray value="FirebatWeaponBurnNoticeDamageSet" />
     <EffectArray value="FirebatWeaponBurnNoticeSlowApplyBehavior" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
     <TargetLocationType value="Point" />
   </CEffectSet>
   <CEffectCreatePersistent id="FirebatWeaponCasterOffsetPersistent">
@@ -2452,7 +2453,7 @@
     <LaunchLocation Effect="FirebatWeaponCasterReversePersistent" Value="TargetPoint" />
     <ImpactLocation Effect="FirebatWeaponLeftSearchPersistent" Value="TargetOuterPoint" />
     <ExcludeArray Effect="FirebatWeaponCastSet" Value="Target" />
-    <SearchFilters value="-;Self,Player,Ally,Neutral,ImmuneToAOE,Missile,Stasis,Dead,Hidden,Invulnerable" />
+    <SearchFilters value="-;Self,Player,Ally,Neutral,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
     <AreaArray>
       <Arc value="54.9975" />
       <RadiusBonus value="1.1" />
@@ -2460,7 +2461,7 @@
       <Effect value="FirebatWeaponLeftImpactSet" />
       <Radius value="1.75" />
     </AreaArray>
-    <RevealerParams Duration="0.25" ShapeExpansion="1">
+    <RevealerParams Duration="0.75" ShapeExpansion="1">
       <RevealFlags index="Unfog" value="1" />
     </RevealerParams>
   </CEffectEnumArea>
@@ -2510,7 +2511,7 @@
     <LaunchLocation Effect="FirebatWeaponCasterReversePersistent" Value="TargetPoint" />
     <ImpactLocation Effect="FirebatWeaponRightSearchPersistent" Value="TargetOuterPoint" />
     <ExcludeArray Effect="FirebatWeaponCastSet" Value="Target" />
-    <SearchFilters value="-;Self,Player,Ally,Neutral,ImmuneToAOE,Missile,Stasis,Dead,Hidden,Invulnerable" />
+    <SearchFilters value="-;Self,Player,Ally,Neutral,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
     <AreaArray>
       <Arc value="54.9975" />
       <RadiusBonus value="1.1" />
@@ -2518,7 +2519,7 @@
       <Effect value="FirebatWeaponRightImpactSet" />
       <Radius value="1.75" />
     </AreaArray>
-    <RevealerParams Duration="0.25" ShapeExpansion="1">
+    <RevealerParams Duration="0.75" ShapeExpansion="1">
       <RevealFlags index="Unfog" value="1" />
     </RevealerParams>
   </CEffectEnumArea>
@@ -2526,12 +2527,14 @@
     <EffectArray value="FirebatWeaponDamage" />
     <EffectArray value="FirebatWeaponBurnNoticeSlowApplyBehavior" />
     <EffectArray value="FirebatWeaponBurnNoticeDamageSet" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
     <ValidatorArray value="noMarkers" />
   </CEffectSet>
   <CEffectSet id="FirebatWeaponRightImpactSet">
     <EffectArray value="FirebatWeaponDamage" />
     <EffectArray value="FirebatWeaponBurnNoticeSlowApplyBehavior" />
     <EffectArray value="FirebatWeaponBurnNoticeDamageSet" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
     <ValidatorArray value="noMarkers" />
   </CEffectSet>
   <CEffectDamage id="FirebatWeaponDamage" parent="StormWeapon">
@@ -2717,6 +2720,7 @@
     <EffectArray value="FirebatFlameStreamCrossfireApplyBehavior" />
     <EffectArray value="FirebatFlameStreamCrossfireDamage" />
     <EffectArray value="FirebatFlameStreamCrossfireIgniteModifyCooldown" />
+    <EffectArray value="ApplyAbilityImpactReveal" />
   </CEffectSet>
   <CEffectModifyUnit id="FirebatFlameStreamMissileImpactDummy">
     <ImpactUnit Value="Source" />
@@ -2831,6 +2835,9 @@
     <AreaArray Effect="FirebatCombustionDoTApplyBehavior">
       <Radius value="6.5" />
     </AreaArray>
+    <RevealerParams Duration="0.75" ShapeExpansion="1">
+      <RevealFlags index="Unfog" value="1" />
+    </RevealerParams>
   </CEffectEnumArea>
   <CEffectModifyUnit id="FirebatCombustionDamageMaxStack" />
   <CEffectSet id="FirebatCombustionTokenRemoveSet">
@@ -3109,14 +3116,6 @@
       </Modifications>
       <Modifications>
         <Catalog value="Effect" />
-        <Entry value="FirebatIgniteHeal" />
-        <Field value="RechargeVitalRate" />
-        <Value value="0.040000" />
-        <AffectedByAbilityPower value="1" />
-        <AffectedByOverdrive value="1" />
-      </Modifications>
-      <Modifications>
-        <Catalog value="Effect" />
         <Entry value="FirebatWeaponBurnNoticeDotDamage" />
         <Field value="Amount" />
         <Value value="0.040000" />
@@ -3297,6 +3296,7 @@
       <Complexity value="7" />
     </Ratings>
     <HeroSpecificUIArray Location="HeroSpecificStackingBuffsStatus" DescName="Blaze/BlazeStacksFrameContainer" />
+    <HeroSpecificUIArray Location="Status" DescName="Blaze/BlazeFrame" />
     <TalentAIBuildsArray ChanceToPick="16">
       <TalentsArray value="FirebatNeuralStimpack" />
       <TalentsArray value="FirebatOilSpillOilDispersal" />
@@ -3354,6 +3354,7 @@
     <ReleaseDate Day="9" Year="2018" />
     <HyperlinkId value="Blaze" />
     <LoadingScreenImage value="Assets\Textures\storm_ui_hero_loading_screen_firebat.dds" />
+    <AlternateUnitArray value="FirebatBunkerDropTurretUnit" />
   </CHero>
   <CHeroMastery id="FirebatMasteryRing1" parent="MasteryRingRank1">
     <ProductId value="66937" />
@@ -4874,15 +4875,6 @@
   <CTalent id="FirebatIgniteHeatTreatment">
     <Face value="FirebatIgniteHeatTreatment" />
     <Abil value="FirebatIgnite" />
-    <AbilityModificationArray>
-      <Modifications>
-        <Type value="FlatModification" />
-        <Catalog value="Effect" />
-        <Entry value="FirebatIgniteHeal" />
-        <Field value="Chance" />
-        <Value value="1.000000" />
-      </Modifications>
-    </AbilityModificationArray>
   </CTalent>
   <CTalent id="FirebatIgniteMeltdown">
     <Face value="FirebatIgniteMeltdown" />
@@ -4935,7 +4927,7 @@
     <FlagArray index="Uncommandable" value="1" />
     <FlagArray index="Unselectable" value="1" />
     <FlagArray index="Untargetable" value="1" />
-    <Sight value="7" />
+    <Sight value="1.5" />
     <BehaviorArray Link="FirebatOilSpillTimedLife" />
     <BehaviorArray Link="FirebatOilSpillCasterTracker" />
     <BehaviorArray Link="HallOfStormsKnockbackImmunity" />
@@ -5412,6 +5404,7 @@
   <CValidatorUnitCompareBehaviorCount id="FirebatHasTwoFlameStreamCrossfireBehavior">
     <Behavior value="FirebatFlameStreamCrossfireTargetBehavior" />
     <Value value="2" />
+    <RequireCasterUnit Value="Caster" />
   </CValidatorUnitCompareBehaviorCount>
   <CValidatorUnitCompareTokenCount id="FirebatOilSpillGrillandKillNotComplete">
     <Value value="60" />
