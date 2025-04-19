@@ -780,6 +780,9 @@
     <Period value="0.1875" />
     <InitialEffect value="ExperienceGlobeSearchSet" />
     <PeriodicEffect value="ExperienceGlobeSearchSet" />
+    <Modification>
+      <StateFlags index="SuppressGateEnforcement" value="1" />
+    </Modification>
   </CBehaviorBuff>
   <CBehaviorBuff id="PreventNearbyCollisionBlockerCreation" />
   <CBehaviorAbility id="SpellShieldItem">
@@ -1083,6 +1086,20 @@
     <Modification>
       <StateFlags index="Invulnerable" value="1" />
     </Modification>
+  </CBehaviorBuff>
+  <CBehaviorUnitTracker id="StormSummonedUnitTargetTracker">
+    <BehaviorFlags index="Permanent" value="1" />
+    <BehaviorFlags index="EnabledWhileDead" value="1" />
+  </CBehaviorUnitTracker>
+  <CBehaviorUnitTracker id="StormSummonedUnitDamagedUnitTracker">
+    <BehaviorFlags index="Permanent" value="1" />
+    <BehaviorFlags index="EnabledWhileDead" value="1" />
+    <MaxTrackedUnits value="15" />
+    <UnitAddedAtMaxRule value="ReplaceOldest" />
+  </CBehaviorUnitTracker>
+  <CBehaviorBuff id="StormSummonedUnitVisibilityController">
+    <DisableValidatorArray value="StormSummonedUnitHasDamagedUnitsTracked" />
+    <EnableEffect value="StormSummonedUnitDamagedUnitsEnableEffectSet" />
   </CBehaviorBuff>
   <CBehaviorBuff id="SummonedUnitSpecialCaseInteraction" parent="CarryBehaviorParent" />
   <CBehaviorBuff id="SuppressTowerAI" />
@@ -9562,6 +9579,8 @@
       <Handled value="TalentBucketBlockRemoveSet" />
       <TargetFilters value="Heroic;Structure" />
       <Priority value="55" />
+      <ValidateEffectAliasesOp value="ExcludeHasAny" />
+      <ValidateEffectAliases value="IgnorePositiveArmor" />
       <Kind index="Ability" value="0" />
       <ProvideCategories index="Proc" value="1" />
     </DamageResponse>
@@ -9596,6 +9615,8 @@
       </Cost>
       <Kind index="Ability" value="0" />
       <ProvideCategories index="Proc" value="1" />
+      <ValidateEffectAliasesOp value="ExcludeHasAny" />
+      <ValidateEffectAliases value="IgnorePositiveArmor" />
     </DamageResponse>
     <Face value="GenericBlockTalentFace" />
     <SortIndex value="100" />
@@ -9642,6 +9663,8 @@
       </Cost>
       <Kind index="Ability" value="0" />
       <ProvideCategories index="Proc" value="1" />
+      <ValidateEffectAliasesOp value="ExcludeHasAny" />
+      <ValidateEffectAliases value="IgnorePositiveArmor" />
     </DamageResponse>
     <Face value="GenericBlockTalentFace" />
     <SortIndex value="100" />
@@ -10181,6 +10204,7 @@
     <ArmorModification StackCount="1">
       <AllArmorBonus value="-75" />
     </ArmorModification>
+    <BehaviorCategories index="DebuffVulnerable" value="1" />
     <RemoveValidatorArray value="TargetNotDead" />
     <RemoveValidatorArray value="TargetNotSpecialDeathState" />
   </CBehaviorBuff>
@@ -11848,6 +11872,14 @@
     <Duration value="1.25" />
     <Modification>
       <UnifiedMoveSpeedFactor value="-0.7" />
+    </Modification>
+  </CBehaviorBuff>
+  <CBehaviorBuff id="MissileSourceRevealer">
+    <Duration value="0.3125" />
+    <Modification>
+      <ModifyFlags index="Reveal" value="1" />
+      <ModifyFlags index="Detected" value="1" />
+      <BehaviorLinkDisableArray value="ShrubStatusController" />
     </Modification>
   </CBehaviorBuff>
 </Catalog>

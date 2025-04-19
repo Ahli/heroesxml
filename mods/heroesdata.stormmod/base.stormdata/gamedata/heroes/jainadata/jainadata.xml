@@ -525,9 +525,7 @@
     <On Terms="ActorDestruction" Target="_GuideQuadSegment" Send="Destroy" />
     <On Terms="ActorOrphan" Send="Destroy" />
   </CActorQuad>
-  <CActorModel id="NumbingBlastRoot" parent="StormModelAnimationStyleContinuousUnit">
-    <On Terms="Effect.JainaConeOfColdNumbingBlastApplyRoot.Start; At Target" Send="Create" />
-    <On Terms="Behavior.JainaConeOfColdNumbingBlastRoot.Destroy" Send="AnimBracketStop BSD" />
+  <CActorModel id="NumbingBlastRoot" parent="StormModelRoot" effect="JainaConeOfColdNumbingBlastApplyRoot" behavior="JainaConeOfColdNumbingBlastRoot">
     <HostSiteOps Ops="SOpAttachOriginSoft SOpRotationRandomDisc" HoldRotation="1" />
     <AutoScaleFactor value="1.000000" />
   </CActorModel>
@@ -728,9 +726,7 @@
   <CActorSplat id="JainaRingOfFrostCursorSplat" parent="StormGuideVisualCircle" abil="JainaRingOfFrost">
     <Model value="JainaRingOfFrostCursorSplat" />
   </CActorSplat>
-  <CActorModel id="JainaRingOfFrostRoot" parent="StormModelAnimationStyleContinuousUnit">
-    <On Terms="Behavior.JainaRingOfFrostRoot.On" Send="Create" />
-    <On Terms="Behavior.JainaRingOfFrostRoot.Destroy" Send="AnimBracketStop BSD" />
+  <CActorModel id="JainaRingOfFrostRoot" parent="StormModelRoot" effect="JainaRingOfFrostApplyRootBehavior" behavior="JainaRingOfFrostRoot">
     <On Terms="ActorCreation" Send="AnimSetPausedAll" />
     <On Terms="ActorCreation" Send="TimerSet 0.125000 DelayTimer" />
     <On Terms="TimerExpired; TimerName DelayTimer" Send="AnimSetPausedAll 0" />
@@ -959,6 +955,8 @@
       </Cost>
       <Kind index="Ability" value="0" />
       <ProvideCategories index="Proc" value="1" />
+      <ValidateEffectAliasesOp value="ExcludeHasAny" />
+      <ValidateEffectAliases value="IgnorePositiveArmor" />
     </DamageResponse>
   </CBehaviorBuff>
   <CBehaviorBuff id="JainaFrostbiteFrostArmorBlockCountdown">
@@ -1252,7 +1250,6 @@
   </CEffectModifyUnit>
   <CEffectSet id="JainaBlizzardBasePersistentSet">
     <EffectArray value="JainaBlizzardBasePersistent" />
-    <EffectArray value="JainaBlizzardSnowstormResetTokens" />
     <TargetLocationType value="Point" />
   </CEffectSet>
   <CEffectModifyTokenCount id="JainaBlizzardSnowstormAddToken" parent="BaseEffectModifyTokenCount">
@@ -1263,6 +1260,18 @@
     <Operation value="Set" />
     <Value value="0" />
     <ValidatorArray value="JainaHasBlizzardSnowstorm" />
+  </CEffectModifyTokenCount>
+  <CEffectModifyTokenCount id="JainaBlizzardSnowstormSetToken1" parent="BaseEffectModifyTokenCount">
+    <ValidatorArray value="JainaHasBlizzardSnowstorm" />
+    <Operation value="Set" />
+    <Value value="1" />
+    <TokenId value="JainaBlizzardSnowstormTokenCounter" />
+  </CEffectModifyTokenCount>
+  <CEffectModifyTokenCount id="JainaBlizzardSnowstormSetToken2" parent="BaseEffectModifyTokenCount">
+    <ValidatorArray value="JainaHasBlizzardSnowstorm" />
+    <Operation value="Set" />
+    <Value value="2" />
+    <TokenId value="JainaBlizzardSnowstormTokenCounter" />
   </CEffectModifyTokenCount>
   <CEffectSwitch id="JainaCommandWaterElementalSwitch">
     <ValidatorArray value="TargetIsPointNotInvulnerableOrHasSummonedUnitSpecialCaseInteraction" />
@@ -1656,6 +1665,8 @@
     <ExpireDelay value="0.5" />
     <PeriodCount value="3" />
     <PeriodicEffectArray value="JainaBlizzardSet" />
+    <PeriodicEffectArray value="JainaBlizzardSet2" />
+    <PeriodicEffectArray value="JainaBlizzardSet3" />
     <PeriodicPeriodArray value="0.25" />
     <PeriodicPeriodArray value="1.25" />
     <PeriodicPeriodArray value="1.25" />
@@ -1781,10 +1792,16 @@
     </RevealerParams>
   </CEffectEnumArea>
   <CEffectSet id="JainaBlizzardDelayPersistentSet">
+    <EffectArray value="JainaBlizzardSnowstormResetTokens" />
     <EffectArray value="JainaBlizzardArcaneIntellectSearch" />
     <EffectArray value="JainaBlizzardSearch" />
-    <EffectArray value="JainaBlizzardSnowstormAddToken" />
     <TargetLocationType value="Point" />
+  </CEffectSet>
+  <CEffectSet id="JainaBlizzardDelayPersistentSet2" parent="JainaBlizzardDelayPersistentSet">
+    <EffectArray index="0" value="JainaBlizzardSnowstormSetToken1" />
+  </CEffectSet>
+  <CEffectSet id="JainaBlizzardDelayPersistentSet3" parent="JainaBlizzardDelayPersistentSet">
+    <EffectArray index="0" value="JainaBlizzardSnowstormSetToken2" />
   </CEffectSet>
   <CEffectApplyBehavior id="JainaIcyVeinsApplyBuff">
     <WhichUnit Value="Caster" />
@@ -1799,8 +1816,8 @@
   <CEffectSet id="JainaIcyVeinsSet">
     <EffectArray value="JainaIcyVeinsApplyBuff" />
   </CEffectSet>
-  <CEffectApplyBehavior id="JainaConeOfColdNumbingBlastApplyRoot">
-    <ValidatorArray index="0" value="JainaTargetHasChilledDamageBonus" />
+  <CEffectApplyBehavior id="JainaConeOfColdNumbingBlastApplyRoot" parent="StormRootApply">
+    <ValidatorArray value="JainaTargetHasChilledDamageBonus" />
     <ValidatorArray value="TargetNotDead" />
     <Chance value="0" />
     <Behavior value="JainaConeOfColdNumbingBlastRoot" />
@@ -2023,6 +2040,8 @@
     <ExpireEffect value="JainaWaterElementalBlizzardDummyPersistent" />
     <PeriodCount value="3" />
     <PeriodicEffectArray value="JainaBlizzardSet" />
+    <PeriodicEffectArray value="JainaBlizzardSet2" />
+    <PeriodicEffectArray value="JainaBlizzardSet3" />
     <PeriodicPeriodArray value="0.25" />
     <PeriodicPeriodArray value="1.25" />
     <PeriodicPeriodArray value="1.25" />
@@ -2062,10 +2081,22 @@
     <EffectArray value="JainaBlizzardDamageDelayPersistent" />
     <TargetLocationType value="Point" />
   </CEffectSet>
+  <CEffectSet id="JainaBlizzardSet2" parent="JainaBlizzardSet">
+    <EffectArray index="1" value="JainaBlizzardDamageDelayPersistent2" />
+  </CEffectSet>
+  <CEffectSet id="JainaBlizzardSet3" parent="JainaBlizzardSet">
+    <EffectArray index="1" value="JainaBlizzardDamageDelayPersistent3" />
+  </CEffectSet>
   <CEffectCreatePersistent id="JainaBlizzardDamageDelayPersistent">
     <PeriodCount value="1" />
     <PeriodicEffectArray value="JainaBlizzardDelayPersistentSet" />
     <PeriodicPeriodArray value="0.5" />
+  </CEffectCreatePersistent>
+  <CEffectCreatePersistent id="JainaBlizzardDamageDelayPersistent2" parent="JainaBlizzardDamageDelayPersistent">
+    <PeriodicEffectArray index="0" value="JainaBlizzardDelayPersistentSet2" />
+  </CEffectCreatePersistent>
+  <CEffectCreatePersistent id="JainaBlizzardDamageDelayPersistent3" parent="JainaBlizzardDamageDelayPersistent">
+    <PeriodicEffectArray index="0" value="JainaBlizzardDelayPersistentSet3" />
   </CEffectCreatePersistent>
   <CEffectEnumArea id="JainaBlizzardDummySearch">
     <ImpactLocation Value="TargetPoint" />
@@ -2297,9 +2328,8 @@
   <CEffectDamage id="JainaRingOfFrostImpactDamage" parent="StormSpell">
     <Amount value="310" />
   </CEffectDamage>
-  <CEffectApplyBehavior id="JainaRingOfFrostApplyRootBehavior">
-    <ValidatorArray index="0" value="TargetNotUnstoppable" />
-    <ValidatorArray value="TargetNotDead" />
+  <CEffectApplyBehavior id="JainaRingOfFrostApplyRootBehavior" parent="StormRootApply">
+    <ValidatorArray value="TargetNotUnstoppable" />
     <Behavior value="JainaRingOfFrostRoot" />
   </CEffectApplyBehavior>
   <CEffectEnumArea id="JainaWaterElementalWeaponImpactSplashSearch">

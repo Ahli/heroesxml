@@ -874,12 +874,10 @@
     <HostSiteOps Ops="SOpAttachOrigin" />
     <Model value="MephistoDuranceOfHateDemonFX" />
   </CActorModel>
-  <CActorModel id="MephistoDuranceOfHateDemonImpactFX" parent="StormModelAnimationStyleContinuousUnit">
+  <CActorModel id="MephistoDuranceOfHateDemonImpactFX" parent="StormModelRoot" effect="MephistoDuranceOfHateApplyPrimaryRootBehavior" behavior="MephistoDuranceOfHatePrimaryRootBehavior">
     <Remove Terms="ActorCreation" Send="AnimBracketStart BSD Birth Stand Death" />
-    <On Terms="Effect.MephistoDuranceOfHateApplyPrimaryRootBehavior.Start; At Target" Send="Create" />
-    <On Terms="Behavior.MephistoDuranceOfHatePrimaryRootBehavior.Off" Send="AnimBracketStop BSD" />
     <On Terms="Effect.MephistoDuranceOfHateApplySecondaryRootBehavior.Start; At Target" Send="Create" />
-    <On Terms="Behavior.MephistoDuranceOfHateSecondaryRootBehavior.Off" Send="AnimBracketStop BSD" />
+    <On Terms="Behavior.MephistoDuranceOfHateSecondaryRootBehavior.Destroy" Send="AnimBracketStop BSD" />
     <On Terms="ActorCreation" Send="AnimBracketStart BSD Spell,B,Start Spell,B Spell,B,End" />
     <HostSiteOps Ops="SOpAttachOrigin SOpForwardCasterPointInverted" HoldRotation="1" />
     <Model value="MephistoDuranceOfHateDemonFX" />
@@ -888,11 +886,9 @@
     <On Terms="Behavior.MephistoDuranceOfHateDoTBehavior.On" Send="Create" />
     <HostSiteOps Ops="SOpAttachCenter" HoldPosition="1" HoldRotation="1" />
   </CActorModel>
-  <CActorModel id="MephistoDuranceOfHateTargetFX" parent="StormModelAnimationStyleContinuousUnit">
-    <On Terms="Behavior.MephistoDuranceOfHatePrimaryRootBehavior.On" Send="Create" />
-    <On Terms="Behavior.MephistoDuranceOfHatePrimaryRootBehavior.Off" Send="AnimBracketStop BSD" />
-    <On Terms="Behavior.MephistoDuranceOfHateSecondaryRootBehavior.On" Send="Create" />
-    <On Terms="Behavior.MephistoDuranceOfHateSecondaryRootBehavior.Off" Send="AnimBracketStop BSD" />
+  <CActorModel id="MephistoDuranceOfHateTargetFX" parent="StormModelRoot" effect="MephistoDuranceOfHateApplyPrimaryRootBehavior" behavior="MephistoDuranceOfHatePrimaryRootBehavior">
+    <On Terms="Effect.MephistoDuranceOfHateApplySecondaryRootBehavior.Start; At Target" Send="Create" />
+    <On Terms="Behavior.MephistoDuranceOfHateSecondaryRootBehavior.Destroy" Send="AnimBracketStop BSD" />
     <HostSiteOps Ops="SOpAttachOrigin" />
   </CActorModel>
   <CActorModel id="MephistoDuranceOfHateWarningSplat" parent="StormModelAnimationStyleContinuous">
@@ -1163,7 +1159,7 @@
   <CBehaviorBuff id="MephistoSkullMissileLightningReactionSkullMissileSearchBehavior">
     <BehaviorFlags index="Permanent" value="1" />
     <BehaviorFlags index="EnabledWhileDead" value="1" />
-    <DisableValidatorArray value="MephistoLightningNovaSourceHasCasterBehaviorCombine" />
+    <DisableValidatorArray value="MephistoLightningNovaSourceMephistoOrTargetShadeHasLightningNova" />
     <DisableValidatorArray value="MephistoSkullMissileLightningReactionHasTalent" />
     <Period value="0.075" />
     <PeriodicEffect value="MephistoSkullMissileLightningReactionSkullMissileSearch" />
@@ -2082,13 +2078,11 @@
     <Amount value="25" />
     <SourceButtonFace value="MephistoDuranceOfHate" />
   </CEffectDamage>
-  <CEffectApplyBehavior id="MephistoDuranceOfHateApplySecondaryRootBehavior">
-    <ValidatorArray index="0" value="TargetNotDead" />
+  <CEffectApplyBehavior id="MephistoDuranceOfHateApplySecondaryRootBehavior" parent="StormRootApply">
     <ValidatorArray value="TargetNotUnstoppable" />
     <Behavior value="MephistoDuranceOfHateSecondaryRootBehavior" />
   </CEffectApplyBehavior>
-  <CEffectApplyBehavior id="MephistoDuranceOfHateApplyPrimaryRootBehavior">
-    <ValidatorArray index="0" value="TargetNotDead" />
+  <CEffectApplyBehavior id="MephistoDuranceOfHateApplyPrimaryRootBehavior" parent="StormRootApply">
     <ValidatorArray value="TargetNotUnstoppable" />
     <Behavior value="MephistoDuranceOfHatePrimaryRootBehavior" />
   </CEffectApplyBehavior>
@@ -4418,9 +4412,20 @@
   <CValidatorUnitFilters id="MephistoLightningNovaTargetUnitFilters">
     <Filters value="Visible;Player,Ally,Neutral,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
   </CValidatorUnitFilters>
-  <CValidatorCombine id="MephistoLightningNovaSourceHasCasterBehaviorCombine">
+  <CValidatorCombine id="MephistoLightningNovaSourceMephistoOrTargetShadeHasLightningNova">
+    <CombineArray value="MephistoLightningNovaSourceIsMephistoAndHasLightningNovaAndNotTargetShadeOfMephisto" />
+    <CombineArray value="MephistoLightningNovaTargetIsMephistoAndHasLightningNovaMimic" />
+  </CValidatorCombine>
+  <CValidatorCombine id="MephistoLightningNovaSourceIsMephistoAndHasLightningNovaAndNotTargetShadeOfMephisto">
+    <Type value="And" />
+    <CombineArray value="MephistoSourceIsMephisto" />
     <CombineArray value="MephistoLightningNovaSourceHasCasterBehavior" />
-    <CombineArray value="MephistoLightningNovaShadeOfMephistoMimicSourceHasShadeBehavior" />
+    <CombineArray value="MephistoTargetIsNotMirrorImageShade" />
+  </CValidatorCombine>
+  <CValidatorCombine id="MephistoLightningNovaTargetIsMephistoAndHasLightningNovaMimic">
+    <Type value="And" />
+    <CombineArray value="MephistoTargetIsShadeOfMephisto" />
+    <CombineArray value="MephistoLightningNovaShadeOfMephistoMimicTargetHasShadeBehavior" />
   </CValidatorCombine>
   <CValidatorCombine id="MephistoShadeOfMephistoFrostStormOrShadeLordHasTalentCombine">
     <CombineArray value="MephistoShadeOfMephistoFrostStormHasTalent" />
@@ -4487,6 +4492,17 @@
     <Behavior value="MephistoSkullMissileLightningReactionExplosionBehavior" />
     <Negate value="1" />
   </CValidatorUnitHasBehavior>
+  <CValidatorUnitType id="MephistoSourceIsMephisto">
+    <WhichUnit Value="Source" />
+    <Value value="HeroMephisto" />
+  </CValidatorUnitType>
+  <CValidatorUnitType id="MephistoTargetIsNotMirrorImageShade">
+    <Value value="MephistoShadeOfMephistoUnit" />
+    <Find value="0" />
+  </CValidatorUnitType>
+  <CValidatorUnitType id="MephistoTargetIsShadeOfMephisto">
+    <Value value="MephistoShadeOfMephistoUnit" />
+  </CValidatorUnitType>
   <CValidatorUnitType id="MephistoSkullMissileLightningReactionTargetIsSkullMissile">
     <Value value="MephistoSkullMissileMissile" />
   </CValidatorUnitType>

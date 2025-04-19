@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="us-ascii"?>
 <Catalog>
+  <const id="$ProbiusWorkerRushModifier" value="0.1" />
+  <const id="$ProbiusWorkerRushMovespeedBonusValue" value="*($HeroBaseMovementSpeed $ProbiusWorkerRushModifier)" evaluateAsExpression="1" />
   <CAbilEffectTarget id="ProbiusWarpInPylon">
     <Effect value="ProbiusWarpInPylonInitialSet" />
     <Cost>
@@ -1720,7 +1722,7 @@
   </CBehaviorBuff>
   <CBehaviorBuff id="ProbiusWorkerRushPassive">
     <Modification>
-      <MoveSpeedBonus value="0.4804" />
+      <MoveSpeedBonus value="$ProbiusWorkerRushMovespeedBonusValue" />
     </Modification>
   </CBehaviorBuff>
   <CBehaviorBuff id="ProbiusShieldCapacitorPassiveShieldBuff">
@@ -1855,6 +1857,12 @@
   </CButton>
   <CButton id="ProbiusWorkerRush" parent="StormButtonParent">
     <Icon value="Assets\Textures\storm_ui_icon_probius_mount.dds" />
+    <TooltipAppender Validator="ProbiusHasWorkerRushTurboChargedTalent" Face="ProbiusTurboChargedWorkerRushTalent" />
+  </CButton>
+  <CButton id="ProbiusWorkerRushShop" parent="StormButtonParent">
+    <SimpleDisplayText value="Button/SimpleDisplayText/ProbiusWorkerRush" />
+    <Tooltip value="Button/Tooltip/ProbiusWorkerRush" />
+    <Icon value="Assets\Textures\storm_ui_icon_probius_workerrush.dds" />
     <TooltipAppender Validator="ProbiusHasWorkerRushTurboChargedTalent" Face="ProbiusTurboChargedWorkerRushTalent" />
   </CButton>
   <CButton id="ProbiusShieldCapacitorTalent" parent="StormButtonParent">
@@ -2969,7 +2977,7 @@
       <Flags index="AffectedByOverdrive" value="1" />
       <Flags index="Heroic" value="1" />
     </HeroAbilArray>
-    <HeroAbilArray Abil="ProbiusWorkerRush" Button="ProbiusWorkerRush">
+    <HeroAbilArray Abil="ProbiusWorkerRush" Button="ProbiusWorkerRushShop">
       <Flags index="ShowInHeroSelect" value="1" />
       <Flags index="AffectedByCooldownReduction" value="1" />
       <Flags index="MountReplacement" value="1" />

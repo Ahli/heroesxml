@@ -2312,6 +2312,7 @@
     <EffectArray value="AzmodanTideOfSinApplyBlackPoolTalentArmorDebuff" />
   </CEffectSet>
   <CEffectSet id="AzmodanSummonDemonWarriorBurningDemonSearchImpactSet">
+    <ValidatorArray value="NoJungleBenignTarget" />
     <EffectArray value="AzmodanSummonDemonWarriorPeriodicDamage" />
     <EffectArray value="AzmodanSummonDemonWarriorBrutishVanguardTalentApplySlow" />
     <EffectArray value="ApplyAbilityImpactReveal" />
@@ -2634,7 +2635,7 @@
   </CEffectSet>
   <CEffectDamage id="AzmodanDemonicInvasionExplodeDamage" parent="StormSpell">
     <MultiplicativeModifierArray index="Siegebreaker" Validator="AzmodanSiegebreakerTalentCombine" Modifier="0.4" />
-    <MultiplicativeModifierArray index="CoC" Validator="AzmodanHasChainOfCommandAuraBuff" Modifier="0.25" />
+    <MultiplicativeModifierArray index="CoC" Validator="AzmodanHasChainOfCommandAuraBuffSource" Modifier="0.25" />
     <MultiplicativeModifierArray index="Heroic" Validator="TargetIsHero" Modifier="1" Crit="1" />
     <Visibility value="Hidden" />
     <Amount value="40" />
@@ -2837,7 +2838,7 @@
     <ValidatorArray value="SylvanasTargetUnPossessed" />
     <Behavior value="AzmodanGlobeOfAnnihilationDebuff" />
   </CEffectApplyBehavior>
-  <CEffectDamage id="AzmodanSummonDemonWarriorPeriodicDamage" parent="StormSummonedUnitWeapon">
+  <CEffectDamage id="AzmodanSummonDemonWarriorPeriodicDamage" parent="StormSpellNoTowerAggro">
     <MultiplicativeModifierArray index="HellRift" Validator="AzmodanSourceHasHellRiftTalentCarryActive" Modifier="0.75" Crit="1" />
     <MultiplicativeModifierArray index="Siegebreaker" Validator="AzmodanSiegebreakerTalentCombine" Modifier="0.4" />
     <MultiplicativeModifierArray index="CoC" Validator="AzmodanHasChainOfCommandAuraBuffSource" Modifier="0.25" />
@@ -4401,7 +4402,7 @@
     <Options index="ContinuousScan" value="1" />
     <Icon value="Assets\Textures\storm_temp_btn-upgrade-terran-infantryweaponslevel3.dds" />
     <DisplayEffect value="AzmodanDemonicInvasionDemonGruntWeaponDamage" />
-    <TargetFilters value="-;Player,Ally,Neutral,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
+    <TargetFilters value="Visible;Player,Ally,Neutral,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
     <AcquireFilters value="-;NoMinionAggro,Missile,Dead,Passive" />
     <MinScanRange value="20" />
     <Range value="1" />

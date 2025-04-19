@@ -1119,7 +1119,7 @@
     <Face value="WitchDoctorVoodooRitualTrait" />
     <BehaviorFlags index="Permanent" value="1" />
     <BehaviorFlags index="EnabledWhileDead" value="1" />
-    <Duration value="6" />
+    <Duration value="6.0625" />
     <Period value="1" />
     <PeriodicEffect value="WitchDoctorVoodooRitualDeathRitualTalentDamage" />
     <PeriodicDisplayEffect value="WitchDoctorVoodooRitualDeathRitualTalentDamage" />
@@ -2246,6 +2246,7 @@
   <CEffectCreateHealer id="WitchDoctorCorpseSpidersHexedCrawlersCreateHealer" parent="StormSelfOnlyHealingSpellPercent">
     <ImpactUnit Effect="CorpseSpidersApplyTimedLifeBehavior" Value="Caster" />
     <RechargeVitalFraction value="0.01" />
+    <SourceButtonFace value="WitchDoctorHexedCrawlers" />
   </CEffectCreateHealer>
   <CEffectCreateHealer id="WitchDoctorCorpseSpidersHexedCrawlersTalentModifyMana" parent="StormManaRestore">
     <ImpactUnit Effect="CorpseSpidersApplyTimedLifeBehavior" Value="Caster" />

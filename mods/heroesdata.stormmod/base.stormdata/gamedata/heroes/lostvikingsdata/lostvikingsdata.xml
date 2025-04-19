@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="us-ascii"?>
 <Catalog>
+  <const id="$LostVikingsLongboatRaidMovespeedModifier" value="0.75" />
+  <const id="$LostVikingsLongboatRaidMovespeed" value="*($HeroBaseMovementSpeed $LostVikingsLongboatRaidMovespeedModifier)" evaluateAsExpression="1" />
+  <const id="$LostVikingsErikMovespeedModifier" value="1.15" />
+  <const id="$LostVikingsErikMovespeed" value="*($HeroBaseMovementSpeed $LostVikingsErikMovespeedModifier)" evaluateAsExpression="1" />
   <CAbilEffectTarget id="LostVikingsLargeAndInChargeCharge">
     <Effect value="LargeandInChargeCastSwitch" />
     <Flags index="ClearLastAttackTarget" value="1" />
@@ -2577,8 +2581,8 @@
     <FinalEffect value="LostVikingsLongboatRaidBehaviorFinalSet" />
     <Modification>
       <HeightTime index="Start" value="0.25" />
-      <MoveSpeedMaximum value="3.3007" />
-      <MoveSpeedMinimum value="3.3007" />
+      <MoveSpeedMaximum value="$LostVikingsLongboatRaidMovespeed" />
+      <MoveSpeedMinimum value="$LostVikingsLongboatRaidMovespeed" />
       <AbilLinkDisableArray value="Hearthstone" />
       <AbilLinkDisableArray value="LostVikingsLargeAndInChargeCharge" />
       <AbilLinkDisableArray value="LostVikingsGoGoGo" />
@@ -2952,6 +2956,12 @@
   </CButton>
   <CButton id="LostVikingsGoGoGo" parent="StormButtonParent">
     <Icon value="Assets\Textures\storm_ui_icon_lostvikings_mount.dds" />
+    <TooltipAppender Validator="LostVikingsHasGoGoGo64KBMarathon" Face="LostVikingsGoGoGo64KBMarathonTalent" />
+  </CButton>
+  <CButton id="LostVikingsGoGoGoShop" parent="StormButtonParent">
+    <Icon value="Assets\Textures\storm_ui_icon_lostvikings_64kbmarathon.dds" />
+    <SimpleDisplayText value="Button/SimpleDisplayText/LostVikingsGoGoGo" />
+    <Tooltip value="Button/Tooltip/LostVikingsGoGoGo" />
     <TooltipAppender Validator="LostVikingsHasGoGoGo64KBMarathon" Face="LostVikingsGoGoGo64KBMarathonTalent" />
   </CButton>
   <CButton id="LostVikingsFastRestart" parent="StormButtonParentTrait">
@@ -4871,7 +4881,7 @@
     <HeroAbilArray Button="LostVikingSelectErik">
       <Flags index="ShowInHeroSelect" value="1" />
     </HeroAbilArray>
-    <HeroAbilArray Abil="LostVikingsGoGoGo" Button="LostVikingsGoGoGo" Unit="HeroErik">
+    <HeroAbilArray Abil="LostVikingsGoGoGo" Button="LostVikingsGoGoGoShop" Unit="HeroErik">
       <Flags index="ShowInHeroSelect" value="1" />
       <Flags index="AffectedByCooldownReduction" value="1" />
       <Flags index="MountReplacement" value="1" />
@@ -5799,7 +5809,7 @@
     <PushPriority value="0" />
     <LifeStart value="750" />
     <LifeMax value="750" />
-    <Speed value="3.3007" />
+    <Speed value="$LostVikingsLongboatRaidMovespeed" />
     <AbilArray Link="move" />
     <AbilArray Link="HoldFire" />
     <AbilArray Link="AttackAlly" />
@@ -5907,7 +5917,7 @@
     <EnergyStart value="0" />
     <EnergyMax value="0" />
     <EnergyRegenRate value="0" />
-    <Speed value="5.5664" />
+    <Speed value="$LostVikingsErikMovespeed" />
     <Sight value="13" />
     <AbilArray Link="LostVikingsPlayAgain" />
     <AbilArray Link="LostVikingsGoGoGo" />

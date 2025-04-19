@@ -15,6 +15,8 @@
       <DamageDealtFraction index="Splash" value="0.25" />
       <DamageDealtFraction index="Basic" value="0.25" />
       <DamageDealtFraction index="Ability" value="0.25" />
+      <VitalRegenMultiplier index="Energy" value="0.25" />
+      <RateMultiplierArray index="Cooldown" value="1.25" />
     </Modification>
     <ArmorModification>
       <AllArmorBonus value="10" />
@@ -658,7 +660,7 @@
   <CBehaviorBuff id="VolskayaVehicleTShield" parent="StormShield">
     <Duration value="3" />
     <DamageResponse ModifyLimit="500">
-      <ModifyScoreArray Validator="TargetIsHero" Value="Healing" />
+      <ModifyScoreArray index="0" Validator="TargetIsHero" Value="Healing" />
     </DamageResponse>
   </CBehaviorBuff>
   <CBehaviorBuff id="VolskayaVehicleTShieldArmor" parent="StormArmor">

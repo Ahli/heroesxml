@@ -903,6 +903,11 @@
     <Value value="1" />
     <Behavior value="SummonedUnitSpecialCaseInteraction" />
   </CValidatorUnitCompareBehaviorCount>
+  <CValidatorCompareTrackedUnitsCount id="StormSummonedUnitHasDamagedUnitsTracked">
+    <Compare value="GE" />
+    <Value value="1" />
+    <BehaviorLink value="StormSummonedUnitDamagedUnitTracker" />
+  </CValidatorCompareTrackedUnitsCount>
   <CValidatorUnitCompareBehaviorCount id="TargetIsTeleporter">
     <Value value="1" />
     <Behavior value="IsTeleporter" />
@@ -6413,6 +6418,11 @@
     <CombineArray value="CasterIsStunned" />
     <CombineArray value="CasterIsRooted" />
   </CValidatorCombine>
+  <CValidatorCombine id="CasterNotRootedOrStunned">
+    <Type value="And" />
+    <CombineArray value="CasterNotRooted" />
+    <CombineArray value="CasterNotStunned" />
+  </CValidatorCombine>
   <CValidatorCombine id="CasterNotDeadOrRootedOrSilencedOrStunned">
     <Type value="And" />
     <CombineArray value="CasterNotDead" />
@@ -6834,6 +6844,15 @@
   <CValidatorCombine id="IsNotSpecialCaseUnit">
     <Type value="And" />
   </CValidatorCombine>
+  <CValidatorCombine id="TargetHas50PercentCCReductionCombine">
+    <CombineArray value="TargetHas50PercentCCReduction" />
+  </CValidatorCombine>
+  <CValidatorUnitHasBehavior id="TargetHas50PercentCCReduction">
+    <Behavior value="50PercentCCReduction" />
+  </CValidatorUnitHasBehavior>
+  <CValidatorUnitHasBehavior id="TargetHas75PercentCCReduction">
+    <Behavior value="75PercentCCReduction" />
+  </CValidatorUnitHasBehavior>
   <CValidatorLocationEnumArea id="AtLeast3KeepsAlive">
     <AreaArray Compare="GE" Count="3" Validator="TargetIsTownTownHallL3">
       <Radius value="500" />
@@ -6962,6 +6981,10 @@
   </CValidatorUnitCompareVital>
   <CValidatorUnitBehaviorAlias id="CritAliasSpellPower">
     <WhichUnit Value="Caster" />
+    <Aliases value="CritAliasSpellPower" />
+  </CValidatorUnitBehaviorAlias>
+  <CValidatorUnitBehaviorAlias id="CritAliasSpellPowerCreator">
+    <WhichUnit Value="Creator" />
     <Aliases value="CritAliasSpellPower" />
   </CValidatorUnitBehaviorAlias>
   <CValidatorUnitBehaviorAlias id="CritAliasNever">

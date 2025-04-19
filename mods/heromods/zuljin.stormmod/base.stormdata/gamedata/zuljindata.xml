@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="us-ascii"?>
 <Catalog>
+  <const id="$ZuljinBasicAttackDamage" value="96" />
+  <const id="$ZuljinYouWantAxeAttacksRequiredPerStack" value="5" />
+  <const id="$ZuljinYouWantAxeStacksRequiredForFirstMilestone" value="15" />
+  <const id="$ZuljinYouWantAxeStacksRequiredForSecondMilestone" value="30" />
+  <const id="$ZuljinYouWantAxeMaximumStackCount" value="50" />
+  <const id="$ZuljinYouWantAxeBonusDamagePerStack" value="1" />
+  <const id="$ZuljinASurpriseForYaModifier" value="0.5" />
+  <const id="$ZuljinYouWantAxeMaximumDamageBonus" value="*($ZuljinYouWantAxeBonusDamagePerStack $ZuljinYouWantAxeMaximumStackCount)" evaluateAsExpression="1" />
+  <const id="$ZuljinBasicAttackDamageASurpriseForYa" value="*($ZuljinBasicAttackDamage $ZuljinASurpriseForYaModifier)" evaluateAsExpression="1" />
+  <const id="$ZuljinYouWantAxeBonusDamagePerStackASurpriseForYa" value="*($ZuljinYouWantAxeBonusDamagePerStack $ZuljinASurpriseForYaModifier)" evaluateAsExpression="1" />
+  <const id="$ZuljinYouWantAxeASurpriseForYaMaximumDamageBonus" value="*($ZuljinYouWantAxeBonusDamagePerStackASurpriseForYa $ZuljinYouWantAxeMaximumStackCount)" evaluateAsExpression="1" />
+  <const id="$ZuljinBerserkerDamageModifier" value="0.25" />
   <CAbilEffectInstant id="ZuljinAmaniRage">
     <PrepEffect value="DismountDecloakCasterSet" />
     <Effect value="ZuljinAmaniRageInitialSet" />
@@ -62,7 +74,7 @@
     </Cost>
     <ShowProgressArray index="Channel" value="1" />
     <CastOutroTimeEffect value="ZuljinRegenerationChannelPersistent" />
-    <CmdButtonArray index="Execute" DefaultButtonFace="ZuljinRegeneration" ShowValidator="ZuljinForestMedicinePlayerDoesNotHaveTalent" />
+    <CmdButtonArray index="Execute" DefaultButtonFace="ZuljinRegeneration" ShowValidator="ZuljinRegenerationShowValidatorCombine" />
     <CancelableArray index="Channel" value="1" />
     <AutoQueueArray index="Channel" value="0" />
     <AutoQueueArray index="Finish" value="0" />
@@ -106,8 +118,8 @@
     <PrepEffect value="DismountDecloakCasterSet" />
     <Effect value="ZuljinTazdingoInitialSet" />
     <Cost>
-      <Vital index="Energy" value="75" />
-      <Cooldown TimeUse="90" />
+      <Vital index="Energy" value="80" />
+      <Cooldown TimeUse="100" />
     </Cost>
     <CmdButtonArray index="Execute" DefaultButtonFace="ZuljinTazdingo" Requirements="Ultimate1Unlocked" />
   </CAbilEffectInstant>
@@ -117,8 +129,8 @@
     <Flags index="ClearLastMoveTarget" value="1" />
     <Flags index="RequireTargetVision" value="0" />
     <Cost>
-      <Vital index="Energy" value="70" />
-      <Cooldown TimeUse="40" />
+      <Vital index="Energy" value="60" />
+      <Cooldown TimeUse="30" />
     </Cost>
     <FinishTime value="0.5" />
     <InterruptArray index="Cast" value="1" />
@@ -193,15 +205,15 @@
     <SourceEffect value="ZuljinWeaponDamage" />
     <ApplicationRule value="Add" />
     <TokenId value="ZuljinYouWantAxeQuestMainToken" />
-    <Scale value="1" />
-    <MaxAccumulation value="500" />
+    <Scale value="$ZuljinYouWantAxeBonusDamagePerStack" />
+    <MaxAccumulation value="$ZuljinYouWantAxeMaximumDamageBonus" />
   </CAccumulatorToken>
   <CAccumulatorToken id="ZuljinYouWantAxeASurpriseForYaWeaponDamage" parent="BaseAccumulator">
     <SourceEffect value="ZuljinASurpriseForYaWeaponDamage" />
     <ApplicationRule value="Add" />
     <TokenId value="ZuljinYouWantAxeQuestMainToken" />
-    <Scale value="0.5" />
-    <MaxAccumulation value="500" />
+    <Scale value="$ZuljinYouWantAxeBonusDamagePerStackASurpriseForYa" />
+    <MaxAccumulation value="$ZuljinYouWantAxeASurpriseForYaMaximumDamageBonus" />
   </CAccumulatorToken>
   <CActorAction default="1" id="ZuljinBaseWeaponAttack" parent="GenericAttackBaseStorm">
     <?token id="effectAttack" value="Bogus"?>
@@ -671,6 +683,7 @@
   </CActorModel>
   <CActorAction id="ZuljinRecklessnessWeaponAttack" parent="ZuljinBaseWeaponAttack" effectImpact="ZuljinWeaponDamage" effectLaunch="ZuljinWeaponLaunchMissile">
     <On Terms="Effect.ZuljinWeaponLaunchMissile.Start; ValidateEffect ZuljinRecklessnessCasterHasRecklessnessBuff; At Caster" Send="Create" />
+    <On Terms="Effect.ZuljinNoMercyWeaponDamage.Stop; FromEffectTreeDescendant" Send="ActionImpactPhysics" />
     <LaunchSiteOps Ops="SOpOffsetLaunch" />
     <LaunchAssets Sound="" />
     <Missile value="ZuljinWeaponAttackMissile" />
@@ -678,6 +691,7 @@
   </CActorAction>
   <CActorAction id="ZuljinRecklessnessBerserkerWeaponAttack" parent="ZuljinBaseWeaponAttack" effectImpact="ZuljinWeaponDamage" effectLaunch="ZuljinBerserkerWeaponLaunchMissile">
     <On Terms="Effect.ZuljinBerserkerWeaponLaunchMissile.Start; ValidateEffect ZuljinRecklessnessCasterHasRecklessnessBuff; At Caster" Send="Create" />
+    <On Terms="Effect.ZuljinNoMercyWeaponDamage.Stop; FromEffectTreeDescendant" Send="ActionImpactPhysics" />
     <LaunchSiteOps Ops="SOpOffsetLaunch" />
     <LaunchAssets Model="" Sound="" />
     <Missile value="ZuljinBerserkerWeaponMissile" />
@@ -833,9 +847,7 @@
     <Height value="10.780000" />
     <Width value="1.500000" />
   </CActorQuad>
-  <CActorModel id="ZuljinEnsnareImpactFX" parent="StormModelAnimationStyleContinuousUnit">
-    <On Terms="Behavior.ZuljinEnsnareRoot.On" Send="Create" />
-    <On Terms="Behavior.ZuljinEnsnareRoot.Off" Send="AnimBracketStop BSD" />
+  <CActorModel id="ZuljinEnsnareImpactFX" parent="StormModelRoot" effect="ZuljinEnsnareApplyRootBehavior" behavior="ZuljinEnsnareRoot">
     <HostSiteOps Ops="SOpAttachOrigin SOpShadow" HoldRotation="1" />
     <AutoScaleFactor value="1.000000" />
   </CActorModel>
@@ -874,6 +886,7 @@
   </CActorSound>
   <CActorAction id="ZuljinBerserkerWeaponAttack" parent="ZuljinBaseWeaponAttack" effectImpact="ZuljinWeaponDamage" effectLaunch="ZuljinBerserkerWeaponLaunchMissile">
     <On Terms="Effect.ZuljinBerserkerWeaponLaunchMissile.Start; !ValidateEffect ZuljinRecklessnessCasterHasRecklessnessBuff; At Caster" Send="Create" />
+    <On Terms="Effect.ZuljinNoMercyWeaponDamage.Stop; FromEffectTreeDescendant" Send="ActionImpactPhysics" />
     <LaunchSiteOps Ops="SOpOffsetLaunch" />
     <LaunchAssets Model="" Sound="" />
     <Missile value="ZuljinBerserkerWeaponMissile" />
@@ -962,6 +975,7 @@
   </CActorModel>
   <CActorAction id="ZuljinWeaponAttack" parent="ZuljinBaseWeaponAttack" effectImpact="ZuljinWeaponImpactSet" effectLaunch="ZuljinWeaponLaunchMissile">
     <On Terms="Effect.ZuljinWeaponLaunchMissile.Start; !ValidateEffect ZuljinRecklessnessCasterHasRecklessnessBuff; At Caster" Send="Create" />
+    <On Terms="Effect.ZuljinNoMercyWeaponDamage.Stop; FromEffectTreeDescendant" Send="ActionImpactPhysics" />
     <LaunchSiteOps Ops="SOpOffsetLaunch" />
     <LaunchAssets Sound="" />
     <ImpactMap index="None" Sound="" />
@@ -1259,19 +1273,19 @@
   <CBehaviorTokenCounter id="ZuljinYouWantAxeQuestMiniProgressToken" parent="StormGenericToken">
     <SortIndex value="10" />
     <AtMaxEvents Effect="ZuljinYouWantAxeQuestCompleteMiniProgressSet" />
-    <Max value="5" />
+    <Max value="$ZuljinYouWantAxeAttacksRequiredPerStack" />
   </CBehaviorTokenCounter>
   <CBehaviorTokenCounter id="ZuljinYouWantAxeQuestMainToken" parent="StormQuestToken">
     <Face value="ZuljinYouWantAxe" />
-    <ConditionalEvents Compare="GE" CompareValue="15">
+    <ConditionalEvents Compare="GE" CompareValue="$ZuljinYouWantAxeStacksRequiredForFirstMilestone">
       <Event EventId="QuestMilestone" Effect="ZuljinYouWantAxeApplyRangeIncreaseBehavior" />
     </ConditionalEvents>
-    <ConditionalEvents Compare="GE" CompareValue="30">
+    <ConditionalEvents Compare="GE" CompareValue="$ZuljinYouWantAxeStacksRequiredForSecondMilestone">
       <Event EventId="QuestComplete" Effect="ZuljinYouWantAxeApplyQuestCompletionDelay" />
     </ConditionalEvents>
     <TerminateEvents Effect="ZuljinYouWantAxeQuestResetMiniProgressToken" />
-    <Max value="65535" />
-    <StackCountAccumulator value="ZuljinYouWantAxeWeaponDamage" />
+    <AtMaxEvents index="0" EventId="" Effect="ZuljinYouWantAxeQuestResetMiniProgressToken" />
+    <Max value="$ZuljinYouWantAxeMaximumStackCount" />
     <InfoFlags index="Hidden" value="1" />
   </CBehaviorTokenCounter>
   <CBehaviorBuff id="ZuljinYouWantAxeRangeIncrease" parent="CarryBehaviorParent">
@@ -1310,7 +1324,7 @@
     <Alignment value="Positive" />
     <DisableValidatorArray value="CasterLifeLT50Percent" />
     <Modification>
-      <DamageDealtFraction index="Basic" value="0.15" />
+      <DamageDealtFraction index="Basic" value="0.1" />
     </Modification>
     <SortIndex value="10" />
   </CBehaviorBuff>
@@ -1328,7 +1342,7 @@
     </Modification>
   </CBehaviorBuff>
   <CBehaviorBuff id="ZuljinLetTheKillingBeginDebuff" parent="CarryBehaviorParent">
-    <Duration value="1.5" />
+    <Duration value="0.5" />
     <DamageResponse>
       <Chance value="1" />
       <Handled value="ZuljinLetTheKillingBeginApplyStackBehavior" />
@@ -1775,19 +1789,11 @@
     <Behavior value="ZuljinTwinCleaveWrongPlaceWrongTimePreventImpactSoundsDummy" />
   </CEffectApplyBehavior>
   <CEffectModifyTokenCount id="ZuljinTwinCleaveWrongPlaceWrongTimeModifyToken" parent="BaseEffectModifyTokenCount">
-    <ValidatorArray value="TargetIsHero" />
     <TokenId value="ZuljinYouWantAxeQuestMainToken" />
+    <ValidatorArray value="TargetIsHero" />
+    <ValidatorArray value="ZuljinYouWantAxeLTStacks" />
+    <ValidatorArray value="ZuljinYouWantAxeLTStacksCaster" />
   </CEffectModifyTokenCount>
-  <CEffectDamage id="ZuljinNoMercyWeaponDamage" parent="StormWeapon">
-    <MultiplicativeModifierArray index="LaunchedWithBerserker" Validator="ZuljinSourceHasBerserkerThrownAxe" Modifier="0.25" />
-    <MultiplicativeModifierArray index="GrievousThrowDebuffCheck" Validator="ZuljinGrievousThrowTargetHasAttackStacks" Accumulator="ZuljinGrievousThrowViciousAssaultAccumulator" Modifier="0.5" />
-    <FlatModifierArray index="ZuljinYouWantAxe" Accumulator="ZuljinYouWantAxeWeaponDamage" />
-    <Amount value="94" />
-    <CritValidatorArray index="0" value="ZuljinGrievousThrowTargetHasAttackStacksAndCritAliasSpellPower" />
-    <SourceButtonFace value="Attack" />
-    <ResponseExclusionFlags index="Proc" value="1" />
-    <ArmorMitigationRule value="IgnorePositive" />
-  </CEffectDamage>
   <CEffectApplyBehavior id="ZuljinYouWantAxeApplyQuestCompletionDelay">
     <Behavior value="ZuljinYouWantAxeQuestCompletionDelay" />
   </CEffectApplyBehavior>
@@ -1801,6 +1807,7 @@
   <CEffectModifyTokenCount id="ZuljinYouWantAxeRecklessnessTalentQuestIncrementMiniProgressToken" parent="BaseEffectModifyTokenCount">
     <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
     <ValidatorArray value="ZuljinRecklessnessCasterHasRecklessnessBuff" />
+    <ValidatorArray value="ZuljinYouWantAxeLTStacksCaster" />
     <CollationId value="ZuljinYouWantAxeQuestIncrementMiniProgressToken" />
     <TokenId value="ZuljinYouWantAxeQuestMiniProgressToken" />
   </CEffectModifyTokenCount>
@@ -1812,7 +1819,7 @@
   <CEffectSet id="ZuljinYouWantAxeQuestCompleteMiniProgressSet">
     <EffectArray value="ZuljinYouWantAxeQuestResetMiniProgressToken" />
     <EffectArray value="ZuljinYouWantAxeQuestIncrementMainToken" />
-    <ValidatorArray value="ZuljinYouWantAxeLT500Stacks" />
+    <ValidatorArray value="ZuljinYouWantAxeLTStacks" />
   </CEffectSet>
   <CEffectModifyTokenCount id="ZuljinYouWantAxeQuestIncrementMainToken" parent="BaseEffectModifyTokenCount">
     <EffectCategory index="Quest" value="1" />
@@ -1820,6 +1827,7 @@
   </CEffectModifyTokenCount>
   <CEffectModifyTokenCount id="ZuljinYouWantAxeQuestIncrementMiniProgressToken" parent="BaseEffectModifyTokenCount">
     <TokenId value="ZuljinYouWantAxeQuestMiniProgressToken" />
+    <ValidatorArray value="ZuljinYouWantAxeLTStacksCaster" />
     <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
   </CEffectModifyTokenCount>
   <CEffectModifyUnit id="ZuljinBerserkerModifyActivateCooldown">
@@ -2096,7 +2104,7 @@
     <EffectArray value="ZuljinTazdingoAmaniResilienceApplyDamageTrackerBehavior" />
     <EffectArray value="ZuljinTazdingoApplySuppressFatalDamageResponse" />
   </CEffectSet>
-  <CEffectApplyBehavior id="ZuljinEnsnareApplyRootBehavior">
+  <CEffectApplyBehavior id="ZuljinEnsnareApplyRootBehavior" parent="StormRootApply">
     <Behavior value="ZuljinEnsnareRoot" />
   </CEffectApplyBehavior>
   <CEffectCreatePersistent id="ZuljinEnsnareInitialOffset">
@@ -2521,21 +2529,28 @@
     <Movers Link="HeroMissileSpeed22Ribbon" />
   </CEffectLaunchMissile>
   <CEffectDamage id="ZuljinWeaponDamage" parent="StormWeapon">
-    <Amount value="94" />
+    <Amount value="$ZuljinBasicAttackDamage" />
     <CritValidatorArray index="0" value="ZuljinGrievousThrowTargetHasAttackStacksAndCritAliasSpellPower" />
     <FlatModifierArray index="ZuljinYouWantAxe" Accumulator="ZuljinYouWantAxeWeaponDamage" />
     <SourceButtonFace value="Attack" />
-    <MultiplicativeModifierArray index="LaunchedWithBerserker" Validator="ZuljinSourceHasBerserkerThrownAxe" Modifier="0.25" />
+    <MultiplicativeModifierArray index="LaunchedWithBerserker" Validator="ZuljinSourceHasBerserkerThrownAxe" Modifier="$ZuljinBerserkerDamageModifier" />
     <MultiplicativeModifierArray index="GrievousThrowDebuffCheck" Validator="ZuljinGrievousThrowTargetHasAttackStacks" Accumulator="ZuljinGrievousThrowViciousAssaultAccumulator" Modifier="0.5" />
+  </CEffectDamage>
+  <CEffectDamage id="ZuljinWeaponDamageDisplay" parent="ZuljinWeaponDamage">
+    <MultiplicativeModifierArray index="LaunchedWithBerserker" Validator="ZuljinBerserkerCasterHasBerserkerBuff" Modifier="$ZuljinBerserkerDamageModifier" />
+  </CEffectDamage>
+  <CEffectDamage id="ZuljinNoMercyWeaponDamage" parent="ZuljinWeaponDamage">
+    <ArmorMitigationRule value="IgnorePositive" />
+    <Aliases value="IgnorePositiveArmor" />
   </CEffectDamage>
   <CEffectSet id="ZuljinASurpriseForYaImpactSet">
     <EffectArray value="ZuljinASurpriseForYaWeaponDamage" />
     <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectDamage id="ZuljinASurpriseForYaWeaponDamage" parent="StormWeapon">
-    <MultiplicativeModifierArray index="LaunchedWithBerserker" Validator="ZuljinBerserkerCasterHasBerserkerBuff" Modifier="0.25" />
+    <MultiplicativeModifierArray index="LaunchedWithBerserker" Validator="ZuljinBerserkerCasterHasBerserkerBuff" Modifier="$ZuljinBerserkerDamageModifier" />
     <FlatModifierArray index="ZuljinYouWantAxeASurpriseForYa" Accumulator="ZuljinYouWantAxeASurpriseForYaWeaponDamage" />
-    <Amount value="47" />
+    <Amount value="$ZuljinBasicAttackDamageASurpriseForYa" />
     <SourceButtonFace value="Attack" />
   </CEffectDamage>
   <CEffectApplyBehavior id="ZuljinBerserkerApplyBehavior">
@@ -2760,6 +2775,13 @@
       <Modifications>
         <Catalog value="Effect" />
         <Entry value="ZuljinASurpriseForYaWeaponDamage" />
+        <Field value="Amount" />
+        <Value value="0.040000" />
+        <AffectedByOverdrive value="1" />
+      </Modifications>
+      <Modifications>
+        <Catalog value="Effect" />
+        <Entry value="ZuljinWeaponDamageDisplay" />
         <Field value="Amount" />
         <Value value="0.040000" />
         <AffectedByOverdrive value="1" />
@@ -3014,22 +3036,6 @@
   <CTalent id="ZuljinNoMercyTalent">
     <Face value="ZuljinNoMercyTalent" />
     <AbilityModificationArray>
-      <Modifications>
-        <Type value="StringReplacement" />
-        <Catalog value="Effect" />
-        <Entry value="ZuljinNoMercyWeaponDamage" />
-        <Field value="ArmorMitigationRule" />
-        <StringReplacement value="IgnorePositive" />
-      </Modifications>
-      <Modifications>
-        <Type value="FlatModification" />
-        <Catalog value="Effect" />
-        <Entry value="ZuljinNoMercyWeaponDamage" />
-        <Field value="ResponseExclusionFlags[Proc]" />
-        <FieldIsInteger value="1" />
-        <Value value="1.000000" />
-        <StringReplacement value="None" />
-      </Modifications>
       <Modifications>
         <Type value="FlatModification" />
         <Catalog value="Effect" />
@@ -3455,12 +3461,12 @@
   </CValidatorPlayerTalent>
   <CValidatorUnitCompareTokenCount id="ZuljinHasEqualToOrGreaterThan30TokensOfYouWantAxe">
     <Compare value="GE" />
-    <Value value="30" />
+    <Value value="$ZuljinYouWantAxeStacksRequiredForSecondMilestone" />
     <TokenId value="ZuljinYouWantAxeQuestMainToken" />
   </CValidatorUnitCompareTokenCount>
   <CValidatorUnitCompareTokenCount id="ZuljinHasEqualToOrGreaterThan15TokensOfYouWantAxe">
     <Compare value="GE" />
-    <Value value="15" />
+    <Value value="$ZuljinYouWantAxeStacksRequiredForFirstMilestone" />
     <TokenId value="ZuljinYouWantAxeQuestMainToken" />
   </CValidatorUnitCompareTokenCount>
   <CValidatorPlayerTalent id="ZuljinHasNoMercy">
@@ -3768,6 +3774,10 @@
     <CombineArray value="ZuljinHasForestMedicine" />
     <CombineArray value="CasterLifeNotFull" />
   </CValidatorCombine>
+  <CValidatorCombine id="ZuljinRegenerationShowValidatorCombine">
+    <CombineArray value="ZuljinRegenerationSourceHasRegenerationBuff" />
+    <CombineArray value="ZuljinForestMedicinePlayerDoesNotHaveTalent" />
+  </CValidatorCombine>
   <CValidatorUnitCompareBehaviorCount id="ZuljinRegenerationSourceHasRegenerationBuff">
     <WhichUnit Value="Source" />
     <Compare value="GE" />
@@ -3840,10 +3850,13 @@
     <Value value="1" />
     <Behavior value="ZuljinBerserkerThrownAxe" />
   </CValidatorUnitCompareBehaviorCount>
-  <CValidatorUnitCompareTokenCount id="ZuljinYouWantAxeLT500Stacks">
+  <CValidatorUnitCompareTokenCount id="ZuljinYouWantAxeLTStacks">
     <Compare value="LT" />
-    <Value value="500" />
+    <Value value="50" />
     <TokenId value="ZuljinYouWantAxeQuestMainToken" />
+  </CValidatorUnitCompareTokenCount>
+  <CValidatorUnitCompareTokenCount id="ZuljinYouWantAxeLTStacksCaster" parent="ZuljinYouWantAxeLTStacks">
+    <WhichUnit Value="Caster" />
   </CValidatorUnitCompareTokenCount>
   <CValidatorUnitCompareField id="ZuljinGrievousThrowDebuffScaleThreshold">
     <Compare value="GT" />
@@ -3851,7 +3864,7 @@
     <Value value="1.1" />
   </CValidatorUnitCompareField>
   <CWeaponLegacy id="ZuljinHeroWeapon" parent="StormHeroFastWeapon">
-    <DisplayEffect value="ZuljinWeaponDamage" />
+    <DisplayEffect value="ZuljinWeaponDamageDisplay" />
     <MinScanRange value="5.5" />
     <Range value="5.5" />
     <Period value="0.8" />

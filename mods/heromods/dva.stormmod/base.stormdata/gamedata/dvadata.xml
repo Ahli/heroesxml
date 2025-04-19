@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="us-ascii"?>
 <Catalog>
+  <const id="$DVaMechChannelingSlowModifier" value="0.25" />
+  <const id="$DVaMechChannelingSlowMaximumStacks" value="4" />
+  <const id="$DVaMechChannelingSlowValue" value="negate(/($HeroBaseMovementSpeed /($DVaMechChannelingSlowMaximumStacks $DVaMechChannelingSlowModifier)))" evaluateAsExpression="1" />
+  <const id="$DVaMechBoostersMovespeedModifier" value="1.15" />
+  <const id="$DVaMechBoostersMovespeed" value="+($HeroBaseMovementSpeed *($HeroBaseMovementSpeed $DVaMechBoostersMovespeedModifier))" evaluateAsExpression="1" />
+  <const id="$DVaMechBoostersHitTheNitrousTotalModifier" value="3" />
+  <const id="$DVaMechBoostersHitTheNitrousTokenCount" value="8" />
+  <const id="$DVaMechBoostersHitTheNitrousActualModifier" value="-($DVaMechBoostersHitTheNitrousTotalModifier $DVaMechBoostersMovespeedModifier)" evaluateAsExpression="1" />
+  <const id="$DVaMechBoostersHitTheNitrousMovespeed" value="*($HeroBaseMovementSpeed /($DVaMechBoostersHitTheNitrousActualModifier $DVaMechBoostersHitTheNitrousTokenCount))" evaluateAsExpression="1" />
   <const id="$DVaMechSelfDestructDetonationMaximumDamage" value="1100" />
   <const id="$DVaMechSelfDestructDetonationMinimumDamage" value="400" />
   <const id="$DVaMechSelfDestructInnerRadius" value="4" />
@@ -46,9 +55,9 @@
         <CountStart value="2" />
         <CountUse value="1" />
         <Location value="Player" />
-        <TimeUse value="20" />
+        <TimeUse value="19" />
       </Charge>
-      <Cooldown Location="Player" TimeUse="5" />
+      <Cooldown Location="Player" TimeUse="3" />
     </Cost>
     <Range value="500" />
     <Arc value="360" />
@@ -85,6 +94,7 @@
     <Cost>
       <Charge TimeUse="30" />
       <Cooldown Location="Player" TimeUse="30" />
+      <CostEventEffectArray index="CooldownRegen" value="DVaMechEmergencyShieldingCooldownRemove" />
     </Cost>
     <Range value="3.75" />
     <CmdButtonArray index="Execute" DefaultButtonFace="DVaMechMechMode" />
@@ -107,7 +117,7 @@
     <ValidatorArray value="DVaSourceisMech" />
   </CAbilBehavior>
   <CAbilEffectInstant id="DVaMechSelfDestruct">
-    <PrepEffect value="DismountDecloakCasterSet" />
+    <PrepEffect value="DVaMechSelfDestructPrepSet" />
     <Effect value="DVaMechSelfDestructInitialSet" />
     <Cost>
       <Charge>
@@ -182,7 +192,7 @@
     <Effect value="DVaBoostersInitialSet" />
     <CmdButtonArray index="Execute" DefaultButtonFace="DVaMechBoosters" Requirements="DVaMechAbilityUseRequirement" />
     <Cost>
-      <Cooldown Location="Player" TimeUse="0.0625" />
+      <Cooldown TimeUse="0.0625" />
     </Cost>
     <PrepEffect value="DecloakCasterSet" />
   </CAbilEffectInstant>
@@ -291,7 +301,7 @@
     <MaxAccumulation value="9" />
     <ApplicationRule value="Add" />
     <TokenId value="DVaBoostersHitTheNitrousToken" />
-    <Scale value="1.125" />
+    <Scale value="$DVaMechBoostersHitTheNitrousMovespeed" />
   </CAccumulatorToken>
   <CAccumulatorDistance id="DVaSelfDestructDistanceAccumulator" parent="BaseAccumulator">
     <MaxAccumulation value="0" />
@@ -646,7 +656,7 @@
     <On Terms="Effect.DVaBigShotSearch.Start; At Caster" Send="Create" />
   </CActorSound>
   <CActorSound id="DVa_EmergencyShielding_Launch" parent="SoundOneShot">
-    <On Terms="Behavior.DVaMechEmergencyShieldingShield.On" Send="Create" />
+    <On Terms="Effect.DVaMechEmergencyShieldingProcSet.Start; At Caster" Send="Create" />
   </CActorSound>
   <CActorSound id="DvaPilot_FS" parent="SoundOneShot" />
   <CActorSound id="DvaPilot_FS_StandStart" parent="SoundOneShot" />
@@ -1621,7 +1631,7 @@
     </Modification>
   </CBehaviorBuff>
   <CBehaviorBuff id="DVaBoostersGetOnThePointTalentCarry" parent="CarryBehaviorParent">
-    <DisableValidatorArray value="NotInCombat3" />
+    <DisableValidatorArray value="DVaBoostersGetOnThePointTimer" />
     <DisableValidatorArray value="DvaHasGetOnThePointTalent" />
     <Period value="0.0625" />
     <PeriodicEffect value="DVaBoostersGetOnThePointTalentPeriodicModifyCooldown" />
@@ -1699,7 +1709,7 @@
   <CBehaviorBuff id="DVaDefenseMatrixTargetLockedTalentCoolup">
     <DisplayDuration index="Enemy" value="1" />
     <RemoveValidatorArray value="DVaMechDefenseMatrixHasDebuff" />
-    <Duration value="1" />
+    <Duration value="0.75" />
     <ExpireEffect value="DVaDefenseMatrixTargetLockedTalentCoolupExpirationSet" />
   </CBehaviorBuff>
   <CBehaviorBuff id="DVaDefenseMatrixTargetLockedTalentDebuff" parent="StormArmor">
@@ -1786,9 +1796,9 @@
     <PeriodicEffect value="DVaMechModeChannelingSlowPeriodicSet" />
   </CBehaviorBuff>
   <CBehaviorBuff id="DVaChannelingSlowStack" parent="CarryBehaviorParent">
-    <MaxStackCount value="4" />
+    <MaxStackCount value="$DVaMechChannelingSlowMaximumStacks" />
     <Modification>
-      <MoveSpeedBonus value="-0.2968" />
+      <MoveSpeedBonus value="$DVaMechChannelingSlowValue" />
     </Modification>
   </CBehaviorBuff>
   <CBehaviorUnitTracker id="DVaMechPilotUnitTracker">
@@ -1886,12 +1896,12 @@
     </DamageResponse>
   </CBehaviorBuff>
   <CBehaviorBuff id="DVaMechEmergencyShieldingShield" parent="StormShield">
-    <Duration value="4" />
-    <DamageResponse ModifyLimit="280" />
+    <Duration value="8" />
+    <DamageResponse ModifyLimit="290" />
   </CBehaviorBuff>
   <CBehaviorTokenCounter id="DVaBoostersHitTheNitrousToken" parent="StormGenericToken">
-    <Max value="8" />
-    <Init value="8" />
+    <Max value="$DVaMechBoostersHitTheNitrousTokenCount" />
+    <Init value="$DVaMechBoostersHitTheNitrousTokenCount" />
   </CBehaviorTokenCounter>
   <CBehaviorBuff id="DVaBoostersMoveSpeedActive">
     <RemoveValidatorArray value="DVaMechSourceHasBoostersBehavior" />
@@ -1899,10 +1909,10 @@
     <PeriodicEffect value="DVaBoostersHitTheNitrousModifyToken" />
     <FinalEffect value="DVaBoostersHitTheNitrousRemoveToken" />
     <Modification>
-      <MoveSpeedMaximum value="10.3984">
+      <MoveSpeedMaximum value="$DVaMechBoostersMovespeed">
         <AccumulatorArray value="DVaBoostersHitTheNitrousTokenAccumulator" />
       </MoveSpeedMaximum>
-      <MoveSpeedMinimum value="10.3984">
+      <MoveSpeedMinimum value="$DVaMechBoostersMovespeed">
         <AccumulatorArray value="DVaBoostersHitTheNitrousTokenAccumulator" />
       </MoveSpeedMinimum>
       <DecelerationMultiplier value="0.01" />
@@ -2038,6 +2048,9 @@
     <Duration value="4" />
     <InitialEffect value="DVaMechSelfDestructBehaviorInitialSet" />
     <FinalEffect value="DVaMechSelfDestructDetonationSet" />
+    <PeriodicEffect value="DVaMechSelfDestructUpdateShape" />
+    <Period value="0.0625" />
+    <PeriodCount value="51" />
     <Modification>
       <StateFlags index="Hallucination" value="1" />
       <StateFlags index="Benign" value="1" />
@@ -2069,6 +2082,7 @@
       <BehaviorLinkDisableArray value="DVaMechFatalDamageDisabledTimeout" />
       <BehaviorLinkDisableArray value="AbathurUltimateEvolutionControlBehavior" />
       <BehaviorLinkDisableArray value="AbathurSymbioteHostBehavior" />
+      <BehaviorLinkDisableArray value="DVaFullMetalCarry" />
       <WeaponDisableArray value="DVaMechWeapon" />
       <TurretDisableArray value="DVaMechWeaponTurret" />
     </Modification>
@@ -2235,7 +2249,7 @@
       <Handled value="DVaDefenseMatrixDamageResponseSet" />
       <ValidateEffectAliasesOp value="ExcludeHasAny" />
       <Location value="Attacker" />
-      <ModifyFraction value="0.5" />
+      <ModifyFraction value="0.4" />
       <ValidateEffectAliases value="PercentDamage" />
     </DamageResponse>
     <BehaviorCategories index="DebuffAbilityPower" value="1" />
@@ -2290,7 +2304,7 @@
     <MaxStackCount value="8" />
   </CBehaviorBuff>
   <CBehaviorBuff id="DVaBoostersGetOnThePointTalentBuff" parent="StormSprint">
-    <Duration value="2" />
+    <Duration value="3" />
     <Modification>
       <UnifiedMoveSpeedFactor value="0.2" />
     </Modification>
@@ -2721,7 +2735,7 @@
   <CEffectCreateHealer id="DVaDefenseMatrixDivertingPowerTalentHealer" parent="StormSelfOnlyHealingSpell">
     <Chance value="0" />
     <ImpactUnit Value="Caster" />
-    <RechargeVitalRate value="35" />
+    <RechargeVitalRate value="31" />
     <ValidatorArray value="TargetIsHero" />
     <SourceButtonFace value="DVaDefenseMatrixDivertingPower" />
   </CEffectCreateHealer>
@@ -2734,6 +2748,25 @@
     <Chance value="0" />
     <Behavior value="DVaDefenseMatrixTargetLockedTalentCoolup" />
   </CEffectApplyBehavior>
+  <CEffectSet id="DVaMechDefenseMatrixTargetLockedExtendSet">
+    <ValidatorArray value="DVaHasTargetLockedTalent" />
+    <EffectArray value="DVaDefenseMatrixTargetLockedTalentExtendActiveSlow" />
+    <EffectArray value="DVaDefenseMatrixTargetLockedTalentExtendActiveArmor" />
+  </CEffectSet>
+  <CEffectModifyBehaviorBuffDuration id="DVaDefenseMatrixTargetLockedTalentExtendActiveSlow">
+    <ValidatorArray value="DVaTargetHasTargetLockedMoveSpeedReduction" />
+    <Behavior value="DVaDefenseMatrixTargetLockedTalentSlow" />
+    <WhichUnit Value="Target" />
+    <Operation value="Max" />
+    <Value value="3" />
+  </CEffectModifyBehaviorBuffDuration>
+  <CEffectModifyBehaviorBuffDuration id="DVaDefenseMatrixTargetLockedTalentExtendActiveArmor">
+    <ValidatorArray value="DVaTargetHasTargetLockedArmorReduction" />
+    <Behavior value="DVaDefenseMatrixTargetLockedTalentDebuff" />
+    <WhichUnit Value="Target" />
+    <Operation value="Max" />
+    <Value value="3" />
+  </CEffectModifyBehaviorBuffDuration>
   <CEffectApplyBehavior id="DVaDefenseMatrixTargetLockedTalentApplyDebuff">
     <Behavior value="DVaDefenseMatrixTargetLockedTalentDebuff" />
   </CEffectApplyBehavior>
@@ -2763,7 +2796,7 @@
   <CEffectModifyPlayer id="DVaLiquidCoolingModifyPlayer">
     <ValidatorArray value="DVaHasLiquidCoolingTalent" />
     <EffectArray Operation="Set" Reference="Behavior,HealingFountainCooldown,Duration" Value="50.000000" />
-    <EffectArray Operation="Set" Reference="Behavior,HealingFountainRestoreL2,Duration" Value="27.000000" />
+    <EffectArray Operation="Set" Reference="Behavior,HealingFountainRestoreL2,Duration" Value="30.000000" />
   </CEffectModifyPlayer>
   <CEffectModifyPlayer id="DVaLiquidCoolingResetPlayer">
     <ValidatorArray value="DVaHasLiquidCoolingTalent" />
@@ -3426,6 +3459,14 @@
     <WhichPlayer Value="Caster" />
     <EffectArray Operation="Set" Reference="Actor,HeroDVaMech,VisibilityShape.Shape" />
   </CEffectModifyPlayer>
+  <CEffectModifyPlayer id="DVaMechSelfDestructResetShape">
+    <WhichPlayer Value="Caster" />
+    <EffectArray Operation="Set" Reference="Shape,DVaMechSelfDestructVisiblityShape,Radius" Value="0.4375" />
+  </CEffectModifyPlayer>
+  <CEffectModifyPlayer id="DVaMechSelfDestructUpdateShape">
+    <WhichPlayer Value="Caster" />
+    <EffectArray Reference="Shape,DVaMechSelfDestructVisiblityShape,Radius" Value="0.1875" />
+  </CEffectModifyPlayer>
   <CEffectModifyUnit id="DVaMechWeaponRemoveScriptTargetDummy">
     <ImpactUnit Value="Caster" />
   </CEffectModifyUnit>
@@ -3555,6 +3596,11 @@
     <WhichUnit Value="Source" />
     <Behavior value="DVaMechEmergencyShieldingCooldownBehavior" />
   </CEffectApplyBehavior>
+  <CEffectRemoveBehavior id="DVaMechEmergencyShieldingCooldownRemove">
+    <WhichUnit Value="Caster" />
+    <BehaviorLink value="DVaMechEmergencyShieldingCooldownBehavior" />
+    <Count value="1" />
+  </CEffectRemoveBehavior>
   <CEffectApplyBehavior id="DVaMechDefenseMatrixDazerZoneApplySlow">
     <Chance value="0" />
     <Behavior value="DVaDefenseMatrixDazerZoneSlow" />
@@ -3790,6 +3836,10 @@
     <AbilCmdIndex value="1" />
     <WhichUnit Value="Source" />
   </CEffectIssueOrder>
+  <CEffectSet id="DVaMechSelfDestructPrepSet">
+    <EffectArray value="DismountDecloakCasterSet" />
+    <EffectArray value="DVaMechSelfDestructResetShape" />
+  </CEffectSet>
   <CEffectSet id="DVaMechSelfDestructInitialSet">
     <ValidatorArray value="DVaMechNotinDeathTimeoutState" />
     <EffectArray value="DVaMicroMissilesCasterBuffRemove" />
@@ -3940,6 +3990,7 @@
     <EffectArray value="AbilityImpactRevealDummyDamage" />
     <EffectArray value="DVaDefenseMatrixAggressionMatrixTalentApplyHealingReductionDebuff" />
     <EffectArray value="DVaDefenseMatrixTargetLockedTalentApplyCoolup" />
+    <EffectArray value="DVaMechDefenseMatrixTargetLockedExtendSet" />
   </CEffectSet>
   <CEffectCreatePersistent id="DVaMechDefenseMatrixImpactRevealer">
     <ExpireDelay value="0.33" />
@@ -4112,9 +4163,9 @@
     <CaseDefault value="CameraShakeLightTauntingTotemSet" />
   </CEffectSwitch>
   <CEffectDamage id="DVaMechBunnyHopImpactDamage" parent="StormSpell">
-    <Amount value="70" />
+    <Amount value="78" />
     <SourceButtonFace value="DVaBunnyHopOn" />
-    <MultiplicativeModifierArray index="0" Validator="DVaTargetHas3StacksBunnyHopImpactMarker" Modifier="1" Crit="1" />
+    <MultiplicativeModifierArray index="0" Validator="DVaTargetHas3StacksBunnyHopImpactMarker" Modifier=".8" Crit="1" />
   </CEffectDamage>
   <CEffectApplyBehavior id="DVaMechBunnyHopApplySlow">
     <Behavior value="DVaMechBunnyHopSlow" />
@@ -4158,7 +4209,7 @@
   <CEffectDamage id="DVaBoostersImpactDamage" parent="StormSpell">
     <Amount value="135" />
     <SourceButtonFace value="DVaMechBoosters" />
-    <MultiplicativeModifierArray index="RushDown" Validator="DVaRushDownNonHeroicDamageCombine" Modifier="0.5" />
+    <MultiplicativeModifierArray index="RushDown" Validator="DVaRushDownNonHeroicDamageCombine" Modifier="0.5" Crit="1" />
   </CEffectDamage>
   <CEffectCreatePersistent id="DVaMechWeaponInitialOffset">
     <Marker Duration="0.0625">
@@ -7408,9 +7459,9 @@
   <CUnit id="HeroDVaMech" parent="StormHeroMountedCustom">
     <DeathTime value="1" />
     <DefaultAcquireLevel value="Passive" />
-    <LifeStart value="2100" />
-    <LifeMax value="2100" />
-    <LifeRegenRate value="4.375" />
+    <LifeStart value="2150" />
+    <LifeMax value="2150" />
+    <LifeRegenRate value="4.4804" />
     <EnergyStart value="0" />
     <EnergyMax value="100" />
     <EnergyRegenRate value="0" />
@@ -7605,6 +7656,16 @@
   </CValidatorUnitCompareBehaviorCount>
   <CValidatorUnitCompareBehaviorCount id="DVaDoesNotHaveTargetLockedTalentCoolup">
     <Behavior value="DVaDefenseMatrixTargetLockedTalentCoolup" />
+  </CValidatorUnitCompareBehaviorCount>
+  <CValidatorUnitCompareBehaviorCount id="DVaTargetHasTargetLockedMoveSpeedReduction">
+    <RequireCasterUnit Value="Caster" />
+    <Behavior value="DVaDefenseMatrixTargetLockedTalentSlow" />
+    <Compare value="GT" />
+  </CValidatorUnitCompareBehaviorCount>
+  <CValidatorUnitCompareBehaviorCount id="DVaTargetHasTargetLockedArmorReduction">
+    <RequireCasterUnit Value="Caster" />
+    <Behavior value="DVaDefenseMatrixTargetLockedTalentDebuff" />
+    <Compare value="GT" />
   </CValidatorUnitCompareBehaviorCount>
   <CValidatorCombine id="DVaFullMetalTalentLeechCombine">
     <Type value="And" />
@@ -8074,6 +8135,9 @@
   <CValidatorCombine id="ChromieTimeTrapBenignValidator">
     <CombineArray value="DVaMechMechTargetSelfDestructing" />
   </CValidatorCombine>
+  <CValidatorCombine id="MeiOWIceWallBenignValidator">
+    <CombineArray value="DVaMechMechTargetSelfDestructing" />
+  </CValidatorCombine>
   <CValidatorLocationEnumArea id="DVaAttackTargetIsInRange">
     <WhichLocation Value="CasterUnit" />
     <AreaArray Count="1" Validator="DVaTargetHasWeaponTargetBehavior">
@@ -8115,6 +8179,11 @@
     <WhichUnit Value="Source" />
     <Compare value="GT" />
     <Value value="0.0625" />
+  </CValidatorUnitCompareDamageTakenTime>
+  <CValidatorUnitCompareDamageTakenTime id="DVaBoostersGetOnThePointTimer">
+    <WhichUnit Value="Source" />
+    <Compare value="GE" />
+    <Value value="2" />
   </CValidatorUnitCompareDamageTakenTime>
   <CValidatorUnitCompareBehaviorCount id="DVaMechNotinDeathTimeoutState">
     <Behavior value="DVaMechFatalDamageDisabledTimeout" />

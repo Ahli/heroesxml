@@ -1355,7 +1355,7 @@
     <HotkeyAlias value="SgtHammerConcussiveBlastBarricadeTalent" />
   </CButton>
   <CButton id="SgtHammerSiegeModeMaelstromRounds" parent="StormButtonParent">
-    <Icon value="Assets\Textures\storm_ui_icon_sgthammer_siegemode_var2.dds" />
+    <Icon value="Assets\Textures\storm_ui_icon_sgthammer_siegemode_var1.dds" />
     <SimpleDisplayText value="Button/SimpleDisplayText/SgtHammerSiegeModeMaelstromRoundsTalent" />
   </CButton>
   <CButton id="SgtHammerSpiderMinesTacticalMineDeployment" parent="StormButtonParent">
@@ -1363,7 +1363,7 @@
     <HotkeyAlias value="" />
   </CButton>
   <CButton id="SgtHammerSiegeModeAdvancedArtillery" parent="StormButtonParent">
-    <Icon value="Assets\Textures\storm_ui_icon_sgthammer_siegemode_var1.dds" />
+    <Icon value="Assets\Textures\storm_ui_icon_sgthammer_siegemode.dds" />
     <HotkeyAlias value="SgtHammerSiegeModeHoverSiegeModeTalent" />
   </CButton>
   <CButton id="SgtHammerNeosteelPlating" parent="StormButtonParent">
@@ -1382,6 +1382,12 @@
   </CButton>
   <CButton id="SgtHammerThrusters" parent="StormButtonParent">
     <Icon value="Assets\Textures\storm_ui_icon_sgthammer_mount.dds" />
+    <TooltipAppender Validator="HasSgtHammerHyperCoolingEngines" Face="SgtHammerThrustersHyperCoolingEnginesTalent" />
+  </CButton>
+  <CButton id="SgtHammerThrustersShop" parent="StormButtonParent">
+    <Icon value="Assets\Textures\storm_ui_icon_sgthammer_hypercoolingengines.dds" />
+    <SimpleDisplayText value="Button/SimpleDisplayText/SgtHammerThrusters" />
+    <Tooltip value="Button/Tooltip/SgtHammerThrusters" />
     <TooltipAppender Validator="HasSgtHammerHyperCoolingEngines" Face="SgtHammerThrustersHyperCoolingEnginesTalent" />
   </CButton>
   <CButton id="SgtHammerConcussiveBlastBarricadeTalent" parent="StormButtonParent">
@@ -1427,7 +1433,7 @@
     <Icon value="Assets\Textures\storm_ui_icon_sgthammer_tankmode.dds" />
   </CButton>
   <CButton id="SgtHammerSiegeModeAmbushTalent" parent="StormButtonParent">
-    <Icon value="Assets\Textures\storm_ui_icon_sgthammer_siegemode.dds" />
+    <Icon value="Assets\Textures\storm_ui_icon_sgthammer_siegemode_var2.dds" />
     <HotkeyAlias value="" />
   </CButton>
   <CButton id="SgtHammerThrustersHyperCoolingEnginesTalent" parent="StormButtonParent">
@@ -2566,7 +2572,7 @@
       <Flags index="AffectedByCooldownReduction" value="1" />
       <Flags index="Trait" value="1" />
     </HeroAbilArray>
-    <HeroAbilArray Abil="SgtHammerThrusters" Button="SgtHammerThrusters">
+    <HeroAbilArray Abil="SgtHammerThrusters" Button="SgtHammerThrustersShop">
       <Flags index="ShowInHeroSelect" value="1" />
       <Flags index="AffectedByCooldownReduction" value="1" />
       <Flags index="MountReplacement" value="1" />
