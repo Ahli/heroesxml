@@ -8,7 +8,7 @@ I wrote my own tool for this which facilitates [Zezula's CascLib](https://github
 - executable for Windows: [here in my other repo](https://github.com/Ahli/Galaxy-Observer-UI/tree/main/tools/plugins/casc)
 - run it with the following parameters:
     CascExtractor.exe ["Path\to\the\CASC storage"] ["*mask.txt"] ["Path\to\the\output Directory"]
-    example: `CascExtractor.exe "D:\Games\StarCraft II\SC2Data" "*.xml" "D:\exportedXml"`
+    example: `CascExtractor.exe "D:\Games\Heroes of the Storm\HeroesData" "*.xml" "D:\exportedXml"`
 
 ## Commands used to export this data:
     CascExtractor.exe "C:\Spiele\Heroes of the Storm\HeroesData" "*.xml" ""D:\exportedXml""
