@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="us-ascii"?>
 <Catalog>
   <const id="$BrightwingPixieDustSafetyDustBonusHealing" value="0.75" />
+  <const id="$BrightwingPixieDustSafetyDustBonusDuration" value="1" />
+  <const id="$BrightwingPixieDustMovementSpeedBonus" value="0.2" />
+  <const id="$BrightwingPixieDustDuration" value="3" />
+  <const id="$BrightwingPixieDustPixieBoostMaximumBonus" value="0.3" />
+  <const id="$BrightwingPixieDustPixieBoostMultiplierPerStep" value="negate(/($BrightwingPixieDustPixieBoostMaximumBonus *($BrightwingPixieDustDuration 16)))" evaluateAsExpression="1" />
+  <const id="$BrightwingPixieDustPixieBoostMinAccumulation" value="negate($BrightwingPixieDustPixieBoostMaximumBonus)" evaluateAsExpression="1" />
   <CAbilEffectInstant id="BrightwingFaerieProtector">
     <PrepEffect value="DismountDecloakCasterSet" />
     <Effect value="BrightwingPixieDustFaerieProtectorSearch" />
@@ -162,6 +168,8 @@
         <TimeUse value="9" />
       </Charge>
       <Cooldown TimeUse="2" />
+      <CostEventEffectArray index="ChargeDecrease" value="BrightwingBlinkHealActorDummyDecrease" />
+      <CostEventEffectArray index="ChargeRegen" value="BrightwingBlinkHealActorDummyRegen" />
     </Cost>
     <TargetFilters value="-;Self,Neutral,Enemy,Structure,Missile,Item,Stasis,Dead,Hidden" />
     <Range value="10" />
@@ -213,6 +221,14 @@
     <VitalType value="Life" />
     <UnitSource Value="Target" />
   </CAccumulatorVitals>
+  <CAccumulatorTimed id="BrightwingPixieBoostAccumulator">
+    <TimestampBehavior value="BrightwingPixieBoostTimestamp" />
+    <MinAccumulation value="$BrightwingPixieDustPixieBoostMinAccumulation" />
+    <MaxAccumulation value="0" />
+    <ApplicationRule value="Add" />
+    <MultiplierPerStep value="0" />
+    <UnitSource Value="Target" />
+  </CAccumulatorTimed>
   <CActorModelMaterial id="BrightwingPhaseOutGlazeFX" parent="ModelAnimationStyleContinuous">
     <Model value="BrightwingPhaseOutGlaze" />
     <ModelFlags index="AutomateGlobalLoops" value="1" />
@@ -351,8 +367,8 @@
     <Sound value="Brightwing_Taunt_Evo" />
   </CActorSound>
   <CActorModel id="EmeraldWindStun" parent="StormFlailStun">
-    <On Terms="Behavior.EmeraldWindKnockback.On" Send="Create" />
-    <On Terms="Behavior.EmeraldWindKnockback.Off" Send="AnimBracketStop BSD" />
+    <On Terms="Behavior.BrightwingEmeraldWindKnockback.On" Send="Create" />
+    <On Terms="Behavior.BrightwingEmeraldWindKnockback.Off" Send="AnimBracketStop BSD" />
   </CActorModel>
   <CActorSound id="ArcaneFlareLaunchVOX" parent="SoundOneShot">
     <Host Subject="_Unit" />
@@ -426,8 +442,8 @@
     <On Terms="Effect.BrightwingSoothingMistSearchArea.Start; At Caster" Send="Create BrightwingSoothingMistCastFX" />
     <On Terms="Effect.BrightwingSoothingMistSearchArea.Start" Send="Create BrightwingSoothingMistLaunch" />
     <On Terms="Abil.BrightwingCalmingMist.SourceCastStart" Send="AnimPlay Spell Spell,E 0 0.050000 -1.000000 1.000000 AsTimeScale" />
-    <On Terms="AbilCharge.FaerieDragonBlinkHealDash.Regen" Send="StatusIncrement BlinkHealAfterimage" />
-    <On Terms="AbilCharge.FaerieDragonBlinkHealDash.Decrease" Send="StatusDecrement BlinkHealAfterimage" />
+    <On Terms="Effect.BrightwingBlinkHealActorDummyRegen.Start" Send="StatusIncrement BlinkHealAfterimage" />
+    <On Terms="Effect.BrightwingBlinkHealActorDummyDecrease.Start" Send="StatusDecrement BlinkHealAfterimage" />
     <On Terms="TimerExpired; TimerName Afterimage; HasStatus BlinkHealAfterimage; ValidateUnit SourceNotDead" Send="Create BlinkHealAfterImage" />
     <On Terms="TimerExpired; TimerName Afterimage" Send="TimerSet 0.250000 Afterimage" />
     <On Terms="Behavior.BlinkHealCarryBehavior.On" Send="StatusSet BlinkHealAfterimage 2" />
@@ -614,6 +630,7 @@
     <On Terms="Effect.BrightwingPhaseShiftPrepPersistent.Start; At Target" Send="Create" />
     <On Terms="Effect.BrightwingPhaseShiftPrepPersistent.Stop; FromEffectTreeDescendant" Send="Destroy" />
     <HostSiteOps Ops="SOpTargetUnit" />
+    <Macros value="RemovePolymorphMacroEffects" />
   </CActorModel>
   <CActorModel id="BlinkHealImpact" parent="StormModelAnimationStyleContinuousUnit">
     <Filter index="Enemy" value="1" />
@@ -804,8 +821,6 @@
     <Sound value="FaerieDragon_EmeraldWind_Cast" />
   </CActorSound>
   <CActorSound id="FaerieDragonEmeraldWindWaves" parent="SoundOneShot">
-    <On Terms="Effect.EmeraldWindCreateMasteryGrowingPersistent1.Start" Send="Create" />
-    <On Terms="Effect.EmeraldWindCreateMasteryGrowingPersistent2.Start" Send="Create" />
     <Sound value="FaerieDragon_EmeraldWind_Waves" />
   </CActorSound>
   <CActorSound id="FaerieDragonPixieDustCast" parent="SoundOneShot">
@@ -872,9 +887,6 @@
     <Flags index="SuppressSaveLoad" value="0" />
     <On Terms="Effect.EmeraldWindCreateGrowingPersistent.Start" Send="Create" />
     <On Terms="ActorCreation" Send="TimerSet 1.687500 Kill" />
-    <On Terms="Effect.EmeraldWindMasteryInitialSearch.Start" Send="Create" />
-    <On Terms="Effect.EmeraldWindCreateMasteryGrowingPersistent1.Start" Send="Create" />
-    <On Terms="Effect.EmeraldWindCreateMasteryGrowingPersistent2.Start" Send="Create" />
     <Model value="EmeraldWindCast" />
     <Macros value="GlobalLoopMacro" />
     <VisibilityShape Shape="BrightwingEmeraldWindVisibilityShape" />
@@ -884,22 +896,16 @@
   </CActorSound>
   <CActorModel id="FaerieDragonEmeraldWindDamageImpact" parent="StormModelAnimationStyleOneShotUnit">
     <On Terms="Effect.EmeraldWindDamage.Start; At Target" Send="Create" />
-    <On Terms="Effect.EmeraldWindMasteryDamage1.Start; At Target" Send="Create" />
-    <On Terms="Effect.EmeraldWindMasteryDamage2.Start; At Target" Send="Create" />
     <HostSiteOps Ops="SOpAttachCenter" />
     <Model value="EmeraldWindDamageImpact" />
     <AutoScaleFactor value="1.000000" />
   </CActorModel>
   <CActorSound id="FaerieDragonEmeraldWindDamageSoundHero" parent="HeroAttackImpactSoundOneShot">
     <On Terms="Effect.EmeraldWindDamage.Start; At Target; ValidateUnit TargetIsHero" Send="Create" />
-    <On Terms="Effect.EmeraldWindMasteryDamage1.Start; ValidateUnit TargetIsHero; At Target" Send="Create" />
-    <On Terms="Effect.EmeraldWindMasteryDamage2.Start; At Target; ValidateUnit TargetIsHero" Send="Create" />
     <Sound value="FaerieDragon_EmeraldWind_Damage" />
   </CActorSound>
   <CActorSound id="FaerieDragonEmeraldWindDamageSoundMinion" parent="SoundOneShot">
     <On Terms="Effect.EmeraldWindDamage.Start; At Target; ValidateUnit TargetMinionOrMerc" Send="Create" />
-    <On Terms="Effect.EmeraldWindMasteryDamage1.Start; At Target; ValidateUnit TargetMinionOrMerc" Send="Create" />
-    <On Terms="Effect.EmeraldWindMasteryDamage2.Start; At Target; ValidateUnit TargetMinionOrMerc" Send="Create" />
     <Sound value="FaerieDragon_EmeraldWind_Damage_Minion" />
   </CActorSound>
   <CActorSound id="FaerieDragonEmeraldWindLoopSound" parent="SoundContinuous">
@@ -971,6 +977,7 @@
     <On Terms="Effect.ArcaneFlareSearchSet.Start" Send="Create" />
   </CActorSound>
   <CActorAction id="FaerieDragonArcaneFlareAttack" parent="RangedHeroAttack" effectImpact="ArcaneFlareSearchSet" effectLaunch="ArcaneFlareLaunchMissile">
+    <On Terms="Effect.BrightwingArcaneFlareLaunchMissileLaunchOffset.Start; At Caster" Send="Create" />
     <LaunchSiteOps Ops="SOpAttachCenter" />
     <Missile value="ArcaneFlareMissile" />
     <LaunchAssets Model="FaerieDragonArcaneFlareLaunch" Sound="FaerieDragon_ArcaneFlare_Launch" />
@@ -1207,18 +1214,6 @@
     <RemoveValidatorArray value="TargetNotSpecialDeathState" />
     <Face value="BrightwingManicPixieTalent" />
   </CBehaviorBuff>
-  <CBehaviorBuff id="BrightwingPixieDustPixieBoost" parent="StormSprint">
-    <MaxStackCount value="10" />
-    <Duration value="3" />
-    <Modification>
-      <UnifiedMoveSpeedFactor value="0.05" />
-    </Modification>
-  </CBehaviorBuff>
-  <CBehaviorBuff id="BrightwingPixieDustPixieBoostController">
-    <Duration value="3" />
-    <Period value="0.5" />
-    <PeriodicEffect value="BrightwingPixieDustPixieBoostRemoveStack" />
-  </CBehaviorBuff>
   <CBehaviorBuff id="BrightwingSoothingMistRevitalizingMistBuff">
     <Duration value="6" />
     <FinalEffect value="BrightwingSoothingMistRevitalizingMistTokenRemoveBehavior" />
@@ -1342,13 +1337,22 @@
       </ArmorSet>
     </ArmorModification>
   </CBehaviorBuff>
+  <CBehaviorTimestamp id="BrightwingPixieBoostTimestamp">
+    <Flags index="UseTimeScale" value="1" />
+    <TimeScaleSource Value="Target" />
+  </CBehaviorTimestamp>
   <CBehaviorBuff id="BrightwingPixieDustMoveSpeedBuff">
     <Alignment value="Positive" />
     <InfoIcon value="Assets\Textures\storm_temp_war3_btnscatterrockets.dds" />
     <BehaviorCategories index="Fast" value="1" />
-    <Duration value="3" />
+    <Duration value="$BrightwingPixieDustDuration" />
+    <InitialEffect value="BrightwingPixieBoostApplyTimestampBehavior" />
+    <RefreshEffect value="BrightwingPixieBoostApplyTimestampBehavior" />
+    <FinalEffect value="BrightwingPixieBoostRemoveTimestampBehavior" />
     <Modification>
-      <UnifiedMoveSpeedFactor value="0.2" />
+      <UnifiedMoveSpeedFactor value="$BrightwingPixieDustMovementSpeedBonus">
+        <AccumulatorArray value="BrightwingPixieBoostAccumulator" />
+      </UnifiedMoveSpeedFactor>
     </Modification>
     <RemoveValidatorArray value="TargetNotSpecialDeathState" />
   </CBehaviorBuff>
@@ -1399,12 +1403,15 @@
       <UnifiedMoveSpeedFactor value="-0.3" />
     </Modification>
   </CBehaviorBuff>
-  <CBehaviorBuff id="EmeraldWindKnockback" parent="PushPullParent">
-    <Duration value="0.1875" />
+  <CBehaviorBuff id="BrightwingEmeraldWindKnockback" parent="PushPullParent">
+    <Duration value="0.25" />
+    <Period value="0.0625" />
     <Modification>
-      <MoveSpeedMaximum value="4.5" />
-      <MoveSpeedMinimum value="4.5" />
+      <MoveSpeedMaximum value="4" />
+      <MoveSpeedMinimum value="4" />
     </Modification>
+    <InitialEffect value="BrightwingEmeraldWindKnockbackApplyForce" />
+    <PeriodicEffect value="BrightwingEmeraldWindKnockbackApplyForce" />
   </CBehaviorBuff>
   <CBehaviorBuff id="BrightwingPolymorphCritterizeArmorDecrease" parent="StormArmor">
     <BehaviorCategories index="DebuffVulnerable" value="1" />
@@ -1976,10 +1983,6 @@
     <WhichUnit Effect="PhaseShiftFlightInitialSet" Value="Caster" />
     <Behavior value="BrightwingPhaseShiftPhaseShieldBuff" />
   </CEffectApplyBehavior>
-  <CEffectSet id="EmeraldWindKnockbackBehaviorRemovalSet">
-    <ValidatorArray value="NoHasFaerieDragonEmeraldWindPush" />
-    <EffectArray value="HeroRemovePushPullDebuffs" />
-  </CEffectSet>
   <CEffectModifyUnit id="FaerieDragonPixieCharmIncreaseChargeCountDummy">
     <ImpactUnit Value="Caster" />
   </CEffectModifyUnit>
@@ -2001,10 +2004,6 @@
     <ValidatorArray value="CasterNotStasis" />
     <EffectArray value="FaerieDragonPixieCharmSubtractTokenCount" />
     <EffectArray value="FaerieDragonPixieCharmKillEffect" />
-  </CEffectSet>
-  <CEffectSet id="FaerieDragonEmeraldWindKnockbackPersistentInitialSet">
-    <EffectArray value="EmeraldWindKnockbackBehaviorRemovalSet" />
-    <EffectArray value="EmeraldWindKnockbackApplyBehavior" />
   </CEffectSet>
   <CEffectModifyUnit id="BrightwingArcaneFlareDreamShotInner">
     <ValidatorArray value="HasBrightwingDreamShotArcaneFlare" />
@@ -2085,15 +2084,12 @@
     <ValidatorArray value="TargetHasPixieDust" />
     <Behavior value="BrightwingPixieDustManicPixie" />
   </CEffectApplyBehavior>
-  <CEffectApplyBehavior id="BrightwingPixieDustApplyPixieBoost">
-    <ValidatorArray index="0" value="HasBrightwingPixieBoostPixieDust" />
-    <Behavior value="BrightwingPixieDustPixieBoost" />
-    <Count value="12" />
+  <CEffectApplyBehavior id="BrightwingPixieBoostApplyTimestampBehavior">
+    <Behavior value="BrightwingPixieBoostTimestamp" />
   </CEffectApplyBehavior>
-  <CEffectApplyBehavior id="BrightwingPixieDustApplyPixieBoostController">
-    <ValidatorArray index="0" value="HasBrightwingPixieBoostPixieDust" />
-    <Behavior value="BrightwingPixieDustPixieBoostController" />
-  </CEffectApplyBehavior>
+  <CEffectRemoveBehavior id="BrightwingPixieBoostRemoveTimestampBehavior">
+    <BehaviorLink value="BrightwingPixieBoostTimestamp" />
+  </CEffectRemoveBehavior>
   <CEffectSet id="BrightwingPixieDustBouncyDustApplyBehaviorsSet1">
     <EffectArray value="PixieDustApplyBehaviorsSet" />
   </CEffectSet>
@@ -2142,11 +2138,6 @@
     <EffectArray value="PixieDustApplyBehaviorsSet" />
     <EffectArray value="BrightwingPixieDustFaerieProtectorLaunchMissile" />
   </CEffectSet>
-  <CEffectRemoveBehavior id="BrightwingPixieDustPixieBoostRemoveStack">
-    <WhichUnit Value="Source" />
-    <BehaviorLink value="BrightwingPixieDustPixieBoost" />
-    <Count value="1" />
-  </CEffectRemoveBehavior>
   <CEffectEnumArea id="BrightwingPolymorphUnstableAnomalySearchArea">
     <ValidatorArray value="HasBrightwingUnstableAnomalyPolymorph" />
     <SearchFilters value="Heroic;Player,Ally,Neutral,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
@@ -2200,10 +2191,15 @@
   </CEffectRemoveBehavior>
   <CEffectSet id="FaerieDragonWeaponImpactSet">
     <EffectArray value="UniversalWeaponImpact" />
+    <EffectArray value="BrightwingWeaponPreImpactSet" />
     <EffectArray value="FaerieDragonWeaponDamage" />
-    <EffectArray value="BrightwingCalmingMistMagicSpitModifyCooldown" />
+    <EffectArray value="BrightwingWeaponPostImpactSet" />
     <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
+  <CEffectSet id="BrightwingWeaponPreImpactSet">
+    <EffectArray value="BrightwingCalmingMistMagicSpitModifyCooldown" />
+  </CEffectSet>
+  <CEffectSet id="BrightwingWeaponPostImpactSet" />
   <CEffectModifyUnit id="FaerieDragonHardenedFocusModifyCooldowns">
     <Cost Abil="FaerieDragonArcaneFlare,Execute" CooldownOperation="Add" CooldownTimeUse="-0.125" />
     <Cost Abil="FaerieDragonPixieDust,Execute" CooldownOperation="Add" CooldownTimeUse="-0.125" />
@@ -2239,52 +2235,14 @@
     <WhichUnit Value="Caster" />
     <Behavior value="BlinkHealPostCast" />
   </CEffectApplyBehavior>
-  <CEffectEnumArea id="EmeraldWindGrowingMasteryInitialSearch1">
-    <LaunchLocation Effect="EmeraldWindCreateMasteryGrowingPersistent1" Value="TargetPoint" />
-    <SearchFilters value="-;Self,Player,Ally,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden" />
-    <AreaArray RadiusBonus="0.75" Effect="EmeraldWindMasteryImpactSet1">
-      <Radius value="1.25" />
-    </AreaArray>
-    <RevealerParams Duration="0.75" ShapeExpansion="1">
-      <RevealFlags index="Unfog" value="1" />
-    </RevealerParams>
-  </CEffectEnumArea>
-  <CEffectEnumArea id="EmeraldWindGrowingMasteryInitialSearch2">
-    <LaunchLocation Effect="EmeraldWindCreateMasteryGrowingPersistent2" Value="TargetPoint" />
-    <SearchFilters value="-;Self,Player,Ally,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden" />
-    <AreaArray RadiusBonus="0.75" Effect="EmeraldWindMasteryImpactSet2">
-      <Radius value="1.25" />
-    </AreaArray>
-    <RevealerParams Duration="0.75" ShapeExpansion="1">
-      <RevealFlags index="Unfog" value="1" />
-    </RevealerParams>
-  </CEffectEnumArea>
   <CEffectSet id="EmeraldWindInitialSearchImpactSet">
     <EffectArray value="EmeraldWindDamage" />
-    <EffectArray value="EmeraldWindInitialSearchKnockbackCreatePersistent" />
+    <EffectArray value="BrightwingEmeraldWindKnockbackExtendSwitch" />
     <EffectArray value="ApplyAbilityImpactReveal" />
-  </CEffectSet>
-  <CEffectCreatePersistent id="EmeraldWindInitialSearchKnockbackCreatePersistent">
-    <ValidatorArray value="TargetIsEnemy" />
-    <ValidatorArray value="NotStructureTarget" />
-    <WhichLocation Value="TargetUnit" />
-    <InitialEffect value="FaerieDragonEmeraldWindKnockbackPersistentInitialSet" />
-    <PeriodCount value="5" />
-    <PeriodicValidator value="HasFaerieDragonEmeraldWindPush" />
-    <PeriodicEffectArray value="EmeraldWindKnockbackApplyForce" />
-    <PeriodicPeriodArray value="0.0625" />
-  </CEffectCreatePersistent>
-  <CEffectSet id="EmeraldWindMasteryStructureImpactSet2">
-    <ValidatorArray value="IsEnemyStructure" />
-    <EffectArray value="EmeraldWindMasteryDamage2" />
   </CEffectSet>
   <CEffectSet id="EmeraldWindStructureImpactSet">
     <ValidatorArray value="IsEnemyStructure" />
     <EffectArray value="EmeraldWindDamage" />
-  </CEffectSet>
-  <CEffectSet id="EmeraldWindMasteryImpactSet12">
-    <ValidatorArray value="IsEnemyStructure" />
-    <EffectArray value="EmeraldWindMasteryDamage1" />
   </CEffectSet>
   <CEffectApplyBehavior id="BrightwingPixieDustShieldDustApplyNormalArmorBehavior">
     <Behavior value="BrightwingPixieDustShieldDustNormalArmorBehavior" />
@@ -2363,142 +2321,12 @@
       <Flags index="Disabled" value="1" />
     </AINotifySettings>
   </CEffectCreatePersistent>
-  <CEffectCreatePersistent id="EmeraldWindCreateMasteryGrowingPersistent1">
-    <Marker>
-      <MatchFlags index="Id" value="1" />
-    </Marker>
-    <InitialEffect value="EmeraldWindGrowingMasteryInitialSearch1" />
-    <PeriodCount value="27" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch1NoExclusion" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch1NoExclusion" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch1NoExclusion" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch1NoExclusion" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch1NoExclusion" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch1NoExclusion" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch1NoExclusion" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch1NoExclusion" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch1NoExclusion" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch1NoExclusion" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch1NoExclusion" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch1NoExclusion" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch1NoExclusion" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch1" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch1" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch1" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch1" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch1" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch1" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch1" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch1" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch1" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch1" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch1" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch1" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch1" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch1" />
-    <PeriodicPeriodArray value="0.0625" />
-  </CEffectCreatePersistent>
-  <CEffectCreatePersistent id="EmeraldWindCreateMasteryGrowingPersistent2">
-    <Marker>
-      <MatchFlags index="Id" value="1" />
-    </Marker>
-    <InitialEffect value="EmeraldWindGrowingMasteryInitialSearch2" />
-    <PeriodCount value="27" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch2NoExclusion" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch2NoExclusion" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch2NoExclusion" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch2NoExclusion" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch2NoExclusion" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch2NoExclusion" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch2NoExclusion" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch2NoExclusion" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch2NoExclusion" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch2NoExclusion" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch2NoExclusion" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch2NoExclusion" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch2NoExclusion" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch2" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch2" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch2" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch2" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch2" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch2" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch2" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch2" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch2" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch2" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch2" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch2" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch2" />
-    <PeriodicEffectArray value="EmeraldWindGrowingMasterySearch2" />
-    <PeriodicPeriodArray value="0.0625" />
-  </CEffectCreatePersistent>
-  <CEffectEnumArea id="EmeraldWindGrowingMasterySearch2">
-    <LaunchLocation Effect="EmeraldWindCreateMasteryGrowingPersistent2" Value="TargetPoint" />
-    <SearchFilters value="-;Self,Player,Ally,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden" />
-    <AreaArray RadiusBonus="0.25" Effect="EmeraldWindMasteryStructureImpactSet2">
-      <Radius value="1.5" />
-    </AreaArray>
-    <AreaArray RadiusBonus="0.15" />
-    <AreaArray RadiusBonus="0.25" Effect="EmeraldWindMasteryImpactSet2">
-      <Radius value="1.5" />
-    </AreaArray>
-    <RevealerParams Duration="0.75" ShapeExpansion="1">
-      <RevealFlags index="Unfog" value="1" />
-    </RevealerParams>
-  </CEffectEnumArea>
-  <CEffectEnumArea id="EmeraldWindGrowingMasterySearch2NoExclusion">
-    <LaunchLocation Effect="EmeraldWindCreateMasteryGrowingPersistent2" Value="TargetPoint" />
-    <SearchFilters value="-;Self,Player,Ally,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden" />
-    <AreaArray RadiusBonus="0.25" Effect="EmeraldWindMasteryStructureImpactSet2">
-      <Radius value="1.5" />
-    </AreaArray>
-    <AreaArray RadiusBonus="0.25" Effect="EmeraldWindMasteryImpactSet2">
-      <Radius value="1.5" />
-    </AreaArray>
-    <RevealerParams Duration="0.75" ShapeExpansion="1">
-      <RevealFlags index="Unfog" value="1" />
-    </RevealerParams>
-  </CEffectEnumArea>
   <CEffectSet id="EmeraldWindInitialSet">
     <EffectArray value="EmeraldWindInitialGrowingSearch" />
-    <EffectArray value="EmeraldWindMasteryCreateDelayPersistent" />
   </CEffectSet>
-  <CEffectDamage id="EmeraldWindMasteryDamage1" parent="StormSpell">
-    <ValidatorArray value="noMarkers" />
-    <Amount value="75.75" />
-  </CEffectDamage>
-  <CEffectEnumArea id="EmeraldWindGrowingMasterySearch1">
-    <LaunchLocation Effect="EmeraldWindCreateMasteryGrowingPersistent1" Value="TargetPoint" />
-    <SearchFilters value="-;Self,Player,Ally,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden" />
-    <AreaArray RadiusBonus="0.25" Effect="EmeraldWindMasteryImpactSet12">
-      <Radius value="1.5" />
-    </AreaArray>
-    <AreaArray RadiusBonus="0.15" />
-    <AreaArray RadiusBonus="0.25" Effect="EmeraldWindMasteryImpactSet1">
-      <Radius value="1.5" />
-    </AreaArray>
-    <RevealerParams Duration="0.75" ShapeExpansion="1">
-      <RevealFlags index="Unfog" value="1" />
-    </RevealerParams>
-  </CEffectEnumArea>
-  <CEffectEnumArea id="EmeraldWindGrowingMasterySearch1NoExclusion">
-    <LaunchLocation Effect="EmeraldWindCreateMasteryGrowingPersistent1" Value="TargetPoint" />
-    <SearchFilters value="-;Self,Player,Ally,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden" />
-    <AreaArray RadiusBonus="0.25" Effect="EmeraldWindMasteryImpactSet12">
-      <Radius value="1.5" />
-    </AreaArray>
-    <AreaArray RadiusBonus="0.25" Effect="EmeraldWindMasteryImpactSet1">
-      <Radius value="1.5" />
-    </AreaArray>
-    <RevealerParams Duration="0.75" ShapeExpansion="1">
-      <RevealFlags index="Unfog" value="1" />
-    </RevealerParams>
-  </CEffectEnumArea>
   <CEffectSet id="EmeraldWindImpactSet">
     <EffectArray value="EmeraldWindDamage" />
-    <EffectArray value="FaerieDragonEmeraldWindKnockbackPersistentInitialSet" />
-    <EffectArray value="EmeraldWindKnockbackCreatePersistent" />
+    <EffectArray value="BrightwingEmeraldWindKnockbackExtendSwitch" />
     <EffectArray value="ApplyAbilityImpactReveal" />
   </CEffectSet>
   <CEffectEnumArea id="EmeraldWindGrowingSearch">
@@ -2529,33 +2357,32 @@
       <RevealFlags index="Unfog" value="1" />
     </RevealerParams>
   </CEffectEnumArea>
-  <CEffectDamage id="EmeraldWindMasteryDamage2" parent="StormSpell">
-    <ValidatorArray value="noMarkers" />
-    <Amount value="75.75" />
-  </CEffectDamage>
-  <CEffectSet id="EmeraldWindMasteryImpactSet1">
-    <EffectArray value="EmeraldWindMasteryDamage1" />
-    <EffectArray value="FaerieDragonEmeraldWindKnockbackPersistentInitialSet" />
-    <EffectArray value="EmeraldWindKnockbackCreatePersistent" />
+  <CEffectSwitch id="BrightwingEmeraldWindKnockbackExtendSwitch">
+    <ValidatorArray value="NotStructureTarget" />
+    <ValidatorArray value="TargetIsEnemy" />
+    <ValidatorArray value="TargetNotUnstoppable" />
+    <CaseArray Validator="BrightwingTargetHasEmeraldWindKnockback" Effect="BrightwingEmeraldWindKnockbackRefresh" />
+    <CaseDefault value="BrightwingEmeraldWindKnockbackApplySet" />
+  </CEffectSwitch>
+  <CEffectSet id="BrightwingEmeraldWindKnockbackApplySet">
+    <EffectArray value="HeroRemovePushPullDebuffs" />
+    <EffectArray value="HeroRemovePreventsMovement" />
+    <EffectArray value="BrightwingEmeraldWindKnockbackApplyBehavior" />
   </CEffectSet>
-  <CEffectCreatePersistent id="EmeraldWindMasteryCreateDelayPersistent">
-    <Chance value="0" />
-    <PeriodCount value="2" />
-    <PeriodicEffectArray value="EmeraldWindCreateMasteryGrowingPersistent1" />
-    <PeriodicEffectArray value="EmeraldWindCreateMasteryGrowingPersistent2" />
-    <PeriodicPeriodArray value="1.25" />
-    <PeriodicPeriodArray value="1.25" />
-  </CEffectCreatePersistent>
+  <CEffectApplyBehavior id="BrightwingEmeraldWindKnockbackApplyBehavior">
+    <Behavior value="BrightwingEmeraldWindKnockback" />
+  </CEffectApplyBehavior>
+  <CEffectModifyBehaviorBuffDuration id="BrightwingEmeraldWindKnockbackRefresh">
+    <WhichUnit Value="Target" />
+    <Behavior value="BrightwingEmeraldWindKnockback" />
+    <Operation value="Set" />
+    <Value value="0.25" />
+  </CEffectModifyBehaviorBuffDuration>
   <CEffectApplyBehavior id="BrightwingArcaneFlareStickyFlareApplyOuterSlow" parent="StormSlowApply">
     <Chance value="0" />
     <Behavior value="BrightwingStickyFlareOuterSlow" />
     <ValidatorArray value="TargetIsHero" />
   </CEffectApplyBehavior>
-  <CEffectSet id="EmeraldWindMasteryImpactSet2">
-    <EffectArray value="EmeraldWindMasteryDamage2" />
-    <EffectArray value="FaerieDragonEmeraldWindKnockbackPersistentInitialSet" />
-    <EffectArray value="EmeraldWindKnockbackCreatePersistent" />
-  </CEffectSet>
   <CEffectApplyBehavior id="BrightwingPhaseShiftPhaseShieldApplyBehaviorTarget">
     <Chance value="0" />
     <WhichUnit Effect="PhaseShiftFlightInitialSet" />
@@ -2586,12 +2413,17 @@
     <ValidatorArray value="CasterNotRooted" />
     <ValidatorArray value="DoesNotHaveUntargetableByFriendlyAbilities" />
   </CEffectSet>
+  <CEffectModifyUnit id="BrightwingBlinkHealActorDummyDecrease">
+    <ImpactUnit Value="Caster" />
+  </CEffectModifyUnit>
+  <CEffectModifyUnit id="BrightwingBlinkHealActorDummyRegen">
+    <ImpactUnit Value="Caster" />
+  </CEffectModifyUnit>
   <CEffectSet id="PixieDustApplyBehaviorsSet">
+    <EffectArray value="BrightwingPixieBoostRemoveTimestampBehavior" />
     <EffectArray value="BrightwingPixieDustApplyMoveSpeedBuff" />
     <EffectArray value="BrightwingPixieDustBlockApplyArmorBehavior" />
     <EffectArray value="BrightwingPixieDustShieldDustSwitch" />
-    <EffectArray value="BrightwingPixieDustApplyPixieBoostController" />
-    <EffectArray value="BrightwingPixieDustApplyPixieBoost" />
   </CEffectSet>
   <CEffectApplyBehavior id="BrightwingPixieDustApplyMoveSpeedBuff">
     <Behavior value="BrightwingPixieDustMoveSpeedBuff" />
@@ -2645,6 +2477,10 @@
     <ValidatorArray value="noMarkers" />
     <Amount value="75" />
   </CEffectDamage>
+  <CEffectSwitch id="ArcaneFlareLaunchMissileSwitch">
+    <CaseArray Validator="BrightwingArcaneFlareMinimumDistanceCast" Effect="BrightwingArcaneFlareLaunchMissileLaunchOffset" />
+    <CaseDefault value="ArcaneFlareLaunchMissile" />
+  </CEffectSwitch>
   <CEffectLaunchMissile id="ArcaneFlareLaunchMissile">
     <ImpactLocation Value="TargetPoint" />
     <ImpactEffect value="ArcaneFlareSearchSet" />
@@ -2653,8 +2489,11 @@
     <Movers Link="FaerieDragonArcaneFlareLobMissile" />
     <LaunchEffect value="BrightwingArcaneFlareVisualWarningCreatePersistent" />
   </CEffectLaunchMissile>
+  <CEffectLaunchMissile id="BrightwingArcaneFlareLaunchMissileLaunchOffset" parent="ArcaneFlareLaunchMissile">
+    <LaunchOffset Y="0.5" />
+  </CEffectLaunchMissile>
   <CEffectSet id="ArcaneFlareLaunchSet">
-    <EffectArray value="ArcaneFlareLaunchMissile" />
+    <EffectArray value="ArcaneFlareLaunchMissileSwitch" />
     <EffectArray value="BrightwingSoothingMistMistifiedModifySet" />
     <TargetLocationType value="Point" />
   </CEffectSet>
@@ -2691,8 +2530,8 @@
     </AreaArray>
   </CEffectEnumArea>
   <CEffectSet id="FaerieDragonWeaponSet">
-    <EffectArray value="FaerieDragonWeaponLaunchMissile" />
     <EffectArray value="UniversalWeaponLaunchSet" />
+    <EffectArray value="FaerieDragonWeaponLaunchMissile" />
   </CEffectSet>
   <CEffectRemoveBehavior id="BrightwingPixieDustBlockRemoveArmorBehavior">
     <WhichUnit Value="Source" />
@@ -2760,23 +2599,11 @@
     <EffectArray value="BrightwingBlinkHealInvisibleFriendsApplyCloakSet" />
     <ValidatorArray value="TargetIsHero" />
   </CEffectSet>
-  <CEffectCreatePersistent id="EmeraldWindKnockbackCreatePersistent">
-    <ValidatorArray value="TargetIsEnemy" />
-    <ValidatorArray value="NotStructureTarget" />
-    <WhichLocation Value="TargetUnit" />
-    <PeriodCount value="3" />
-    <PeriodicValidator value="HasFaerieDragonEmeraldWindPush" />
-    <PeriodicEffectArray value="EmeraldWindKnockbackApplyForce" />
-    <PeriodicPeriodArray value="0.0625" />
-  </CEffectCreatePersistent>
-  <CEffectApplyBehavior id="EmeraldWindKnockbackApplyBehavior">
-    <Behavior value="EmeraldWindKnockback" />
-  </CEffectApplyBehavior>
   <CEffectApplyBehavior id="BrightwingBlinkHealInvisibleFriendsApplyCloakBehavior">
     <ValidatorArray index="0" value="TargetNotImmuneToFriendlyAbilitiesOrIsSpecialCase" />
     <Behavior value="BrightwingInvisibleFriendsCloak" />
   </CEffectApplyBehavior>
-  <CEffectApplyForce id="EmeraldWindKnockbackApplyForce">
+  <CEffectApplyForce id="BrightwingEmeraldWindKnockbackApplyForce">
     <WhichLocation Effect="EmeraldWindCreateGrowingPersistent" Value="OriginPoint" />
     <Amount value="10" />
   </CEffectApplyForce>
@@ -3040,22 +2867,6 @@
       <Modifications>
         <Catalog value="Effect" />
         <Entry value="EmeraldWindDamage" />
-        <Field value="Amount" />
-        <Value value="0.040000" />
-        <AffectedByAbilityPower value="1" />
-        <AffectedByOverdrive value="1" />
-      </Modifications>
-      <Modifications>
-        <Catalog value="Effect" />
-        <Entry value="EmeraldWindMasteryDamage1" />
-        <Field value="Amount" />
-        <Value value="0.040000" />
-        <AffectedByAbilityPower value="1" />
-        <AffectedByOverdrive value="1" />
-      </Modifications>
-      <Modifications>
-        <Catalog value="Effect" />
-        <Entry value="EmeraldWindMasteryDamage2" />
         <Field value="Amount" />
         <Value value="0.040000" />
         <AffectedByAbilityPower value="1" />
@@ -3463,49 +3274,28 @@
         <Catalog value="Behavior" />
         <Entry value="BrightwingPixieDustMoveSpeedBuff" />
         <Field value="Duration" />
-        <Value value="1.000000" />
+        <Value value="$BrightwingPixieDustSafetyDustBonusDuration" />
       </Modifications>
       <Modifications>
         <Type value="FlatModification" />
         <Catalog value="Behavior" />
         <Entry value="BrightwingPixieDustSpellArmorBehavior" />
         <Field value="Duration" />
-        <Value value="1.000000" />
+        <Value value="$BrightwingPixieDustSafetyDustBonusDuration" />
       </Modifications>
       <Modifications>
         <Type value="FlatModification" />
         <Catalog value="Behavior" />
         <Entry value="BrightwingPixieDustShieldDustCriticalArmorBehavior" />
         <Field value="Duration" />
-        <Value value="1.000000" />
+        <Value value="$BrightwingPixieDustSafetyDustBonusDuration" />
       </Modifications>
       <Modifications>
         <Type value="FlatModification" />
         <Catalog value="Behavior" />
         <Entry value="BrightwingPixieDustShieldDustNormalArmorBehavior" />
         <Field value="Duration" />
-        <Value value="1.000000" />
-      </Modifications>
-      <Modifications>
-        <Type value="FlatModification" />
-        <Catalog value="Behavior" />
-        <Entry value="BrightwingPixieDustPixieBoost" />
-        <Field value="Modification.UnifiedMoveSpeedFactor" />
-        <Value value="-0.009200" />
-      </Modifications>
-      <Modifications>
-        <Type value="FlatModification" />
-        <Catalog value="Behavior" />
-        <Entry value="BrightwingPixieDustPixieBoostController" />
-        <Field value="Duration" />
-        <Value value="1.000000" />
-      </Modifications>
-      <Modifications>
-        <Type value="FlatModification" />
-        <Catalog value="Behavior" />
-        <Entry value="BrightwingPixieDustPixieBoostController" />
-        <Field value="Period" />
-        <Value value="0.083300" />
+        <Value value="$BrightwingPixieDustSafetyDustBonusDuration" />
       </Modifications>
     </AbilityModificationArray>
   </CTalent>
@@ -3840,6 +3630,22 @@
   <CTalent id="BrightwingPixieBoostPixieDust">
     <Face value="BrightwingPixieBoostTalent" />
     <Abil value="FaerieDragonPixieDust" />
+    <AbilityModificationArray>
+      <Modifications>
+        <Type value="FlatModification" />
+        <Catalog value="Behavior" />
+        <Entry value="BrightwingPixieDustMoveSpeedBuff" />
+        <Field value="Modification.UnifiedMoveSpeedFactor" />
+        <Value value="$BrightwingPixieDustPixieBoostMaximumBonus" />
+      </Modifications>
+      <Modifications>
+        <Type value="FlatModification" />
+        <Catalog value="Accumulator" />
+        <Entry value="BrightwingPixieBoostAccumulator" />
+        <Field value="MultiplierPerStep" />
+        <Value value="$BrightwingPixieDustPixieBoostMultiplierPerStep" />
+      </Modifications>
+    </AbilityModificationArray>
   </CTalent>
   <CTalent id="BrightwingArcaneFlareStickyFlare">
     <Face value="BrightwingArcaneFlareStickyFlareTalent" />
@@ -3887,13 +3693,6 @@
   <CTalent id="FaerieDragonMasteryContinuousWinds">
     <Face value="BrightwingEmeraldWindContinuousWindsTalent" />
     <AbilityModificationArray>
-      <Modifications>
-        <Type value="FlatModification" />
-        <Catalog value="Effect" />
-        <Entry value="EmeraldWindMasteryCreateDelayPersistent" />
-        <Field value="Chance" />
-        <Value value="1.000000" />
-      </Modifications>
       <Modifications>
         <Type value="FlatModification" />
         <Catalog value="Effect" />
@@ -4199,10 +3998,6 @@
     <CombineArray value="SoothingMistCooldown" />
     <CombineArray value="CasterNotUsingVehicle" />
   </CValidatorCombine>
-  <CValidatorUnitCompareBehaviorCount id="NoHasFaerieDragonEmeraldWindPush">
-    <ResultFailed value="Error,Error\NotHooked" />
-    <Behavior value="EmeraldWindKnockback" />
-  </CValidatorUnitCompareBehaviorCount>
   <CValidatorUnitCompareTokenCount id="DoesNotHave80StacksPixieCharm">
     <WhichUnit Value="Caster" />
     <Compare value="NE" />
@@ -4218,11 +4013,9 @@
     <Find value="1" />
     <Value value="FaerieDragonHardenedFocus" />
   </CValidatorPlayerTalent>
-  <CValidatorUnitCompareBehaviorCount id="HasFaerieDragonEmeraldWindPush">
-    <ResultFailed value="Error,Error\NotHooked" />
-    <Value value="1" />
-    <Behavior value="EmeraldWindKnockback" />
-  </CValidatorUnitCompareBehaviorCount>
+  <CValidatorUnitHasBehavior id="BrightwingTargetHasEmeraldWindKnockback">
+    <Behavior value="BrightwingEmeraldWindKnockback" />
+  </CValidatorUnitHasBehavior>
   <CValidatorPlayerTalent id="BrightwingPhaseShiftHyperShiftHasTalent">
     <WhichPlayer Value="Caster" />
     <Find value="1" />
@@ -4409,6 +4202,10 @@
     <Find value="1" />
     <Value value="BrightwingSpeedyDragon" />
   </CValidatorPlayerTalent>
+  <CValidatorLocationCompareRange id="BrightwingArcaneFlareMinimumDistanceCast">
+    <Compare value="LT" />
+    <Range value="0.5" />
+  </CValidatorLocationCompareRange>
   <CWeaponLegacy id="HeroFaerieDragon" parent="StormHeroMediumWeapon">
     <Icon value="Assets\Textures\storm_temp_btn-upgrade-terran-infantryweaponslevel3.dds" />
     <DisplayEffect value="FaerieDragonWeaponDamage" />

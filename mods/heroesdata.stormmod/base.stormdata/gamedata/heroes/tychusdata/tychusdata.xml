@@ -693,7 +693,7 @@
     <Model value="TychusGrenadeCursorSplat" />
   </CActorSplat>
   <CActorForceSphere id="TychusFragGrenadeForce">
-    <On Terms="Effect.TychusGrenadeDamage.Stop" Send="Create" />
+    <On Terms="Effect.GrenadeTargetSearch.Start" Send="Create" />
     <Host Subject="SOpSplashDamagePositionVariance" />
     <Duration value="0.150000" />
     <Magnitude value="50.000000" />
@@ -1189,15 +1189,18 @@
     <Duration value="22" />
     <FinalEffect value="LaserDrillRemoveActiveBehavior" />
   </CBehaviorBuff>
-  <CBehaviorBuff id="GrenadePushTarget" parent="PushPullParent">
-    <Duration value="0.1875" />
+  <CBehaviorBuff id="TychusGrenadePushTarget" parent="PushPullParent">
+    <Duration value="0.125" />
+    <Period value="0.0625" />
     <Modification>
       <Height value="0.5" />
       <HeightTime index="Start" value="0.15" />
       <HeightTime index="Stop" value="0.15" />
-      <MoveSpeedMaximum value="12" />
-      <MoveSpeedMinimum value="12" />
+      <MoveSpeedMaximum value="8.6" />
+      <MoveSpeedMinimum value="8.6" />
     </Modification>
+    <InitialEffect value="TychusGrenadeApplyForce" />
+    <PeriodicEffect value="TychusGrenadeApplyForce" />
   </CBehaviorBuff>
   <CBehaviorBuff id="TychusPassiveBuffWeapon">
     <BehaviorFlags index="Permanent" value="1" />
@@ -1689,12 +1692,17 @@
   </CEffectRemoveBehavior>
   <CEffectSet id="MiniGunWeaponImpactSet">
     <EffectArray value="UniversalWeaponImpact" />
-    <EffectArray value="TychusMinigunInTheRhythmQuestIncrementToken" />
-    <EffectArray value="TychusMinigunDamageSwitch" />
+    <EffectArray value="TychusMinigunWeaponPreImpactSet" />
     <EffectArray value="MiniGunWeaponDamage" />
-    <EffectArray value="TychusSizzlinAttacksDamage" />
+    <EffectArray value="TychusMinigunWeaponPostImpactSet" />
     <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
+  <CEffectSet id="TychusMinigunWeaponPreImpactSet">
+    <EffectArray value="TychusMinigunInTheRhythmQuestIncrementToken" />
+    <EffectArray value="TychusMinigunDamageSwitch" />
+    <EffectArray value="TychusSizzlinAttacksDamage" />
+  </CEffectSet>
+  <CEffectSet id="TychusMinigunWeaponPostImpactSet" />
   <CEffectSet id="TychusOdinAnnihilateSearchImpactSet">
     <EffectArray value="TychusOdinAnnihilateDamage" />
     <EffectArray value="ApplyAbilityImpactReveal" />
@@ -1966,10 +1974,14 @@
   <CEffectSet id="OdinWeaponImpactSet">
     <EffectArray value="UniversalWeaponLaunchSet" />
     <EffectArray value="UniversalWeaponImpact" />
+    <EffectArray value="TychusOdinWeaponPreImpactSet" />
     <EffectArray value="TychusOdinWeaponDamage" />
+    <EffectArray value="TychusOdinWeaponPostImpactSet" />
     <EffectArray value="OdinWeaponSplashSearch" />
     <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
+  <CEffectSet id="TychusOdinWeaponPreImpactSet" />
+  <CEffectSet id="TychusOdinWeaponPostImpactSet" />
   <CEffectLaunchMissile id="MiniGunWeaponLaunchMissile">
     <ValidatorArray index="0" value="TargetNotDead" />
     <ImpactEffect value="MiniGunWeaponImpactSet" />
@@ -2135,6 +2147,7 @@
     <EffectArray value="CameraShakeLightTauntingTotemSet" />
   </CEffectSet>
   <CEffectLaunchMissile id="GrenadeLaunchMissile">
+    <LaunchOffset Y="0.5" />
     <ImpactLocation Value="TargetPoint" />
     <ImpactEffect value="GrenadeTargetSearchSet" />
     <AmmoUnit value="TychusGrenadeMissile" />
@@ -2156,22 +2169,20 @@
   <CEffectSet id="GrenadeTargetSearchSet">
     <EffectArray value="GrenadeTargetSearch" />
   </CEffectSet>
-  <CEffectApplyForce id="GrenadeApplyForce">
+  <CEffectSet id="TychusGrenadeKnockbackInitialSet">
+    <ValidatorArray value="TargetNotUnstoppable" />
+    <EffectArray value="HeroRemovePushPullDebuffs" />
+    <EffectArray value="HeroRemovePreventsMovement" />
+    <EffectArray value="TychusGrenadeApplyPushBehavior" />
+  </CEffectSet>
+  <CEffectApplyBehavior id="TychusGrenadeApplyPushBehavior">
+    <Behavior value="TychusGrenadePushTarget" />
+  </CEffectApplyBehavior>
+  <CEffectApplyForce id="TychusGrenadeApplyForce">
+    <WhichLocation Effect="GrenadeTargetSearchSet" Value="TargetPoint" />
+    <WhichUnit Effect="GrenadeExplosionSet" />
     <Amount value="8" />
   </CEffectApplyForce>
-  <CEffectApplyBehavior id="GrenadeApplyPushBehavior">
-    <Behavior value="GrenadePushTarget" />
-  </CEffectApplyBehavior>
-  <CEffectCreatePersistent id="GrenadeCreatePushPersistent">
-    <WhichLocation Value="TargetUnit" />
-    <InitialEffect value="TychusGrenadeKnockbackPersistentInitialSet" />
-    <PeriodCount value="3" />
-    <PeriodicEffectArray value="GrenadeApplyForce" />
-    <PeriodicPeriodArray value="0.0625" />
-    <ValidatorArray value="NotStructure" />
-    <ValidatorArray value="TargetNotUnstoppable" />
-    <PeriodicValidator value="HasFragGrenadePush" />
-  </CEffectCreatePersistent>
   <CEffectSet id="GrenadeInitialSet">
     <EffectArray value="GrenadeTargetIndicatorPersistent" />
     <EffectArray value="GrenadeLaunchDelayPersistent" />
@@ -2201,7 +2212,7 @@
     <EffectArray value="TychusGrenadeTitanGrenadeDamage" />
     <EffectArray value="TychusFragGrenadeTitanGrenadeModifyCooldown" />
     <EffectArray value="TychusMeltingPointImpactSet" />
-    <EffectArray value="GrenadeCreatePushPersistent" />
+    <EffectArray value="TychusGrenadeKnockbackInitialSet" />
     <EffectArray value="CameraShakeLightTauntingTotemSet" />
     <EffectArray value="ApplyAbilityImpactReveal" />
     <EffectArray value="StormSuicide" />

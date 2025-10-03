@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="us-ascii"?>
 <Catalog>
+  <const id="$MurkyRespawnEggTotalVitals" value="420" />
+  <const id="$MurkyRespawnEggHealthFraction" value="0.2" />
+  <const id="$MurkyRespawnEggLifeMax" value="*($MurkyRespawnEggTotalVitals $MurkyRespawnEggHealthFraction)" evaluateAsExpression="1" />
+  <const id="$MurkyRespawnEggShieldMax" value="*($MurkyRespawnEggTotalVitals -(1 $MurkyRespawnEggHealthFraction))" evaluateAsExpression="1" />
+  <const id="$MurkyRespawnEggShieldRegenDelay" value="5" />
+  <const id="$MurkyRespawnEggShieldTimeToRegenToFull" value="8" />
+  <const id="$MurkyRespawnEggShieldRegen" value="/($MurkyRespawnEggShieldMax $MurkyRespawnEggShieldTimeToRegenToFull)" evaluateAsExpression="1" />
   <CAbilEffectInstant id="MurkyCancelMarchoftheMurlocs">
     <Effect value="MurkyMarchoftheMurlocsNeverEndingMurlocsTalentCancelSet" />
     <Flags index="RequireTargetVision" value="0" />
@@ -604,6 +611,7 @@
     <Filter index="Ally" value="1" />
   </CActorModel>
   <CActorAction id="MurkyPufferfishAttack" parent="RangedMinionAttackParent" effectImpact="MurkyPufferfishLMImpact" effectLaunch="MurkyPufferfishLaunchMissile">
+    <On Terms="Effect.MurkyPufferfishLaunchMissileLaunchOffset.Start; At Caster" Send="Create" />
     <LaunchSiteOps Ops="SOpAttachHead SOpMoveBy1" />
     <LaunchAttachQuery Methods="AMFilterHead" />
     <ImpactSiteOps Ops="SOpAttachOrigin" />
@@ -667,6 +675,7 @@
     <Sound value="Murky_Pufferfish_Missile" />
   </CActorSound>
   <CActorAction id="MurkyPufferfishNoBounceAttack" parent="RangedMinionAttackParent" effectImpact="MurkyPufferfishLMImpact" effectLaunch="MurkyPufferfishLaunchMissileNoBounce">
+    <On Terms="Effect.MurkyPufferfishLaunchMissileNoBounceLaunchOffset.Start; At Caster" Send="Create" />
     <LaunchAttachQuery Methods="AMFilterHead" />
     <ImpactSiteOps Ops="SOpAttachOrigin" />
     <ImpactMap index="None" Model="" Sound="Murky_Pufferfish_Impact" />
@@ -1069,6 +1078,8 @@
     <Modification>
       <SightBonus value="18" />
       <VitalMaxAdditiveMultiplierArray index="Life" value="1" />
+      <VitalMaxAdditiveMultiplierArray index="Shields" value="1" />
+      <VitalRegenMultiplier index="Shields" value="1" />
     </Modification>
     <DisableValidatorArray value="MurkyHasFishEyeTalent" />
     <Period value="0.125" />
@@ -1505,6 +1516,7 @@
     <Flags index="Crit" value="1" />
     <Amount value="210" />
     <SourceButtonFace value="MurkySlime" />
+    <Visibility value="Hidden" />
   </CEffectDamage>
   <CEffectCreatePersistent id="MarchoftheMurlocsDummyPersistent">
     <WhichLocation Value="TargetUnit" />
@@ -1672,7 +1684,6 @@
     <EffectArray value="MurkyToxicBuildupRemoveStacks" />
   </CEffectSet>
   <CEffectSet id="MurkyToxicBuildupProcValidationSet">
-    <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
     <EffectArray value="MurkySlimeSearch" />
   </CEffectSet>
   <CEffectRemoveBehavior id="MurkyToxicBuildupRemoveStacks">
@@ -1680,6 +1691,7 @@
     <Count value="2" />
   </CEffectRemoveBehavior>
   <CEffectSwitch id="MurkyToxicBuildupSwitch">
+    <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
     <ValidatorArray value="MurkyHasToxicBuildupTalent" />
     <ValidatorArray value="TargetIsHero" />
     <CaseArray Validator="MurkyHas2StacksofToxicBuildup" Effect="MurkyToxicBuildupProcSet" />
@@ -1737,6 +1749,7 @@
   <CEffectDamage id="MurkySlimeEggHuntTalentDamage" parent="StormSpell">
     <Amount value="86" />
     <SourceButtonFace value="MurkySlime" />
+    <Visibility value="Hidden" />
   </CEffectDamage>
   <CEffectSwitch id="MurkySlimeEggHuntTalentDamageSwitch">
     <ValidatorArray value="TargetNotInvulnerable" />
@@ -2675,11 +2688,22 @@
     <EffectArray value="PufferfishWrathofCodTalentApplyDoT" />
     <EffectArray value="ApplyAbilityImpactReveal" />
   </CEffectSet>
+  <CEffectSwitch id="MurkyPufferfishLaunchMissileSwitch">
+    <CaseArray Validator="MurkyPufferfishLaunchMinimumDistanceCast" Effect="MurkyPufferfishLaunchMissileLaunchOffset" />
+    <CaseDefault value="MurkyPufferfishLaunchMissile" />
+  </CEffectSwitch>
   <CEffectLaunchMissile id="MurkyPufferfishLaunchMissile">
     <ImpactEffect value="MurkyPufferfishLMImpact" />
     <AmmoUnit value="MurkyPufferfishMissile" />
     <Movers Link="MurkyPufferfishMissile" />
   </CEffectLaunchMissile>
+  <CEffectLaunchMissile id="MurkyPufferfishLaunchMissileLaunchOffset" parent="MurkyPufferfishLaunchMissile">
+    <LaunchOffset Y="0.5" />
+  </CEffectLaunchMissile>
+  <CEffectSwitch id="MurkyPufferfishLaunchMissileNoBounceSwitch">
+    <CaseArray Validator="MurkyPufferfishLaunchMinimumDistanceCast" Effect="MurkyPufferfishLaunchMissileNoBounceLaunchOffset" />
+    <CaseDefault value="MurkyPufferfishLaunchMissileNoBounce" />
+  </CEffectSwitch>
   <CEffectLaunchMissile id="MurkyPufferfishLaunchMissileNoBounce">
     <ImpactEffect value="MurkyPufferfishLMImpact" />
     <AmmoUnit value="MurkyPufferfishNoBounceMissile" />
@@ -2687,11 +2711,11 @@
   </CEffectLaunchMissile>
   <CEffectSet id="MurkyPufferfishLaunchSet">
     <EffectArray value="MakePrecursor" />
-    <EffectArray value="MurkyPufferfishLaunchMissile" />
+    <EffectArray value="MurkyPufferfishLaunchMissileSwitch" />
   </CEffectSet>
   <CEffectSet id="MurkyPufferfishLaunchSetNoBounce">
     <EffectArray value="MakePrecursor" />
-    <EffectArray value="MurkyPufferfishLaunchMissileNoBounce" />
+    <EffectArray value="MurkyPufferfishLaunchMissileNoBounceSwitch" />
   </CEffectSet>
   <CEffectEnumArea id="MurkyPufferfishSearchAreaUnnamed">
     <SearchFilters value="-;Player,Ally,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
@@ -2721,6 +2745,7 @@
   <CEffectDamage id="MurkySlimeBonusDamage" parent="StormSpell">
     <Flags index="Crit" value="1" />
     <Amount value="210" />
+    <SourceButtonFace value="MurkySlime" />
     <FlatModifierArray index="0" Validator="MurkyHasGTE10SlimeTimeTalentTokens" Modifier="125" />
     <LeechValidator index="Life" value="SourceHasMurkyFishtankTalent" />
     <LeechFraction index="Life" value="0.25" />
@@ -2790,13 +2815,16 @@
   </CEffectDamage>
   <CEffectSet id="MurkyWeaponDamageSet">
     <EffectArray value="UniversalWeaponLaunchSet" />
-    <EffectArray value="MurkyWeaponSlimeVulnerabilitySet" />
-    <EffectArray value="MurkyWeaponDamage" />
     <EffectArray value="UniversalWeaponImpact" />
-    <EffectArray value="MurkyFishTankApplyBuff" />
+    <EffectArray value="MurkyWeaponPreImpactSet" />
+    <EffectArray value="MurkyWeaponDamage" />
+    <EffectArray value="MurkyWeaponPostImpactSet" />
     <EffectArray value="MurkyToxicBuildupSwitch" />
-    <EffectArray value="MurkyTimetoKrillApplyBehaviorsSet" />
     <EffectArray value="UniversalWeaponPostImpactSet" />
+  </CEffectSet>
+  <CEffectSet id="MurkyWeaponPreImpactSet" />
+  <CEffectSet id="MurkyWeaponPostImpactSet">
+    <EffectArray value="MurkyTimetoKrillApplyBehaviorsSet" />
   </CEffectSet>
   <CEffectLaunchMissile id="MurkyWeaponLaunchMissile">
     <ValidatorArray index="0" value="TargetNotDead" />
@@ -2903,7 +2931,14 @@
     <EffectArray value="MurkyOctoGrabModifyUnit" />
     <EffectArray value="OctoGrabRemoveActiveBehavior" />
     <EffectArray value="OctoGrabDestroyPersistent" />
+    <EffectArray value="MurkyOctoGrabMissileRedirect" />
   </CEffectSet>
+  <CEffectRedirectMissile id="MurkyOctoGrabMissileRedirect">
+    <WhichUnit Value="Caster" />
+    <ImpactLocation Value="CasterPoint" />
+    <ImpactFilters value="-;-" />
+    <Movers Link="OctoGrabMover" />
+  </CEffectRedirectMissile>
   <CEffectRemoveBehavior id="OctoGrabRemoveActiveBehavior">
     <WhichUnit Value="Caster" />
     <BehaviorLink value="OctoGrabActive" />
@@ -3048,6 +3083,27 @@
       </Modifications>
       <Modifications>
         <Catalog value="Unit" />
+        <Entry value="MurkyRespawnEgg" />
+        <Field value="ShieldsStart" />
+        <Value value="0.040000" />
+        <AffectedByOverdrive value="1" />
+      </Modifications>
+      <Modifications>
+        <Catalog value="Unit" />
+        <Entry value="MurkyRespawnEgg" />
+        <Field value="ShieldsMax" />
+        <Value value="0.040000" />
+        <AffectedByOverdrive value="1" />
+      </Modifications>
+      <Modifications>
+        <Catalog value="Unit" />
+        <Entry value="MurkyRespawnEgg" />
+        <Field value="ShieldRegenRate" />
+        <Value value="0.040000" />
+        <AffectedByOverdrive value="1" />
+      </Modifications>
+      <Modifications>
+        <Catalog value="Unit" />
         <Entry value="MurkyPufferfish" />
         <Field value="LifeMax" />
         <Value value="0.055000" />
@@ -3073,6 +3129,27 @@
         <Catalog value="Unit" />
         <Entry value="MurkyEggHuntEgg" />
         <Field value="LifeMax" />
+        <Value value="0.040000" />
+        <AffectedByOverdrive value="1" />
+      </Modifications>
+      <Modifications>
+        <Catalog value="Unit" />
+        <Entry value="MurkyEggHuntEgg" />
+        <Field value="ShieldsStart" />
+        <Value value="0.040000" />
+        <AffectedByOverdrive value="1" />
+      </Modifications>
+      <Modifications>
+        <Catalog value="Unit" />
+        <Entry value="MurkyEggHuntEgg" />
+        <Field value="ShieldsMax" />
+        <Value value="0.040000" />
+        <AffectedByOverdrive value="1" />
+      </Modifications>
+      <Modifications>
+        <Catalog value="Unit" />
+        <Entry value="MurkyEggHuntEgg" />
+        <Field value="ShieldRegenRate" />
         <Value value="0.040000" />
         <AffectedByOverdrive value="1" />
       </Modifications>
@@ -3791,8 +3868,12 @@
   <CUnit id="MurkyRespawnEgg" parent="StormSummonPassive">
     <FlagArray index="AIForceTactical" value="1" />
     <Attributes index="ImmuneToSkillshots" value="0" />
-    <LifeStart value="420" />
-    <LifeMax value="420" />
+    <LifeStart value="$MurkyRespawnEggLifeMax" />
+    <LifeMax value="$MurkyRespawnEggLifeMax" />
+    <ShieldsStart value="$MurkyRespawnEggShieldMax" />
+    <ShieldsMax value="$MurkyRespawnEggShieldMax" />
+    <ShieldRegenDelay value="$MurkyRespawnEggShieldRegenDelay" />
+    <ShieldRegenRate value="$MurkyRespawnEggShieldRegen" />
     <Sight value="6" />
     <VisionHeight value="10" />
     <Radius value="0.5" />
@@ -4172,6 +4253,10 @@
     <CombineArray value="IsStructureTarget" />
     <CombineArray value="MurkyPufferfishTargetIsHeroAndMurkyHasWrathOfCod" />
   </CValidatorCombine>
+  <CValidatorLocationCompareRange id="MurkyPufferfishLaunchMinimumDistanceCast">
+    <Compare value="LT" />
+    <Range value="0.5" />
+  </CValidatorLocationCompareRange>
   <CValidatorCombine id="MurkyPufferfishTargetBounceCheck">
     <Type value="And" />
     <CombineArray value="TargetNotAcrossChasm" />

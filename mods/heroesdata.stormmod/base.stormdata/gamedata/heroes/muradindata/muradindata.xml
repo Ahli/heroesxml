@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="us-ascii"?>
 <Catalog>
+  <const id="$MuradinUnitRadius" value="0.8125" />
+  <const id="$MuradinThunderClapSearchArea" value="3" />
+  <const id="$MuradinThunderclapSearchAreaPlusRadius" value="+($MuradinThunderClapSearchArea $MuradinUnitRadius)" evaluateAsExpression="1" />
   <const id="$MuradinThunderClapDamage" value="96" />
   <const id="$MuradinThunderClapThunderBurnModification" value="-0.25" />
   <const id="$MuradinThunderClapThunderburnDamage" value="*($MuradinThunderClapDamage +(1 $MuradinThunderClapThunderBurnModification))" evaluateAsExpression="1" />
@@ -77,7 +80,7 @@
     <CmdButtonArray index="Execute" DefaultButtonFace="MuradinDwarfToss" />
   </CAbilEffectTarget>
   <CAbilEffectTarget id="MuradinStormBolt">
-    <Effect value="StormBoltCreatePersistent" />
+    <Effect value="MuradinStormBoltInitialSet" />
     <Flags index="ClearLastMoveTarget" value="1" />
     <Flags index="RangeUseCasterRadius" value="0" />
     <Flags index="RequireTargetVision" value="0" />
@@ -299,10 +302,10 @@
       <BodySquibs Name="None" />
     </DeathCustoms>
     <On Terms="UnitDeathCustomize; ValidateUnit HasAvatar" Send="DeathCustomize RagdollUpgraded" />
-    <On Terms="Effect.MuradinHeroWeaponImpactSet.Start; AnimPlaying Attack 00; At Caster" Send="Create MuradinAttackAxeBase" />
-    <On Terms="Effect.MuradinHeroWeaponImpactSet.Start; AnimPlaying Attack 01; At Caster" Send="Create MuradinAttackHammerBase" />
-    <On Terms="Effect.MuradinHeroWeaponImpactSet.Start; AnimPlaying Attack 02; At Caster" Send="Create MuradinAttackHammerBase" />
-    <On Terms="Effect.MuradinHeroWeaponImpactSet.Start" Send="Create MeleeHeroAttackDeathForce" />
+    <On Terms="Effect.MuradinWeaponDamage.Start; AnimPlaying Attack 00; At Caster" Send="Create MuradinAttackAxeBase" />
+    <On Terms="Effect.MuradinWeaponDamage.Start; AnimPlaying Attack 01; At Caster" Send="Create MuradinAttackHammerBase" />
+    <On Terms="Effect.MuradinWeaponDamage.Start; AnimPlaying Attack 02; At Caster" Send="Create MuradinAttackHammerBase" />
+    <On Terms="Effect.MuradinWeaponDamage.Start" Send="Create MeleeHeroAttackDeathForce" />
     <On Terms="Abil.MuradinStormBolt.SourcePrecast; !HasStatus Precast" Send="AnimPlay Spell Spell,A" />
     <On Terms="Effect.StormBoltRefundMasteryModifyUnit.Start; At Caster" Send="Create Storm_Effect_GenericMana_Impact" />
     <On Terms="Abil.MuradinStormBolt.SourceCastStart" Send="AnimPlay Spell Spell,A 0 0.100000 -1.000000 1.000000 AsTimeScale" />
@@ -507,7 +510,7 @@
   <CActorModel id="MuradinThunderclapThunderburnModel" parent="StormModelAnimationStyleContinuous">
     <On Terms="Effect.MuradinThunderclapThunderburnTalentCreatePersistent.Start" Send="Create" />
     <On Terms="Effect.MuradinThunderclapThunderburnTalentCreatePersistent.Stop; FromEffectTreeDescendant" Send="Destroy" />
-    <Scale value="1.450000" />
+    <Scale value="1.460000" />
   </CActorModel>
   <CActorModel id="MuradinThunderclapThunderburnSecondExplosion" parent="StormModelAnimationStyleOneShot">
     <Inherits index="Visibility" value="1" />
@@ -526,7 +529,7 @@
   </CActorSound>
   <CActorRange id="MuradinThunderClapRange" parent="StormRangeAbilPlusSplat" abil="MuradinThunderclap" />
   <CActorSplat id="MuradinThunderClapRangeSplat" parent="StormRangeSplat">
-    <Scale value="3.500000" />
+    <Scale value="$MuradinThunderclapSearchAreaPlusRadius" />
   </CActorSplat>
   <CActorModel id="MuradinThunderclapCast" parent="StormModelAnimationStyleOneShot">
     <On Terms="Effect.ThunderclapSearchSet.Start; At Caster" Send="Create" />
@@ -637,8 +640,10 @@
     <On Terms="ActorCreation" Target="_Unit" Send="AnimClear Channel" />
   </CActorModel>
   <CActorModel id="MuradinHaymakerStunSecondary" parent="StormFlailStun">
-    <On Terms="Behavior.HaymakerSecondary.On" Send="Create" />
-    <On Terms="Behavior.HaymakerSecondary.Off" Send="AnimBracketStop BSD" />
+    <On Terms="Behavior.MuradinHaymakerLeftPush.On" Send="Create" />
+    <On Terms="Behavior.MuradinHaymakerLeftPush.Off" Send="AnimBracketStop BSD" />
+    <On Terms="Behavior.MuradinHaymakerRightPush.On" Send="Create" />
+    <On Terms="Behavior.MuradinHaymakerRightPush.Off" Send="AnimBracketStop BSD" />
   </CActorModel>
   <CActorSound id="MuradinHaymakerStunLandSound" parent="SoundOneShot">
     <On Terms="Behavior.HaymakerTargetBehaviorKnockback.Off" Send="Create" />
@@ -697,6 +702,9 @@
     <Duration value="3" />
     <Period value="0.0625" />
   </CBehaviorBuff>
+  <CBehaviorTokenCounter id="MuradinStormBoltPierceCounter" parent="StormGenericToken">
+    <Max value="1" />
+  </CBehaviorTokenCounter>
   <CBehaviorTokenCounter id="MuradinItsHammerTimeTokenCounter" parent="StormGenericToken">
     <Face value="MuradinStormBoltItsHammerTimeToken" />
     <InfoFlags index="Hidden" value="1" />
@@ -704,9 +712,10 @@
     <MinStackCountDisplayed value="0" />
     <IncreaseEvents EventId="QuestIncrease" />
     <DecreaseEvents EventId="QuestDecrease" />
-    <AtMaxEvents EventId="QuestComplete" />
+    <AtMaxEvents EventId="QuestComplete" Effect="MuradinStormBoltPiercingModifyCatalog" />
     <AtMaxEvents Effect="MuradinItsHammerTimeApplyQuestCompletionCarry" />
-    <AtMinEvents EventId="QuestReset" />
+    <AtMinEvents EventId="QuestReset" Effect="MuradinStormBoltPiercingResetCatalog" />
+    <InitEvents Effect="MuradinStormBoltPiercingResetCatalog" />
     <Max value="25" />
   </CBehaviorTokenCounter>
   <CBehaviorBuff id="MuradinBronzebeardRage">
@@ -921,24 +930,29 @@
     <Modification>
       <StateFlags index="OrdersPaused" value="1" />
       <BehaviorCategoriesDisable index="DebuffRoot" value="1" />
+      <BehaviorLinkDisableArray value="StormRootSuppressMoving" />
     </Modification>
     <InitialEffect value="HaymakerCancelMoveOrder" />
     <Duration value="8" />
   </CBehaviorBuff>
-  <CBehaviorBuff id="HaymakerSecondary" parent="PushPullParent">
-    <Duration value="0.375" />
+  <CBehaviorBuff id="MuradinHaymakerSecondaryPushParent" parent="PushPullParent">
+    <Duration value="0.25" />
+    <Period value="0.0625" />
     <Modification>
-      <MoveSpeedMaximum value="14" />
-      <MoveSpeedMinimum value="14" />
+      <MoveSpeedMaximum value="16.75" />
+      <MoveSpeedMinimum value="16.75" />
     </Modification>
+  </CBehaviorBuff>
+  <CBehaviorBuff id="MuradinHaymakerLeftPush" parent="MuradinHaymakerSecondaryPushParent">
+    <InitialEffect value="MuradinHaymakerApplyForceLeft" />
+    <PeriodicEffect value="MuradinHaymakerApplyForceLeft" />
+  </CBehaviorBuff>
+  <CBehaviorBuff id="MuradinHaymakerRightPush" parent="MuradinHaymakerSecondaryPushParent">
+    <InitialEffect value="MuradinHaymakerApplyForceRight" />
+    <PeriodicEffect value="MuradinHaymakerApplyForceRight" />
   </CBehaviorBuff>
   <CBehaviorBuff id="MuradinStormboltStun" parent="StormStun">
     <Duration value="1.25" />
-  </CBehaviorBuff>
-  <CBehaviorBuff id="StormBoltMissileScan">
-    <Period value="0.0625" />
-    <PeriodicEffect value="StormBoltMissileScanPersistent" />
-    <InitialEffect value="StormBoltInitialMissileScan" />
   </CBehaviorBuff>
   <CBehaviorBuff id="MuradinThunderclapSlow" parent="StormSlowParent">
     <Duration value="2.5" />
@@ -1236,7 +1250,7 @@
     <ValidatorArray value="HasMuradinThunderburn" />
     <SearchFilters value="Heroic;Player,Ally,Neutral,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
     <AreaArray MaxCount="1" Effect="MuradinThunderclapThunderburnTalentCreatePersistent">
-      <Radius value="3" />
+      <Radius value="$MuradinThunderClapSearchArea" />
     </AreaArray>
     <SearchFlags index="ExtendByUnitRadius" value="1" />
   </CEffectEnumArea>
@@ -1280,14 +1294,10 @@
     <ValidatorArray value="HasMuradinThunderclapCrowdControl" />
     <SearchFilters value="-;Player,Ally,Neutral,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
     <AreaArray MaxCount="9" Effect="MuradinThunderclapCrowdPleaserSet">
-      <Radius value="3" />
+      <Radius value="$MuradinThunderClapSearchArea" />
     </AreaArray>
     <SearchFlags index="ExtendByUnitRadius" value="1" />
   </CEffectEnumArea>
-  <CEffectApplyBehavior id="StormBoltPiercingBoltApplyFirstHit">
-    <WhichUnit Value="Source" />
-    <Behavior value="StormBoltPiercingBoltFirstHit" />
-  </CEffectApplyBehavior>
   <CEffectModifyUnit id="MuradinHaymakerModifyFacing">
     <LaunchUnit Value="Caster" />
     <FacingLocation Effect="HaymakerInitialSet" Value="CasterUnit" />
@@ -1383,50 +1393,56 @@
     <PeriodicEffectArray value="HaymakerKnockbackXOffsetRightSearch" />
     <PeriodicOffsetArray X="-1.1" Y="0.5" />
     <PeriodicOffsetArray X="1.1" Y="0.5" />
-    <PeriodicOffsetArray X="1.1" Y="-0.5" />
-    <PeriodicOffsetArray X="-1.1" Y="-0.5" />
+    <PeriodicOffsetArray X="-1.1" Y="0.5" />
+    <PeriodicOffsetArray X="1.1" Y="0.5" />
     <PeriodicPeriodArray value="0" />
   </CEffectCreatePersistent>
-  <CEffectApplyForce id="HaymakerKnockbackXOffsetLeftForce">
-    <WhichLocation Effect="HaymakerKnockbackXOffsetLeftKnockbackPersistent" Value="TargetPoint" />
-    <WhichUnit Effect="HaymakerKnockbackXOffsetLeftImpactPersistent" />
-    <Amount value="10" />
-    <ValidatorArray value="MuradinHaymakerLeftKnockbackTargetNotUnstoppable" />
-  </CEffectApplyForce>
-  <CEffectApplyForce id="HaymakerKnockbackXOffsetRightForce">
-    <WhichLocation Effect="HaymakerKnockbackXOffsetRightKnockbackPersistent" Value="TargetPoint" />
-    <WhichUnit Effect="HaymakerKnockbackXOffsetRightImpactPersistent" />
-    <Amount value="10" />
-    <ValidatorArray value="MuradinHaymakerRightKnockbackTargetNotUnstoppable" />
-  </CEffectApplyForce>
-  <CEffectCreatePersistent id="HaymakerKnockbackXOffsetRightImpactPersistent">
-    <WhichLocation Value="TargetUnit" />
-    <InitialEffect value="HaymakerKnockbackXOffsetRightKnockbackPersistent" />
-    <InitialOffset X="3" />
-    <OffsetVectorStartLocation Value="OriginPoint" />
-    <ValidatorArray value="NotStructureTarget" />
+  <CEffectSet id="MuradinHaymakerSecondaryKnockbackInitialSetLeft">
     <ValidatorArray value="TargetNotUnstoppable" />
-  </CEffectCreatePersistent>
-  <CEffectCreatePersistent id="HaymakerKnockbackXOffsetLeftKnockbackPersistent">
-    <PeriodCount value="6" />
-    <PeriodicEffectArray value="HaymakerKnockbackXOffsetLeftForce" />
-    <PeriodicPeriodArray value="0.0625" />
-    <PeriodicValidator value="HasHaymakerSecondaryKnockbackLeft" />
-  </CEffectCreatePersistent>
-  <CEffectCreatePersistent id="HaymakerKnockbackXOffsetLeftImpactPersistent">
-    <WhichLocation Value="TargetUnit" />
-    <InitialEffect value="HaymakerKnockbackXOffsetLeftKnockbackPersistent" />
-    <InitialOffset X="-3" />
-    <OffsetVectorStartLocation Value="OriginPoint" />
     <ValidatorArray value="NotStructureTarget" />
+    <EffectArray value="HeroRemovePushPullDebuffs" />
+    <EffectArray value="HeroRemovePreventsMovement" />
+    <EffectArray value="MuradinHaymakerSecondaryKnockbackCreationPersistentLeft" />
+  </CEffectSet>
+  <CEffectCreatePersistent id="MuradinHaymakerSecondaryKnockbackCreationPersistentLeft">
+    <OffsetVectorStartLocation Effect="HaymakerInitialSet" Value="OriginPoint" />
+    <OffsetVectorEndLocation Effect="HaymakerAttackSet" Value="TargetPoint" />
+    <WhichLocation Effect="MuradinHaymakerSecondaryKnockbackInitialSetLeft" Value="TargetUnit" />
+    <InitialOffset X="-5" />
+    <InitialEffect value="MuradinHaymakerLeftPushApply" />
+  </CEffectCreatePersistent>
+  <CEffectApplyBehavior id="MuradinHaymakerLeftPushApply">
+    <WhichUnit Effect="MuradinHaymakerSecondaryKnockbackInitialSetLeft" />
+    <Behavior value="MuradinHaymakerLeftPush" />
+  </CEffectApplyBehavior>
+  <CEffectApplyForce id="MuradinHaymakerApplyForceLeft">
+    <WhichUnit Effect="MuradinHaymakerSecondaryKnockbackInitialSetLeft" />
+    <WhichLocation Effect="MuradinHaymakerLeftPushApply" Value="TargetPoint" />
+    <Amount value="10" />
+  </CEffectApplyForce>
+  <CEffectSet id="MuradinHaymakerSecondaryKnockbackInitialSetRight">
     <ValidatorArray value="TargetNotUnstoppable" />
+    <ValidatorArray value="NotStructureTarget" />
+    <EffectArray value="HeroRemovePushPullDebuffs" />
+    <EffectArray value="HeroRemovePreventsMovement" />
+    <EffectArray value="MuradinHaymakerSecondaryKnockbackCreationPersistentRight" />
+  </CEffectSet>
+  <CEffectCreatePersistent id="MuradinHaymakerSecondaryKnockbackCreationPersistentRight">
+    <OffsetVectorStartLocation Effect="HaymakerInitialSet" Value="OriginPoint" />
+    <OffsetVectorEndLocation Effect="HaymakerAttackSet" Value="TargetPoint" />
+    <WhichLocation Effect="MuradinHaymakerSecondaryKnockbackInitialSetRight" Value="TargetUnit" />
+    <InitialOffset X="5" />
+    <InitialEffect value="MuradinHaymakerRightPushApply" />
   </CEffectCreatePersistent>
-  <CEffectCreatePersistent id="HaymakerKnockbackXOffsetRightKnockbackPersistent">
-    <PeriodCount value="6" />
-    <PeriodicEffectArray value="HaymakerKnockbackXOffsetRightForce" />
-    <PeriodicPeriodArray value="0.0625" />
-    <PeriodicValidator value="HasHaymakerSecondaryKnockbackRight" />
-  </CEffectCreatePersistent>
+  <CEffectApplyBehavior id="MuradinHaymakerRightPushApply">
+    <WhichUnit Effect="MuradinHaymakerSecondaryKnockbackInitialSetRight" />
+    <Behavior value="MuradinHaymakerRightPush" />
+  </CEffectApplyBehavior>
+  <CEffectApplyForce id="MuradinHaymakerApplyForceRight">
+    <WhichUnit Effect="MuradinHaymakerSecondaryKnockbackInitialSetRight" />
+    <WhichLocation Effect="MuradinHaymakerRightPushApply" Value="TargetPoint" />
+    <Amount value="10" />
+  </CEffectApplyForce>
   <CEffectEnumArea id="HaymakerKnockbackXOffsetLeftSearch">
     <LaunchLocation Value="OriginPoint" />
     <SearchFilters value="-;Player,Ally,ImmuneToAOE,Missile,Item,Dead,Hidden,Invulnerable" />
@@ -1446,17 +1462,14 @@
     <ExcludeArray Value="Source" />
   </CEffectEnumArea>
   <CEffectSet id="HaymakerKnockbackXOffsetLeftSearchImpactSet">
-    <ValidatorArray value="NoHaymakerSecondaryKnockback" />
+    <ValidatorArray value="MuradinHaymakerNoSecondaryPushCombine" />
     <EffectArray value="HaymakerSecondaryImpactDamage" />
-    <EffectArray value="HeroRemovePushPullDebuffs" />
-    <EffectArray value="HaymakerApplySecondaryBehavior" />
-    <EffectArray value="HaymakerKnockbackXOffsetLeftImpactPersistent" />
+    <EffectArray value="MuradinHaymakerSecondaryKnockbackInitialSetLeft" />
   </CEffectSet>
   <CEffectSet id="HaymakerKnockbackXOffsetRightSearchImpactSet">
-    <ValidatorArray value="NoHaymakerSecondaryKnockback" />
+    <ValidatorArray value="MuradinHaymakerNoSecondaryPushCombine" />
     <EffectArray value="HaymakerSecondaryImpactDamage" />
-    <EffectArray value="HaymakerApplySecondaryBehavior" />
-    <EffectArray value="HaymakerKnockbackXOffsetRightImpactPersistent" />
+    <EffectArray value="MuradinHaymakerSecondaryKnockbackInitialSetRight" />
   </CEffectSet>
   <CEffectCreateHealer id="StoneformCreateHealer" parent="StormSelfOnlyHealingSpellPercent">
     <ImpactUnit Value="Caster" />
@@ -1490,11 +1503,6 @@
     <ImpactUnit Value="Caster" />
     <RechargeVitalRate value="90" />
   </CEffectCreateHealer>
-  <CEffectSet id="StormBoltSearchCleanupSet">
-    <EffectArray value="StormBoltMissileScanDestroyPersistent" />
-    <EffectArray value="StormBoltRemoveScanBehavior" />
-    <TargetLocationType value="UnitOrPoint" />
-  </CEffectSet>
   <CEffectSwitch id="MuradinThunderclapSearchSwitchThunderstrike">
     <CaseArray Validator="MuradinThunderclapThunderstrikeCombine" Effect="MuradinThunderclapThunderStrikeSearch" />
     <CaseDefault value="ThunderclapSearch" />
@@ -1651,7 +1659,6 @@
   </CEffectDamage>
   <CEffectApplyBehavior id="SkullcrackerApplyBehavior">
     <Behavior value="SkullcrackerStack" />
-    <ValidatorArray index="0" value="CasterNotBlindedAndTargetNotEvading" />
   </CEffectApplyBehavior>
   <CEffectApplyBehavior id="SkullcrackerApplyStunBehavior">
     <Behavior value="SkullcrackerStun" />
@@ -1659,7 +1666,6 @@
   <CEffectSet id="SkullcrackerProcSet">
     <EffectArray value="SkullcrackerApplyStunBehavior" />
     <EffectArray value="SkullcrackerRemoveStackBehavior" />
-    <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
   </CEffectSet>
   <CEffectRemoveBehavior id="SkullcrackerRemoveStackBehavior">
     <BehaviorLink value="SkullcrackerStack" />
@@ -1672,7 +1678,7 @@
     <CaseArray Validator="Has3StackSkullcracker" Effect="SkullcrackerProcSet" />
     <CaseDefault value="SkullcrackerApplyBehavior" />
     <ValidatorArray value="HasSkullcracker" />
-    <ValidatorArray value="TargetNotEvading" />
+    <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
   </CEffectSwitch>
   <CEffectCreatePersistent id="HaymakerCreatePersistentImpactReveal">
     <WhichLocation Effect="HaymakerInitialSet" Value="TargetUnit" />
@@ -1680,16 +1686,6 @@
     <RevealRadius value="1" />
     <RevealFlags index="Unfog" value="1" />
   </CEffectCreatePersistent>
-  <CEffectDamage id="StormBoltSuicideRemove" parent="StormSuicideParent">
-    <ValidatorArray value="MuradinHasLT25ItsHammerTimeTokens" />
-  </CEffectDamage>
-  <CEffectDamage id="StormBoltPiercingBoltSuicide" parent="StormSuicideParent">
-    <ValidatorArray value="MuradinStormBoltSourceHasFirstHit" />
-  </CEffectDamage>
-  <CEffectRemoveBehavior id="StormBoltRemoveScanBehavior">
-    <WhichUnit Value="Source" />
-    <BehaviorLink value="StormBoltMissileScan" />
-  </CEffectRemoveBehavior>
   <CEffectCreatePersistent id="ThunderclapCreatePersistentReveal">
     <ExpireDelay value="1" />
     <RevealRadius value="4" />
@@ -1709,13 +1705,13 @@
   <CEffectEnumArea id="MuradinThunderclapThunderburnTalentSearch">
     <SearchFilters value="-;Player,Ally,Neutral,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
     <AreaArray Effect="MuradinThunderclapThunderburnBaseDamageSet">
-      <Radius value="3.7" />
+      <Radius value="$MuradinThunderclapSearchAreaPlusRadius" />
     </AreaArray>
   </CEffectEnumArea>
   <CEffectEnumArea id="MuradinThunderclapThunderburnThunderstrikeSearch">
     <SearchFilters value="-;Player,Ally,Neutral,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
     <AreaArray MaxCount="1" Effect="MuradinThunderclapThunderburnTalentThunderstrikeDamageSet">
-      <Radius value="3.7" />
+      <Radius value="$MuradinThunderclapSearchAreaPlusRadius" />
     </AreaArray>
   </CEffectEnumArea>
   <CEffectSet id="MuradinThunderclapThunderburnBaseDamageSet">
@@ -1772,15 +1768,21 @@
   </CEffectLaunchMissile>
   <CEffectSet id="MuradinHeroWeaponImpactSet">
     <EffectArray value="UniversalWeaponLaunchSet" />
-    <EffectArray value="MuradinGiveEmTheAxeExecutioner50DamageBonusSet" />
     <EffectArray value="UniversalWeaponImpact" />
+    <EffectArray value="MuradinWeaponPreImpactSet" />
     <EffectArray value="MuradinWeaponDamage" />
+    <EffectArray value="SkullcrackerSwitch" />
+    <EffectArray value="MuradinWeaponPostImpactSet" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
+  </CEffectSet>
+  <CEffectSet id="MuradinWeaponPreImpactSet">
+    <EffectArray value="MuradinGiveEmTheAxeExecutioner50DamageBonusSet" />
     <EffectArray value="MuradinAvatarUnstoppableForceTalentBasicAttackModifyCooldowns" />
     <EffectArray value="MuradinHeroWeaponItsHammerTimeStormBoltModifyCooldown" />
-    <EffectArray value="SkullcrackerSwitch" />
     <EffectArray value="MuradinStormBoltQuestCompleteCreateManaHealer" />
+  </CEffectSet>
+  <CEffectSet id="MuradinWeaponPostImpactSet">
     <EffectArray value="MuradinStormBoltPerfectStormModifyQuestToken" />
-    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectSet id="HeroMuradinSkullcrackerSet">
     <EffectArray value="UniversalWeaponImpact" />
@@ -1830,7 +1832,7 @@
   </CEffectApplyBehavior>
   <CEffectDamage id="MuradinWeaponDamage" parent="StormWeapon">
     <Amount value="88" />
-    <MultiplicativeModifierArray index="SkullcrackerCrit" Validator="Has3StackSkullcracker" Modifier="0.9" Crit="1" />
+    <MultiplicativeModifierArray index="SkullcrackerCrit" Validator="MuradinSkullcrackerDamageValidator" Modifier="0.9" Crit="1" />
   </CEffectDamage>
   <CEffectDamage id="HeroMuradinSkullcrackerDamage" parent="StormWeapon">
     <Amount value="42" />
@@ -1845,22 +1847,40 @@
     <Behavior value="MuradinStormboltStun" />
   </CEffectApplyBehavior>
   <CEffectSet id="StormBoltImpactSet">
-    <ValidatorArray value="noMarkers" />
-    <EffectArray value="StormBoltSearchCleanupSet" />
     <EffectArray value="StormBoltApplyBehavior" />
     <EffectArray value="MuradinItsHammerTimeKillBonusApplyBehavior" />
     <EffectArray value="StormBoltDamage" />
-    <EffectArray value="StormBoltImpactSecondSet" />
     <EffectArray value="CameraShakeMediumTauntingTotemSet" />
     <EffectArray value="ApplyAbilityImpactReveal" />
     <EffectArray value="StormBoltMasteriesSet" />
     <EffectArray value="MuradinHeroWeaponApplyBronzebeardRageTalentCCDamageBoost" />
+    <EffectArray value="MuradinStormBoltSuicide" />
+    <EffectArray value="MuradinStormBoltReducePierceCounter" />
+    <ValidatorArray value="SourceNotDead" />
+    <ValidatorArray value="noMarkers" />
   </CEffectSet>
-  <CEffectSet id="StormBoltImpactSecondSet">
-    <EffectArray value="StormBoltSuicideRemove" />
-    <EffectArray value="StormBoltPiercingBoltSuicide" />
-    <EffectArray value="StormBoltPiercingBoltApplyFirstHit" />
-  </CEffectSet>
+  <CEffectDamage id="MuradinStormBoltSuicide" parent="StormSuicideParent">
+    <ValidatorArray value="MuradinStormBoltHasNoPierceLeft" />
+  </CEffectDamage>
+  <CEffectModifyTokenCount id="MuradinStormBoltReducePierceCounter">
+    <TokenId value="MuradinStormBoltPierceCounter" />
+    <Value value="-1" />
+    <WhichUnit Value="Source" />
+  </CEffectModifyTokenCount>
+  <CEffectModifyCatalogNumeric id="MuradinStormBoltPiercingModifyCatalog">
+    <CatalogModifications Operation="Set" Reference="Behavior,MuradinStormBoltPierceCounter,Init">
+      <Value value="1" />
+    </CatalogModifications>
+    <CatalogModifications Operation="Set" Reference="Effect,StormBoltMissileScan,AreaArray[0].MaxCount">
+      <Value value="2" />
+    </CatalogModifications>
+  </CEffectModifyCatalogNumeric>
+  <CEffectModifyCatalogNumeric id="MuradinStormBoltPiercingResetCatalog">
+    <CatalogModifications Operation="Set" Reference="Behavior,MuradinStormBoltPierceCounter,Init" />
+    <CatalogModifications Operation="Set" Reference="Effect,StormBoltMissileScan,AreaArray[0].MaxCount">
+      <Value value="1" />
+    </CatalogModifications>
+  </CEffectModifyCatalogNumeric>
   <CEffectApplyBehavior id="ThunderclapApplyBehavior">
     <Behavior value="MuradinThunderclapSlow" />
     <ValidatorArray index="0" value="TargetNotUnstoppable" />
@@ -1879,14 +1899,14 @@
   <CEffectEnumArea id="ThunderclapSearch">
     <SearchFilters value="-;Player,Ally,Neutral,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
     <AreaArray Effect="MuradinThunderclapBaseDamageSet">
-      <Radius value="3" />
+      <Radius value="$MuradinThunderClapSearchArea" />
     </AreaArray>
     <SearchFlags index="ExtendByUnitRadius" value="1" />
   </CEffectEnumArea>
   <CEffectEnumArea id="MuradinThunderclapThunderStrikeSearch">
     <SearchFilters value="-;Player,Ally,Neutral,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
     <AreaArray MaxCount="1" Effect="ThunderclapThunderStrikeSet">
-      <Radius value="3" />
+      <Radius value="$MuradinThunderClapSearchArea" />
     </AreaArray>
     <SearchFlags index="ExtendByUnitRadius" value="1" />
   </CEffectEnumArea>
@@ -1905,43 +1925,6 @@
     <EffectArray value="ThunderclapDamage" />
     <EffectArray value="ThunderclapSet" />
   </CEffectSet>
-  <CEffectDestroyPersistent id="StormBoltMissileScanDestroyPersistent">
-    <WhichLocation Value="SourcePoint" />
-    <Effect value="StormBoltMissileScanPersistent" />
-    <Count value="1" />
-    <Radius value="0.25" />
-  </CEffectDestroyPersistent>
-  <CEffectApplyBehavior id="StormBoltApplyMissileScan">
-    <WhichUnit Value="Source" />
-    <Behavior value="StormBoltMissileScan" />
-  </CEffectApplyBehavior>
-  <CEffectEnumArea id="StormBoltInitialMissileScan">
-    <SearchFilters value="-;Player,Ally,Neutral,ImmuneToSkillshots,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
-    <TargetSorts>
-      <SortArray value="TSDistance" />
-    </TargetSorts>
-    <AreaArray Arc="90" MaxCount="1" Effect="StormBoltImpactSet">
-      <Radius value="0.625" />
-    </AreaArray>
-    <MaxCount value="1" />
-    <LaunchLocation Value="CasterUnit" />
-    <ImpactLocation Value="CasterUnit" />
-  </CEffectEnumArea>
-  <CEffectCreatePersistent id="StormBoltMissileScanPersistent">
-    <WhichLocation Value="CasterPoint" />
-    <PeriodCount value="4" />
-    <PeriodicEffectArray value="StormBoltMissileScan" />
-    <PeriodicOffsetArray Y="1.5" />
-    <PeriodicOffsetArray Y="3.5" />
-    <PeriodicOffsetArray Y="5.5" />
-    <PeriodicOffsetArray Y="7.5" />
-    <PeriodicPeriodArray value="0.0625" />
-    <PeriodicPeriodArray value="0.0625" />
-    <PeriodicPeriodArray value="0.0625" />
-    <PeriodicPeriodArray value="0.0625" />
-    <InitialDelay value="0.0625" />
-    <PeriodicValidator value="SourceNotDead" />
-  </CEffectCreatePersistent>
   <CEffectSet id="MuradinDwarfTossLaunchSet">
     <EffectArray value="MuradinDwarfTossLaunchMissile" />
     <EffectArray value="MuradinDwarfTossDwarfBlockTalentApplyBehavior" />
@@ -1962,32 +1945,52 @@
       <Radius value="2" />
     </AreaArray>
   </CEffectEnumArea>
-  <CEffectCreatePersistent id="StormBoltCreatePersistent">
-    <WhichLocation Value="CasterPoint" />
-    <PeriodCount value="1" />
-    <PeriodicEffectArray value="StormBoltLaunchMissile" />
-    <PeriodicOffsetArray Y="-8" />
-    <PeriodicPeriodArray value="0" />
-  </CEffectCreatePersistent>
+  <CEffectSet id="MuradinStormBoltInitialSet">
+    <EffectArray value="StormBoltLaunchMissile" />
+    <TargetLocationType value="Point" />
+  </CEffectSet>
   <CEffectLaunchMissile id="StormBoltLaunchMissile">
     <ImpactEffect value="StormBoltDummyImpact" />
     <AmmoUnit value="MuradinStormBoltMissile" />
-    <ImpactLocation Value="TargetPoint" />
-    <LaunchOffset Y="-1.25" />
-    <LaunchEffect value="StormBoltMissileScanPersistent" />
+    <LaunchOffset Y="-0.75" />
+    <LaunchEffect value="MuradinStormBoltLaunchMissileSet" />
+    <ImpactLocation>
+      <Value value="TargetPoint" />
+      <ProjectionMultiplier value="1" />
+      <ProjectionSourceValue value="OriginPoint" />
+      <ProjectionTargetValue value="TargetPoint" />
+      <UsesLineDash value="1" />
+      <LineDashType value="AllowedInUnpathable" />
+      <ProjectionDistanceScale value="8.5" />
+    </ImpactLocation>
+    <SharedFlags index="DynamicSearchArea" value="1" />
+    <SearchEffect value="StormBoltMissileScan" />
     <Marker>
       <MatchFlags index="Id" value="1" />
     </Marker>
   </CEffectLaunchMissile>
+  <CEffectSet id="MuradinStormBoltLaunchMissileSet">
+    <EffectArray value="MuradinStormBoltApplyPierceCounter" />
+  </CEffectSet>
+  <CEffectApplyBehavior id="MuradinStormBoltApplyPierceCounter">
+    <WhichUnit Value="Source" />
+    <Behavior value="MuradinStormBoltPierceCounter" />
+  </CEffectApplyBehavior>
   <CEffectSet id="StormBoltDummyImpact" />
   <CEffectEnumArea id="StormBoltMissileScan">
+    <LaunchLocation Value="OriginPoint" />
+    <SearchFlags index="DoActorSearch" value="1" />
     <AreaArray MaxCount="1" Effect="StormBoltImpactSet">
       <RectangleWidth value="1.25" />
-      <RectangleHeight value="2" />
+      <RectangleHeight value="1" />
     </AreaArray>
+    <TargetSorts>
+      <SortArray value="TSDistanceFromOriginPoint" />
+    </TargetSorts>
     <SearchFilters value="-;Player,Ally,Neutral,ImmuneToSkillshots,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
-    <MaxCount value="1" />
-    <LaunchLocation Value="OriginPoint" />
+    <RevealerParams Duration="0.75" ShapeExpansion="1">
+      <RevealFlags index="Unfog" value="1" />
+    </RevealerParams>
   </CEffectEnumArea>
   <CEffectModifyUnit id="MuradinHeroWeaponItsHammerTimeStormBoltModifyCooldown">
     <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
@@ -2738,7 +2741,7 @@
     <BehaviorArray Link="ExcellentMana" />
     <BehaviorArray Link="MuradinItsHammerTimeTokenCounter" />
     <WeaponArray Link="HeroMuradin" />
-    <Radius value="0.8125" />
+    <Radius value="$MuradinUnitRadius" />
     <InitializerFunction value="libGDHL_gf_HeroMuradinIncrementHeroCountFunction" />
     <DestructionFunction value="libGDHL_gf_HeroMuradinDecrementHeroCountFunction" />
     <AIThinkTree value="AI/Muradin.aitree" />
@@ -2775,8 +2778,16 @@
     <Value value="1" />
     <Behavior value="HaymakerTargetBehaviorMicroStun" />
   </CValidatorUnitCompareBehaviorCount>
-  <CValidatorUnitCompareBehaviorCount id="NoHaymakerSecondaryKnockback">
-    <Behavior value="HaymakerSecondary" />
+  <CValidatorCombine id="MuradinHaymakerNoSecondaryPushCombine">
+    <Type value="And" />
+    <CombineArray value="MuradinNoHaymakerSecondaryPushLeft" />
+    <CombineArray value="MuradinNoHaymakerSecondaryPushRight" />
+  </CValidatorCombine>
+  <CValidatorUnitCompareBehaviorCount id="MuradinNoHaymakerSecondaryPushRight">
+    <Behavior value="MuradinHaymakerRightPush" />
+  </CValidatorUnitCompareBehaviorCount>
+  <CValidatorUnitCompareBehaviorCount id="MuradinNoHaymakerSecondaryPushLeft">
+    <Behavior value="MuradinHaymakerLeftPush" />
   </CValidatorUnitCompareBehaviorCount>
   <CValidatorUnitCompareBehaviorCount id="MuradinHasBronzebeardRageCCDamageBoost">
     <WhichUnit Value="Caster" />
@@ -2809,6 +2820,9 @@
     <Find value="1" />
     <Value value="MuradinStormboltPiercingBolt" />
   </CValidatorPlayerTalent>
+  <CValidatorUnitCompareTokenCount id="MuradinStormBoltHasNoPierceLeft">
+    <TokenId value="MuradinStormBoltPierceCounter" />
+  </CValidatorUnitCompareTokenCount>
   <CValidatorMissilePlacement id="MuradinDwarfTossMissilePlacementIsValid">
     <LauncMissileEffect value="MuradinDwarfTossLaunchMissile" />
   </CValidatorMissilePlacement>
@@ -2816,24 +2830,6 @@
     <Compare value="GT" />
     <Behavior value="HaymakerTargetBehaviorStun" />
   </CValidatorUnitCompareBehaviorCount>
-  <CValidatorUnitCompareBehaviorCount id="HasHaymakerSecondaryKnockbackRight">
-    <WhichUnit Effect="HaymakerKnockbackXOffsetRightImpactPersistent" />
-    <Value value="1" />
-    <Behavior value="HaymakerSecondary" />
-  </CValidatorUnitCompareBehaviorCount>
-  <CValidatorUnitCompareBehaviorCount id="HasHaymakerSecondaryKnockbackLeft">
-    <WhichUnit Effect="HaymakerKnockbackXOffsetLeftImpactPersistent" />
-    <Value value="1" />
-    <Behavior value="HaymakerSecondary" />
-  </CValidatorUnitCompareBehaviorCount>
-  <CValidatorUnitFilters id="MuradinHaymakerLeftKnockbackTargetNotUnstoppable">
-    <WhichUnit Effect="HaymakerKnockbackXOffsetLeftImpactPersistent" />
-    <Filters value="-;Unstoppable" />
-  </CValidatorUnitFilters>
-  <CValidatorUnitFilters id="MuradinHaymakerRightKnockbackTargetNotUnstoppable">
-    <WhichUnit Effect="HaymakerKnockbackXOffsetRightImpactPersistent" />
-    <Filters value="-;Unstoppable" />
-  </CValidatorUnitFilters>
   <CValidatorPlayerTalent id="HasTalentGiveEmtheAxe">
     <WhichPlayer Value="Caster" />
     <Find value="1" />
@@ -2881,14 +2877,14 @@
   <CValidatorLocationEnumArea id="ThunderclapThunderstrikeEnemyCheck">
     <WhichLocation Value="CasterUnit" />
     <AreaArray Compare="LE" Count="1" Validator="NoDestructibleBehavior">
-      <Radius value="3" />
+      <Radius value="$MuradinThunderClapSearchArea" />
     </AreaArray>
     <SearchFlags index="ExtendByUnitRadius" value="1" />
     <SearchFilters value="-;Player,Ally,Neutral,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
   </CValidatorLocationEnumArea>
   <CValidatorLocationEnumArea id="ThunderclapThunderburnThunderstrikeEnemyCheck">
     <AreaArray Compare="LE" Count="1" Validator="NoDestructibleBehavior">
-      <Radius value="3.7" />
+      <Radius value="$MuradinThunderclapSearchAreaPlusRadius" />
     </AreaArray>
     <SearchFilters value="-;Player,Ally,Neutral,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
   </CValidatorLocationEnumArea>
@@ -3024,6 +3020,11 @@
     <Type value="And" />
     <CombineArray value="MuradinDoesNotHaveSecondWindActive" />
     <CombineArray value="MuradinDoesNotHaveImprovedSecondWindActive" />
+  </CValidatorCombine>
+  <CValidatorCombine id="MuradinSkullcrackerDamageValidator">
+    <Type value="And" />
+    <CombineArray value="HasSkullcracker" />
+    <CombineArray value="Has3StackSkullcracker" />
   </CValidatorCombine>
   <CValidatorUnitCompareBehaviorCount id="HasSkullcracker">
     <WhichUnit Value="Caster" />

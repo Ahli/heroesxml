@@ -426,7 +426,7 @@
     </GroupIcon>
     <WalkAnimMoveSpeed value="4" />
   </CActorUnit>
-  <CActorAction id="ChenEarthAttackActionActor" parent="MeleeHeroAttack" effectAttack="EarthThunderclapSearch">
+  <CActorAction id="ChenEarthAttackActionActor" parent="MeleeHeroAttack" effectAttack="EarthThunderclapDamage">
     <ImpactSiteOps Ops="SOpAttachOriginHoldPosition" />
     <ImpactMap index="None" Model="ChenEarthThunderclapImpact" Sound="ChenEarth_AttackImpact_Unit" />
     <ImpactMap index="Rock" Sound="ChenEarth_AttackImpact_Building" />
@@ -1011,9 +1011,9 @@
       <AbilLinkDisableArray value="ChenEarth" />
     </Modification>
   </CBehaviorBuff>
-  <CBehaviorBuff id="ChenFortifyingBrewComboStrikesAttackSpeedBuffPeriodicRunBehavior">
-    <RemoveValidatorArray value="ChenHasFortifyingBrewShieldAndHasComboStrikesTalent" />
-    <PeriodicEffect value="ChenFortifyingBrewComboStrikesAttackSpeedBuffApplyBehavior" />
+  <CBehaviorBuff id="ChenFortifyingBrewComboStrikesInitialApply">
+    <Duration value="0.0625" />
+    <ExpireEffect value="ChenFortifyingBrewComboStrikesAttackSpeedBuffApplyBehaviorPermanentInitial" />
   </CBehaviorBuff>
   <CBehaviorBuff id="ChenEnergizingBrewFortifyingBrewHealthBuff">
     <Alignment value="Positive" />
@@ -1086,13 +1086,15 @@
       <AllArmorBonus value="30" />
     </ArmorModification>
   </CBehaviorBuff>
-  <CBehaviorBuff id="ChenFortifyingBrewComboStrikesAttackSpeedBuff">
-    <BehaviorFlags index="Permanent" value="1" />
-    <BehaviorFlags index="EnabledWhileDead" value="1" />
+  <CBehaviorBuff id="ChenFortifyingBrewComboStrikesAttackSpeedBuff" paernt="CarryBehaviorParent">
+    <Face value="ChenComboStrikesBuff" />
+    <Alignment value="Positive" />
+    <InfoFlags index="Hidden" value="0" />
+    <SortIndex value="75" />
+    <BehaviorCategories index="BuffAutoattackDPS" value="1" />
     <Modification>
       <AdditiveAttackSpeedFactor value="0.35" />
     </Modification>
-    <Duration value="2.0625" />
   </CBehaviorBuff>
   <CBehaviorUnitTracker id="ChenFortifyingBrewComboStrikesUnitTracker">
     <MaxTrackedUnits value="1" />
@@ -1347,6 +1349,8 @@
   <CBehaviorBuff id="ChenFortifyingBrewShield" parent="StormShield">
     <MaxStackCount value="6" />
     <DamageResponse ModifyLimit="90" />
+    <EnableEffect value="ChenComboStrikesApplyAttackSpeedSwitch" />
+    <DisableEffect value="ChenComboStrikesApplyAttackSpeedSwitch" />
   </CBehaviorBuff>
   <CBehaviorBuff id="ChenFortifyingBrewEnoughToShareAlliedShield" parent="StormShield">
     <MaxStackCount value="6" />
@@ -1376,11 +1380,12 @@
     <Duration value="5" />
     <Period value="0.0625" />
     <InitialEffect value="ChenWanderingKegTargetSearch" />
-    <PeriodicEffect value="ChenWanderingKegTargetSearch" />
+    <PeriodicEffect value="ChenWanderingKegTargetSearchSet" />
     <FinalEffect value="ChenWanderingKegSetRemoveBehaviors" />
     <Modification>
       <StateFlags index="SuppressAttack" value="1" />
       <StateFlags index="SuppressCollision" value="1" />
+      <MoveSpeedMinimum value="$HeroBaseMovementSpeed" />
       <UnifiedMoveSpeedFactor value="0.7" />
       <AbilClassDisableArray index="CAbilAttack" value="1" />
       <AbilClassDisableArray index="CAbilEffectInstant" value="1" />
@@ -1416,11 +1421,14 @@
     <Duration value="1" />
   </CBehaviorBuff>
   <CBehaviorBuff id="ChenWanderingKegKnockback" parent="PushPullParent">
-    <Duration value="0.32" />
+    <Duration value="0.3125" />
+    <Period value="0.0625" />
     <Modification>
-      <MoveSpeedMaximum value="23" />
-      <MoveSpeedMinimum value="23" />
+      <MoveSpeedMaximum value="18.6" />
+      <MoveSpeedMinimum value="18.6" />
     </Modification>
+    <InitialEffect value="ChenWanderingKegApplyForce" />
+    <PeriodicEffect value="ChenWanderingKegApplyForce" />
   </CBehaviorBuff>
   <CBehaviorBuff id="ChenWanderingKegRecoilSlow">
     <Alignment value="Negative" />
@@ -1429,7 +1437,6 @@
     <BuffFlags index="RefreshStack" value="1" />
     <MaxStackCount value="6" />
     <Duration value="0.375" />
-    <InitialEffect value="ChenWanderingKegRecoilPersistent" />
     <Modification>
       <AdditiveMoveSpeedFactor value="-0.07" />
     </Modification>
@@ -1565,6 +1572,9 @@
   <CButton id="ChenFortifyingBrewComboStrikesTalent" parent="StormButtonParent">
     <Icon value="Assets\Textures\storm_ui_icon_chen_fortifyingbrew.dds" />
     <HotkeyAlias value="ChenFortifyingBrewBrewmastersBalanceTalent" />
+  </CButton>
+  <CButton id="ChenComboStrikesBuff" parent="StormButtonParent">
+    <Icon value="Assets\Textures\storm_ui_icon_chen_fortifyingbrew.dds" />
   </CButton>
   <CButton id="ChenGiftOfTheOxStagger" parent="StormButtonParent">
     <TooltipVitalName index="Energy" value="UI/Tooltip/Abil/Brew" />
@@ -1801,13 +1811,22 @@
     <BehaviorLink value="ChenStormEarthFireFireAbilityDisable" />
   </CEffectRemoveBehavior>
   <CEffectModifyUnit id="ChenStaggerDamageResponseDummy" />
+  <CEffectSwitch id="ChenComboStrikesApplyAttackSpeedSwitch">
+    <ValidatorArray value="ChenHasComboStrikesFortifyingBrewTalent" />
+    <CaseArray Validator="ChenHasFortifyingBrewShield" Effect="ChenFortifyingBrewComboStrikesAttackSpeedBuffApplyBehaviorPermanent" />
+    <CaseDefault value="ChenFortifyingBrewComboStrikesAttackSpeedBuffApplyBehavior" />
+  </CEffectSwitch>
   <CEffectApplyBehavior id="ChenFortifyingBrewComboStrikesAttackSpeedBuffApplyBehavior">
     <WhichUnit Value="Caster" />
+    <Flags index="UseDuration" value="1" />
+    <Duration value="2" />
     <Behavior value="ChenFortifyingBrewComboStrikesAttackSpeedBuff" />
   </CEffectApplyBehavior>
-  <CEffectApplyBehavior id="ChenFortifyingBrewComboStrikesAttackSpeedBuffPeriodicRunApplyBehavior">
-    <WhichUnit Value="Caster" />
-    <Behavior value="ChenFortifyingBrewComboStrikesAttackSpeedBuffPeriodicRunBehavior" />
+  <CEffectApplyBehavior id="ChenFortifyingBrewComboStrikesAttackSpeedBuffApplyBehaviorPermanent" parent="ChenFortifyingBrewComboStrikesAttackSpeedBuffApplyBehavior">
+    <Duration value="-1" />
+  </CEffectApplyBehavior>
+  <CEffectApplyBehavior id="ChenFortifyingBrewComboStrikesAttackSpeedBuffApplyBehaviorPermanentInitial" parent="ChenFortifyingBrewComboStrikesAttackSpeedBuffApplyBehaviorPermanent">
+    <ValidatorArray value="ChenHasFortifyingBrewShield" />
   </CEffectApplyBehavior>
   <CEffectApplyBehavior id="ChenFortifyingBrewEnergizingBrewBuffApplyBehavior">
     <ValidatorArray index="0" value="ChenHasEnergizingBrewFortifyingBrewTalent" />
@@ -2420,24 +2439,38 @@
     <EffectArray value="ChenFlyingKickAllyImpactSet" />
   </CEffectSet>
   <CEffectSet id="ChenEarthWeaponLaunchSet">
+    <EffectArray value="UniversalWeaponLaunchSet" />
+    <EffectArray value="UniversalWeaponImpact" />
+    <EffectArray value="ChenEarthWeaponPreImpactSet" />
+    <EffectArray value="EarthThunderclapDamage" />
+    <EffectArray value="ChenEarthWeaponPostImpactSet" />
     <EffectArray value="EarthThunderclapSearch" />
-    <EffectArray value="EarthThunderclapSpiderMinesImpactSet" />
-    <EffectArray value="UniversalWeaponLaunchSet" />
-  </CEffectSet>
-  <CEffectSet id="EarthThunderclapSpiderMinesImpactSet">
-    <ValidatorArray value="SgtHammerSpiderMinesTargetIsSpiderMine" />
-    <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
-    <EffectArray value="EarthThunderclapImpactSet" />
-  </CEffectSet>
-  <CEffectSet id="ChenFireWeaponLaunchSet">
-    <EffectArray value="ChenFireWeaponDamage" />
-    <EffectArray value="UniversalWeaponLaunchSet" />
     <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
-  <CEffectSet id="ChenStormWeaponLaunchSet">
-    <EffectArray value="ChainLightning1ImpactSet2" />
-    <EffectArray value="UniversalWeaponLaunchSet" />
+  <CEffectSet id="ChenEarthWeaponPreImpactSet" />
+  <CEffectSet id="ChenEarthWeaponPostImpactSet">
+    <EffectArray value="EarthThunderclapApplySlowBehavior" />
   </CEffectSet>
+  <CEffectSet id="ChenFireWeaponLaunchSet">
+    <EffectArray value="UniversalWeaponLaunchSet" />
+    <EffectArray value="UniversalWeaponImpact" />
+    <EffectArray value="ChenFireWeaponPreImpactSet" />
+    <EffectArray value="ChenFireWeaponDamage" />
+    <EffectArray value="ChenFireWeaponPreImpactSet" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
+  </CEffectSet>
+  <CEffectSet id="ChenFireWeaponPreImpactSet" />
+  <CEffectSet id="ChenFireWeaponPostImpactSet" />
+  <CEffectSet id="ChenStormWeaponLaunchSet">
+    <EffectArray value="UniversalWeaponLaunchSet" />
+    <EffectArray value="UniversalWeaponImpact" />
+    <EffectArray value="ChenStormWeaponPreImpactSet" />
+    <EffectArray value="ChainLightning1ImpactSet2" />
+    <EffectArray value="ChenStormWeaponPostImpactSet" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
+  </CEffectSet>
+  <CEffectSet id="ChenStormWeaponPreImpactSet" />
+  <CEffectSet id="ChenStormWeaponPostImpactSet" />
   <CEffectCreatePersistent id="ChenFlyingKickCloseTargetOffsetPersistent">
     <WhichLocation Value="TargetUnit" />
     <OffsetVectorStartLocation Value="CasterUnit" />
@@ -2489,7 +2522,6 @@
       <MatchFlags index="Link" value="1" />
     </Marker>
     <EffectArray value="StormLightningHop1Damage" />
-    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectApplyBehavior id="ChenBreathOfFireApplyDoT">
     <ValidatorArray index="0" value="TargetNotDead" />
@@ -2577,8 +2609,7 @@
     <EffectArray value="ChenBreathOfFireKegSmashAbilityChangeFinalSet" />
     <TargetLocationType value="Point" />
   </CEffectSet>
-  <CEffectDamage id="ChenFireWeaponDamage" parent="StormSpell">
-    <Kind value="Basic" />
+  <CEffectDamage id="ChenFireWeaponDamage" parent="StormWeapon">
     <Amount value="17" />
     <MultiplicativeModifierArray index="FireAttackSpeedBuff" Validator="ChenHasFireStormEarthFireAttackSpeedBuff" Modifier="0.5" Crit="1" />
     <MultiplicativeModifierArray index="FireEmpoweredAttackSpeedBuff" Validator="ChenHasFireStormEarthFireEmpoweredAttackSpeedBuff" Modifier="0.75" Crit="1" />
@@ -2762,42 +2793,30 @@
     <Behavior value="ChenWanderingKegDontDie" />
   </CEffectApplyBehavior>
   <CEffectApplyForce id="ChenWanderingKegApplyForce">
-    <WhichLocation Effect="ChenWanderingKegDestinationSet" Value="TargetPoint" />
+    <WhichLocation Effect="ChenWanderingKegApplyKnockback" Value="TargetPoint" />
     <WhichUnit Effect="ChenWanderingKegImpactSet" />
-    <Amount value="-2" />
+    <Amount value="2" />
   </CEffectApplyForce>
   <CEffectApplyBehavior id="ChenWanderingKegApplyImmuneBehavior">
     <ValidatorArray index="0" value="NoChenPandamoniumImmune" />
     <Behavior value="ChenWanderingKegImmune" />
   </CEffectApplyBehavior>
+  <CEffectSet id="ChenWanderingKegApplyKnockbackSet">
+    <ValidatorArray value="TargetNotUnstoppable" />
+    <EffectArray value="HeroRemovePushPullDebuffs" />
+    <EffectArray value="HeroRemovePreventsMovement" />
+    <EffectArray value="ChenWanderingKegKnockbackCreationPersistent" />
+  </CEffectSet>
+  <CEffectCreatePersistent id="ChenWanderingKegKnockbackCreationPersistent">
+    <WhichLocation Value="CasterUnit" />
+    <OffsetVectorEndLocation Value="CasterUnit" />
+    <InitialEffect value="ChenWanderingKegApplyKnockback" />
+    <InitialOffset Y="0.75" />
+  </CEffectCreatePersistent>
   <CEffectApplyBehavior id="ChenWanderingKegApplyKnockback">
+    <WhichUnit Effect="ChenWanderingKegImpactSet" />
     <Behavior value="ChenWanderingKegKnockback" />
   </CEffectApplyBehavior>
-  <CEffectSet id="ChenWanderingKegBehaviorsSet">
-    <EffectArray value="HeroRemovePushPullDebuffs" />
-    <EffectArray value="ChenWanderingKegApplyKnockback" />
-    <EffectArray value="ChenWanderingKegApplyImmuneBehavior" />
-  </CEffectSet>
-  <CEffectSet id="ChenWanderingKegImpactPositionSet">
-    <EffectArray value="ChenWanderingKegDestinationOffsetPersistent" />
-    <TargetLocationType value="Point" />
-  </CEffectSet>
-  <CEffectCreatePersistent id="ChenWanderingKegDestinationOffsetPersistent">
-    <InitialEffect value="ChenWanderingKegDestinationSet" />
-    <InitialOffset Y="-8" />
-  </CEffectCreatePersistent>
-  <CEffectSet id="ChenWanderingKegDestinationSet">
-    <EffectArray value="ChenWanderingKegPersistent" />
-    <TargetLocationType value="Point" />
-  </CEffectSet>
-  <CEffectCreatePersistent id="ChenWanderingKegPersistent">
-    <WhichLocation Effect="ChenWanderingKegImpactSet" Value="TargetUnit" />
-    <InitialEffect value="ChenWanderingKegBehaviorsSet" />
-    <PeriodCount value="4" />
-    <PeriodicValidator value="HasWanderingKegKnockback" />
-    <PeriodicEffectArray value="ChenWanderingKegApplyForce" />
-    <PeriodicPeriodArray value="0.0625" />
-  </CEffectCreatePersistent>
   <CEffectModifyUnit id="ChenHearthstoneBrewRestore">
     <ValidatorArray value="CustomResourceUserIsChen" />
     <ImpactUnit Value="Caster" />
@@ -2949,19 +2968,26 @@
   <CEffectSet id="ChenHeroWeaponSet">
     <EffectArray value="UniversalWeaponLaunchSet" />
     <EffectArray value="UniversalWeaponImpact" />
-    <EffectArray value="EmpoweredDummyCritEffectDamage" />
-    <EffectArray value="ChenBreathOfFireAccumulatingFlameIncreaseIgniteDuration" />
+    <EffectArray value="ChenWeaponPreImpactSet" />
     <EffectArray value="ChenHeroWeaponDamage" />
-    <EffectArray value="ChenElusiveBrawlerModifyPlayerCooldown" />
-    <EffectArray value="ChenCelerityStaggerArmorBuffApplyBehavior" />
-    <EffectArray value="ChenCelerityStaggerModifyCooldown" />
-    <EffectArray value="ChenFortifyingBrewComboStrikesSet" />
+    <EffectArray value="ChenWeaponPostImpactSet" />
     <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectSet id="ChenHeroWeaponSetComboStrikesSet" parent="ChenHeroWeaponSet">
     <ValidatorArray value="ChenFortifyingBrewTargetHas2StacksofComboStrikesEnemyCountBehavior" />
   </CEffectSet>
+  <CEffectSet id="ChenWeaponPreImpactSet">
+    <EffectArray value="EmpoweredDummyCritEffectDamage" />
+    <EffectArray value="ChenBreathOfFireAccumulatingFlameIncreaseIgniteDuration" />
+    <EffectArray value="ChenCelerityStaggerArmorBuffApplyBehavior" />
+    <EffectArray value="ChenCelerityStaggerModifyCooldown" />
+    <EffectArray value="ChenElusiveBrawlerModifyPlayerCooldown" />
+  </CEffectSet>
+  <CEffectSet id="ChenWeaponPostImpactSet">
+    <EffectArray value="ChenFortifyingBrewComboStrikesSet" />
+  </CEffectSet>
   <CEffectApplyBehavior id="EarthThunderclapApplySlowBehavior" parent="StormSlowApply">
+    <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
     <Behavior value="EarthThunderclapSlow" />
   </CEffectApplyBehavior>
   <CEffectDamage id="EarthThunderclapDamage" parent="StormWeapon">
@@ -2970,11 +2996,20 @@
     <MultiplicativeModifierArray index="FireEmpoweredAttackSpeedBuff" Validator="ChenHasFireStormEarthFireEmpoweredAttackSpeedBuff" Modifier="0.75" Crit="1" />
   </CEffectDamage>
   <CEffectSet id="EarthThunderclapImpactSet">
-    <EffectArray value="EarthThunderclapDamage" />
-    <EffectArray value="EarthThunderclapApplySlowBehavior" />
+    <EffectArray value="UniversalWeaponImpact" />
+    <EffectArray value="ChenEarthSplashPreImpactSet" />
+    <EffectArray value="EarthThunderclapSplashDamage" />
+    <EffectArray value="ChenEarthSplashPostImpactSet" />
     <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
+  <CEffectDamage id="EarthThunderclapSplashDamage" parent="EarthThunderclapDamage" />
+  <CEffectSet id="ChenEarthSplashPreImpactSet" />
+  <CEffectSet id="ChenEarthSplashPostImpactSet">
+    <EffectArray value="EarthThunderclapApplySlowBehavior" />
+  </CEffectSet>
   <CEffectEnumArea id="EarthThunderclapSearch">
+    <ValidatorArray value="TargetNotEvading" />
+    <ExcludeArray Value="Target" />
     <SearchFilters value="-;Self,Player,Ally,Neutral,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
     <AreaArray Effect="EarthThunderclapImpactSet">
       <Radius value="3.5" />
@@ -3044,8 +3079,9 @@
     <ValidatorArray value="TargetIsNotABossUnitOrMonsterMinorCombine" />
     <ValidatorArray value="CasterNotStasis" />
     <EffectArray value="ChenWanderingKegDamage" />
-    <EffectArray value="ChenWanderingKegImpactPositionSet" />
+    <EffectArray value="ChenWanderingKegApplyKnockbackSet" />
     <EffectArray value="ChenWanderingKegApplyRecoilSlowBehavior" />
+    <EffectArray value="ChenWanderingKegApplyImmuneBehavior" />
     <EffectArray value="DecloakCasterSet" />
   </CEffectSet>
   <CEffectSet id="ChenWanderingKegInitialSet">
@@ -3071,6 +3107,10 @@
     <EffectArray value="ChenWanderingKegApplyPostAbilityDousedBehavior" />
     <EffectArray value="ChenWanderingKegRemoveRecoilSlowBehavior" />
     <EffectArray value="ChenWanderingKegRemoveCursorController" />
+  </CEffectSet>
+  <CEffectSet id="ChenWanderingKegTargetSearchSet">
+    <EffectArray value="ChenWanderingKegRemoveRecoilStack" />
+    <EffectArray value="ChenWanderingKegTargetSearch" />
   </CEffectSet>
   <CEffectEnumArea id="ChenWanderingKegTargetSearch">
     <ImpactLocation Value="CasterUnit" />
@@ -3126,9 +3166,8 @@
     <ImpactLocation Value="TargetUnitOrPoint" />
     <Death value="Timeout" />
   </CEffectDamage>
-  <CEffectDamage id="StormLightningHop1Damage" parent="StormSpell">
+  <CEffectDamage id="StormLightningHop1Damage" parent="StormWeapon">
     <Amount value="59" />
-    <Kind value="Basic" />
     <MultiplicativeModifierArray index="FireAttackSpeedBuff" Validator="ChenHasFireStormEarthFireAttackSpeedBuff" Modifier="0.5" Crit="1" />
     <MultiplicativeModifierArray index="FireEmpoweredAttackSpeedBuff" Validator="ChenHasFireStormEarthFireEmpoweredAttackSpeedBuff" Modifier="0.75" Crit="1" />
   </CEffectDamage>
@@ -3172,7 +3211,6 @@
     <EffectArray value="ChenFortifyingBrewApplyController" />
     <EffectArray value="ChenFortifyingBrewApplyChannelingCoolup" />
     <EffectArray value="ChenPurifyingBrewApplyUnstoppableBuff" />
-    <EffectArray value="ChenFortifyingBrewComboStrikesAttackSpeedBuffPeriodicRunApplyBehavior" />
   </CEffectSet>
   <CEffectSet id="ChenFortifyingBrewFinalSet">
     <EffectArray value="ChenFortifyingBrewRemoveEnergyBehavior" />
@@ -3371,6 +3409,14 @@
       <Modifications>
         <Catalog value="Effect" />
         <Entry value="EarthThunderclapDamage" />
+        <Field value="Amount" />
+        <Value value="0.040000" />
+        <AffectedByAbilityPower value="1" />
+        <AffectedByOverdrive value="1" />
+      </Modifications>
+      <Modifications>
+        <Catalog value="Effect" />
+        <Entry value="EarthThunderclapSplashDamage" />
         <Field value="Amount" />
         <Value value="0.040000" />
         <AffectedByAbilityPower value="1" />
@@ -3915,6 +3961,7 @@
     <Abil value="ChenFortifyingBrew" />
     <RankArray>
       <BehaviorArray value="ChenFortifyingBrewComboStrikesUnitTracker" />
+      <BehaviorArray value="ChenFortifyingBrewComboStrikesInitialApply" />
     </RankArray>
   </CTalent>
   <CTalent id="ChenEyeOfTheTiger">
@@ -4234,6 +4281,13 @@
         <Field value="ArmorModification.AllArmorBonus" />
         <Value value="50.000000" />
       </Modifications>
+      <Modifications>
+        <Type value="FlatModification" />
+        <Catalog value="Behavior" />
+        <Entry value="ChenWanderingKegRecoilSlow" />
+        <Field value="Modification.AdditiveMoveSpeedFactor" />
+        <Value value="-0.023000" />
+      </Modifications>
     </AbilityModificationArray>
   </CTalent>
   <CUnit id="ChenKegSmashKegTossMissile" parent="MISSILE_INVULNERABLE">
@@ -4380,6 +4434,13 @@
     <Find value="1" />
     <Value value="ChenEnergizingBrew" />
   </CValidatorPlayerTalent>
+  <CValidatorCombine id="StormTargetHasRootCombineIncludeDisabled">
+    <CombineArray value="ChenTargetHasEarthEmpoweredLeapRootIncludeDisabled" />
+  </CValidatorCombine>
+  <CValidatorUnitHasBehavior id="ChenTargetHasEarthEmpoweredLeapRootIncludeDisabled">
+    <Behavior value="ChenEarthEmpoweredLeapRoot" />
+    <IncludeDisabled value="1" />
+  </CValidatorUnitHasBehavior>
   <CValidatorCombine id="ChenHasStormEarthFireCasterBehaviorAndElementalConduitAndEarthButtonNotUsed">
     <Type value="And" />
     <CombineArray value="ChenEarthStormEarthFireEmpoweredElementalConduitButtonNotUsed" />
@@ -5006,7 +5067,7 @@
     <Period value="1.5" />
     <DamagePoint value="0.125" />
     <Backswing value="0.15" />
-    <Effect value="EarthThunderclapSearch" />
+    <Effect value="ChenEarthWeaponLaunchSet" />
     <RandomDelayMin value="0" />
     <RandomDelayMax value="0" />
   </CWeaponLegacy>
@@ -5103,6 +5164,6 @@
     <Range value="6.5" />
     <Marker Link="StormLightning" />
     <Period value="0.8" />
-    <Effect value="ChainLightning1ImpactSet2" />
+    <Effect value="ChenStormWeaponLaunchSet" />
   </CWeaponLegacy>
 </Catalog>

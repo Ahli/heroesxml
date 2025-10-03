@@ -194,8 +194,9 @@
   <CAccumulatorVitals id="SamuroCasterHealthPositiveAccumulator" parent="BaseVitalAccumulator">
     <UnitSource Value="Caster" />
     <VitalType value="Life" />
-    <MaxAccumulation value="1" />
+    <MaxAccumulation value="452607" />
     <ApplicationRule value="Add" />
+    <ModificationType value="PerUnit" />
   </CAccumulatorVitals>
   <CAccumulatorVitals id="SamuroMirrorImageHealthPositiveAccumulator" parent="SamuroCasterHealthPositiveAccumulator">
     <UnitSource Value="Target" />
@@ -204,13 +205,13 @@
   <CAccumulatorVitals id="SamuroCasterHealthNegativeAccumulator" parent="SamuroCasterHealthPositiveAccumulator">
     <Ratio value="-1" />
     <Missing value="1" />
-    <MinAccumulation value="-1" />
+    <MinAccumulation value="-452607" />
     <MaxAccumulation value="0" />
   </CAccumulatorVitals>
   <CAccumulatorVitals id="SamuroMirrorImageHealthNegativeAccumulator" parent="SamuroMirrorImageHealthPositiveAccumulator">
     <Ratio value="-1" />
     <Missing value="0" />
-    <MinAccumulation value="-1" />
+    <MinAccumulation value="-452607" />
     <MaxAccumulation value="0" />
   </CAccumulatorVitals>
   <CAccumulatorVitals id="SamuroCasterHealthAccumulator" parent="BaseVitalAccumulator">
@@ -1826,12 +1827,14 @@
   <CEffectSet id="SamuroMirrorImageShakeBehaviorInitialSet">
     <EffectArray value="HeroGenericCleanseRemoveCCBehaviorCategoriesExpandedTarget" />
     <EffectArray value="SamuroMirrorImageSpecialCaseRemovalBehaviorSet" />
+    <EffectArray value="CasterLifeTransferSet" />
   </CEffectSet>
   <CEffectSet id="SamuroMirrorImageShakeBehaviorFinalSet">
     <EffectArray value="DismountTarget" />
     <EffectArray value="ApplyGenericDecloakTarget" />
     <EffectArray value="DecloakTemporaryCloakTarget" />
     <EffectArray value="HeroGenericUnrevealableImpactDummy" />
+    <EffectArray value="SamuroImageIllusionMasterHealthModifySwitch" />
   </CEffectSet>
   <CEffectSet id="SamuroMirrorImageSpecialCaseRemovalBehaviorSet">
     <EffectArray value="AlarakRiteofRakShirRemoveSet" />
@@ -2034,6 +2037,8 @@
     <Behavior value="SamuroWindwalkHarshWindsVulnerabilityBehavior" />
   </CEffectApplyBehavior>
   <CEffectSet id="SamuroWindwalkKawarimiSpawnEffectSet">
+    <EffectArray value="CasterLifeTransferSet" />
+    <EffectArray value="SamuroImageIllusionMasterHealthModifySwitch" />
     <EffectArray value="SamuroMirrorImageWayOfIllusionAddCountBehaviorStack" />
     <EffectArray value="SamuroMirrorImageIllusionMasterTrackingApplyBehavior" />
     <EffectArray value="SamuroMirrorImageAddTrackedUnit" />
@@ -2251,6 +2256,8 @@
     <Behavior value="SamuroMirrorImageAggroBehavior" />
   </CEffectApplyBehavior>
   <CEffectSet id="SamuroMirrorImageSpawnSet">
+    <EffectArray value="CasterLifeTransferSet" />
+    <EffectArray value="SamuroImageIllusionMasterHealthModifySwitch" />
     <EffectArray value="SamuroMirrorImageInitialFacingAdjustment" />
     <EffectArray value="SamuroMirrorImageTransferSet" />
     <EffectArray value="SamuroMirrorImageApplyImageCloak" />
@@ -2307,8 +2314,8 @@
     <CaseDefault value="SamuroWeaponBlindSet" />
   </CEffectSwitch>
   <CEffectSet id="SamuroWeaponBlindSet">
-    <EffectArray value="UniversalWeaponImpact" />
     <EffectArray value="UniversalWeaponLaunchSet" />
+    <EffectArray value="UniversalWeaponImpact" />
     <EffectArray value="SamuroWeaponDamageSwitch" />
     <EffectArray value="SamuroWeaponCriticalStrikeIncrementSet" />
     <EffectArray value="SamuroCriticalStrikeRemoveTimedBehavior" />
@@ -2316,16 +2323,24 @@
     <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectSet id="SamuroWeaponTargetHitSet">
-    <EffectArray value="SamuroUniversalWeaponSet" />
+    <EffectArray value="SamuroWindwalkHarshWindsApplyBehaviorTarget" />
+    <EffectArray value="UniversalWeaponLaunchSet" />
+    <EffectArray value="UniversalWeaponImpact" />
+    <EffectArray value="SamuroWeaponPreImpactSet" />
     <EffectArray value="SamuroWeaponDamageSet" />
     <EffectArray value="SamuroWeaponCriticalStrikeIncrementSet" />
     <EffectArray value="SamuroCriticalStrikeRemoveTimedBehavior" />
+    <EffectArray value="SamuroWeaponPostImpactSet" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
+  </CEffectSet>
+  <CEffectSet id="SamuroWeaponPreImpactSet">
+    <EffectArray value="SamuroUniversalWeaponSet" />
+  </CEffectSet>
+  <CEffectSet id="SamuroWeaponPostImpactSet">
     <EffectArray value="SamuroWeaponBlindAndEvadeCheckSet" />
     <EffectArray value="SamuroWindwalkRemoveSet" />
-    <EffectArray value="SamuroAdvancingStrikesApplyMoveSpeedBuff" />
     <EffectArray value="SamuroPressTheAttackIncrementTokenCounter" />
     <EffectArray value="SamuroCriticalStrikeCrushingBlowTalentProcSet" />
-    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectSet id="SamuroWeaponBlindAndEvadeCheckSet">
     <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
@@ -2391,6 +2406,7 @@
   </CEffectDamage>
   <CEffectDamage id="SamuroCriticalStrikeBurningBladeSplashDamage" parent="StormSpell">
     <Amount value="102" />
+    <MultiplicativeModifierArray index="HarshWinds" Validator="SamuroTargetHasHarshWindsVulnerabilityBehavior" Modifier="0.3" Crit="1" />
     <MultiplicativeModifierArray index="BurningBladeDebuff" Modifier="-0.5" />
     <FlatModifierArray index="SamuroMirrorImageWayOfIllusion" Accumulator="SamuroMirrorImageWayOfIllusionAttackDamageAccumulator" />
   </CEffectDamage>
@@ -2526,18 +2542,18 @@
   </CEffectSwitch>
   <CEffectModifyUnit id="SamuroIllusionMasterReduceMirrorImageLife">
     <VitalArray index="Life">
-      <ChangeFraction value="0">
+      <Change value="0">
         <AccumulatorArray value="SamuroMirrorImageHealthPositiveAccumulator" />
         <AccumulatorArray value="SamuroCasterHealthNegativeAccumulator" />
-      </ChangeFraction>
+      </Change>
     </VitalArray>
   </CEffectModifyUnit>
   <CEffectModifyUnit id="SamuroIllusionMasterIncreaseMirrorImageLife">
     <VitalArray index="Life">
-      <ChangeFraction value="0">
+      <Change value="0">
         <AccumulatorArray value="SamuroCasterHealthPositiveAccumulator" />
         <AccumulatorArray value="SamuroMirrorImageHealthNegativeAccumulator" />
-      </ChangeFraction>
+      </Change>
     </VitalArray>
   </CEffectModifyUnit>
   <CEffectApplyBehavior id="SamuroMirrorImageWayOfIllusionAddCountBehaviorStack">
@@ -2776,9 +2792,6 @@
     <ModifyFlags index="UpdateVisibility" value="1" />
   </CEffectModifyUnit>
   <CEffectSet id="SamuroUniversalWeaponSet">
-    <EffectArray value="SamuroWindwalkHarshWindsApplyBehaviorTarget" />
-    <EffectArray value="UniversalWeaponImpact" />
-    <EffectArray value="UniversalWeaponLaunchSet" />
     <EffectArray value="SamuroHeroWeaponMirrorImageModifyTimedLifeDurationEnumerate" />
     <EffectArray value="SamuroMirrorImageModifyTimedLifeDuration" />
     <EffectArray value="SamuroMercilessStrikesRemoveCasterMarker" />

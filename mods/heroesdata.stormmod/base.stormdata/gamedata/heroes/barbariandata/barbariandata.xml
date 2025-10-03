@@ -891,11 +891,10 @@
     <Alignment value="Positive" />
     <InfoFlags index="AlwaysUseGameText" value="1" />
     <InfoIcon value="Assets\Textures\storm_ui_icon_sonya_wrathoftheberserker.dds" />
-    <BehaviorCategories index="Restorable" value="1" />
     <BehaviorCategories index="BuffAutoattackDPS" value="1" />
     <DisplayDuration index="Ally" value="1" />
     <DisplayDuration index="Enemy" value="1" />
-    <DisplayPriority value="1001" />
+    <DisplayPriority value="1" />
     <Duration value="15" />
     <Modification>
       <DamageDealtFraction index="Basic" value="0.4" />
@@ -1165,6 +1164,7 @@
     <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
     <VitalFractionMax index="Life" value="0.015" />
     <LeechFraction index="Life" value="0.6" />
+    <SourceButtonFace value="BarbarianGiantSlammer" />
   </CEffectDamage>
   <CEffectModifyUnit id="BarbarianAncientSpearMysticalSpearTalentModifyCooldown">
     <ImpactUnit Value="Caster" />
@@ -1268,6 +1268,7 @@
     <ValidatorArray value="TargetIsHero" />
     <VitalFractionMax index="Life" value="0.015" />
     <LeechFraction index="Life" value="0.6" />
+    <SourceButtonFace value="BarbarianGiantSlammer" />
   </CEffectDamage>
   <CEffectModifyPlayer id="BarbarianSeismicSlamFuriousBlowTalentResetPlayer">
     <EffectArray Operation="Set" Reference="Abil,BarbarianSeismicSlam,Cost.Vital[Energy]" Value="25" />
@@ -2045,13 +2046,18 @@
   </CEffectDamage>
   <CEffectSet id="BarbarianHeroWeaponSet">
     <EffectArray value="UniversalWeaponLaunchSet" />
-    <EffectArray value="BarbarianHeroWeaponDamage" />
-    <EffectArray value="BarbarianHeroWeaponGiantSlammerTalentProcDamage" />
-    <EffectArray value="BarbarianFuryBasicAttackModifyUnit" />
-    <EffectArray value="BarbarianHeroWeaponRampageTalentModifyUnit" />
     <EffectArray value="UniversalWeaponImpact" />
+    <EffectArray value="BarbarianWeaponPreImpactSet" />
+    <EffectArray value="BarbarianHeroWeaponDamage" />
+    <EffectArray value="BarbarianWeaponPostImpactSet" />
+    <EffectArray value="BarbarianFuryBasicAttackModifyUnit" />
     <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
+  <CEffectSet id="BarbarianWeaponPreImpactSet">
+    <EffectArray value="BarbarianHeroWeaponRampageTalentModifyUnit" />
+    <EffectArray value="BarbarianHeroWeaponGiantSlammerTalentProcDamage" />
+  </CEffectSet>
+  <CEffectSet id="BarbarianWeaponPostImpactSet" />
   <CEffectApplyBehavior id="BarbarianIgnorePainApplyBuff">
     <WhichUnit Value="Caster" />
     <Behavior value="BarbarianIgnorePain" />
@@ -2348,6 +2354,7 @@
     <VoiceLineArray value="BarbarianBase_VoiceLine05" />
     <HeroSpecificUIArray Location="ConsoleUICommandCardStatus" DescName="Sonya/BarbarianCommandCardFrame" />
     <HeroSpecificUIArray Location="CommandButton05Status" DescName="Sonya/BarbarianFuryButtonOverride" />
+    <HeroSpecificUIArray Location="FullscreenStatus" DescName="Sonya/BarbarianWrathoftheBerserkerDuration" />
     <Rarity value="Epic" />
     <ReleaseDate Month="3" Day="13" />
     <ExpandedRole value="Bruiser" />

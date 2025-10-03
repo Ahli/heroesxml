@@ -362,6 +362,9 @@
     <HostSiteOps Ops="SOpTargetPoint" HoldPosition="1" />
     <Model value="Invisible" />
   </CActorModel>
+  <CActorUnit id="OrpheaShadowWaltzMovingWalkStartDummy" parent="StormUnitBase" unitName="OrpheaShadowWaltzMovingWalkStartDummy">
+    <Model value="Invisible" />
+  </CActorUnit>
   <CActorOverrides id="OrpheaModelAnimationOverrides">
     <ModelOverrides>
       <Model value="HeroOrphea" />
@@ -490,7 +493,7 @@
   <CActorSplat id="OrpheaCrushingJawsRangeSplat" parent="StormRangeSplat">
     <Scale value="9.750000" />
   </CActorSplat>
-  <CActorAction id="OrpheaWeaponAttack" parent="RangedHeroAttackMissile" effectImpact="OrpheaWeaponImpactSet" effectLaunch="OrpheaWeaponLaunchMissile">
+  <CActorAction id="OrpheaWeaponAttack" parent="RangedHeroAttackMissile" effectImpact="OrpheaWeaponDamage" effectLaunch="OrpheaWeaponLaunchMissile">
     <LaunchAssets Sound="" />
     <ImpactMap index="None" Model="OrpheaAttackImpact" Sound="Orphea_Attack_Impact" />
     <DamageSiteOps Ops="SOpAttachHarness SOpAttachVolumeStandard SOpOrpheaImpact" />
@@ -1365,15 +1368,31 @@
   <CBehaviorBuff id="OrpheaShadowWaltzRefundController">
     <CancelEffect value="OrpheaShadowWaltzRefundMana" />
   </CBehaviorBuff>
+  <CBehaviorBuff id="OrpheaShadowWaltzMovingWalkStartDummyTimedLife" parent="StormTimedLife">
+    <DisplayDuration index="Self" value="0" />
+    <DisplayDuration index="Ally" value="0" />
+    <DisplayDuration index="Enemy" value="0" />
+    <Duration value="0.125" />
+    <ExpireEffect value="StormSuicide" />
+    <Modification>
+      <StateFlags index="Summoned" value="0" />
+      <StateFlags index="SuppressCollision" value="1" />
+    </Modification>
+    <KillCredit Value="Unknown" />
+  </CBehaviorBuff>
+  <CBehaviorBuff id="OrpheaShadowWaltzStartWalkingDummyBehavior">
+    <StartWalkingEffect value="OrpheaShadowWaltzStartWalkingDummySet" />
+  </CBehaviorBuff>
   <CBehaviorBuff id="OrpheaChompKnockback" parent="PushPullParent">
-    <Duration value="0.25" />
+    <Duration value="0.1875" />
+    <Period value="0.0625" />
     <Modification>
       <ModifyFlags index="SuppressTurning" value="1" />
-      <MoveSpeedMaximum value="24" />
-      <MoveSpeedMinimum value="24" />
+      <MoveSpeedMaximum value="22" />
+      <MoveSpeedMinimum value="22" />
     </Modification>
-    <FinalEffect value="OrpheaChompFinalApply" />
-    <InitialEffect value="OrpheaChompKnockbackProbeApply" />
+    <InitialEffect value="OrpheaChompApplyForce" />
+    <PeriodicEffect value="OrpheaChompApplyForce" />
   </CBehaviorBuff>
   <CBehaviorPathingTypeProbes id="OrpheaChompKnockbackLocationPathable">
     <Offsets RelativeFacing="Unit">
@@ -1382,7 +1401,7 @@
     <HitMask index="Unpathable" value="1" />
     <HitMask index="Building" value="1" />
     <HitMask index="Cliff" value="1" />
-    <HitsChangedEffect value="OrpheaChompKnockbackRemove" />
+    <HitsChangedEffect value="OrpheaChompKnockbackRemoveSet" />
   </CBehaviorPathingTypeProbes>
   <CBehaviorBuff id="OrpheaShadowWaltzCooldown">
     <Alignment value="Positive" />
@@ -1407,11 +1426,12 @@
     <Duration value="0.25" />
     <Modification>
       <ModifyFlags index="SuppressTurning" value="1" />
-      <MoveSpeedMaximum value="18" />
-      <MoveSpeedMinimum value="18" />
+      <MoveSpeedMaximum value="13.5" />
+      <MoveSpeedMinimum value="13.5" />
     </Modification>
     <FinalEffect value="OrpheaCrushingJawsFinalApply" />
     <Period value="0.0625" />
+    <InitialEffect value="OrpheaCrushingJawsApplyForce" />
     <PeriodicEffect value="OrpheaCrushingJawsApplyForce" />
   </CBehaviorBuff>
   <CBehaviorBuff id="OrpheaCrushingJawsStun" parent="StormStun">
@@ -1448,6 +1468,7 @@
   </CBehaviorBuff>
   <CBehaviorTokenCounter id="OrpheaOverflowingChaosToken" parent="StormGenericToken">
     <Max value="3" />
+    <AtMinEvents Effect="OrpheaOverflowingChaosChaoticAssaultTalentResetToken" />
   </CBehaviorTokenCounter>
   <CBehaviorBuff id="OrpheaFinalToccata">
     <Alignment value="Positive" />
@@ -2076,7 +2097,6 @@
   <CEffectSet id="OrpheaChompInitialSet">
     <EffectArray value="LockFacingRemoveBehaviors" />
     <EffectArray value="LockFacingToPoint" />
-    <EffectArray value="OrpheaChompCreateKnockbackPoint" />
     <EffectArray value="OrpheaChompSearchArea" />
     <EffectArray value="OrpheaWeaponAddShortCooldown" />
     <TargetLocationType value="Point" />
@@ -2142,25 +2162,9 @@
     <EffectArray value="OrpheaOverflowingChaosChaoticAssaultTalentResetToken" />
     <ValidatorArray value="OrpheaHasMaxOverflowingChaos" />
   </CEffectSet>
-  <CEffectCreatePersistent id="OrpheaChompCreateKnockbackPoint">
-    <WhichLocation Value="CasterUnit" />
-    <InitialEffect value="OrpheaChompKnockbackPersistent" />
-    <OffsetVectorEndLocation Value="CasterUnit" />
-    <InitialOffset Y="9" />
-    <ValidatorArray value="OrpheaHasBackbiterTalent" />
-  </CEffectCreatePersistent>
-  <CEffectCreatePersistent id="OrpheaChompKnockbackPersistent">
-    <WhichLocation Value="CasterUnit" />
-    <InitialEffect value="OrpheaChompKnockbackPersistentInitialSet" />
-    <FinalEffect value="OrpheaChompKnockbackRemove" />
-    <PeriodCount value="5" />
-    <PeriodicEffectArray value="OrpheaChompApplyForce" />
-    <PeriodicPeriodArray value="0.0625" />
-    <PeriodicOffsetArray Y="9" />
-    <OffsetVectorEndLocation Value="CasterUnit" />
-  </CEffectCreatePersistent>
-  <CEffectSet id="OrpheaChompKnockbackPersistentInitialSet">
-    <EffectArray value="HeroRemovePushPullDebuffs" />
+  <CEffectSet id="OrpheaChompKnockbackRemoveSet">
+    <EffectArray value="OrpheaChompKnockbackRemove" />
+    <EffectArray value="OrpheaChompKnockbackLocationPathableRemove" />
   </CEffectSet>
   <CEffectRemoveBehavior id="OrpheaChompKnockbackRemove">
     <BehaviorLink value="OrpheaChompKnockback" />
@@ -2172,27 +2176,42 @@
     <BehaviorLink value="OrpheaChompKnockback" />
     <ValidatorArray value="OrpheaKnockbackLocationPathable" />
   </CEffectRemoveBehavior>
+  <CEffectSet id="OrpheaBackbiterApplySet">
+    <ValidatorArray value="TargetIsHero" />
+    <ValidatorArray value="OrpheaHasBackbiterTalent" />
+    <ValidatorArray value="OrpheaDoesNotHaveChompBackbiterForce" />
+    <EffectArray value="HeroRemovePushPullDebuffsCaster" />
+    <EffectArray value="HeroRemovePreventsMovementCaster" />
+    <EffectArray value="OrpheaChompKnockbackProbeApply" />
+    <EffectArray value="OrpheaChompKnockbackApply" />
+  </CEffectSet>
   <CEffectApplyBehavior id="OrpheaChompKnockbackApply">
     <Behavior value="OrpheaChompKnockback" />
     <WhichUnit Value="Caster" />
-    <ValidatorArray value="TargetIsHero" />
-    <ValidatorArray value="OrpheaHasBackbiterTalent" />
   </CEffectApplyBehavior>
   <CEffectApplyBehavior id="OrpheaChompKnockbackProbeApply">
     <Behavior value="OrpheaChompKnockbackLocationPathable" />
     <WhichUnit Value="Caster" />
-    <ValidatorArray value="TargetIsHero" />
-    <ValidatorArray value="OrpheaHasBackbiterTalent" />
   </CEffectApplyBehavior>
   <CEffectApplyBehavior id="OrpheaChompFinalApply">
     <Behavior value="OrpheaChompFinal" />
     <WhichUnit Value="Caster" />
   </CEffectApplyBehavior>
   <CEffectApplyForce id="OrpheaChompApplyForce">
+    <WhichLocation>
+      <Value value="OriginPoint" />
+      <Effect value="OrpheaChompInitialSet" />
+      <ProjectionMultiplier value="1" />
+      <ProjectionSourceEffect value="OrpheaChompInitialSet" />
+      <ProjectionSourceValue value="OriginPoint" />
+      <ProjectionTargetEffect value="OrpheaChompInitialSet" />
+      <ProjectionTargetValue value="TargetPoint" />
+      <UsesLineDash value="1" />
+      <LineDashType value="AllowedInUnpathable" />
+      <ProjectionDistanceScale value="8" />
+    </WhichLocation>
     <WhichUnit Value="Caster" />
     <Amount value="5" />
-    <ValidatorArray value="OrpheaHasChompKnockback" />
-    <WhichLocation Effect="OrpheaChompCreateKnockbackPoint" Value="TargetPoint" />
   </CEffectApplyForce>
   <CEffectDamage id="OrpheaChompDamage" parent="StormSpell">
     <Amount value="305" />
@@ -2204,7 +2223,7 @@
     <ImpactUnit Value="Caster" />
   </CEffectModifyUnit>
   <CEffectSet id="OrpheaChompSearchImpactSet">
-    <EffectArray value="OrpheaChompKnockbackApply" />
+    <EffectArray value="OrpheaBackbiterApplySet" />
     <EffectArray value="OrpheaRavenousHungerImpactSet" />
     <EffectArray value="OrpheaChompDamage" />
     <EffectArray value="OrpheaChompAbyssalSymbiosisTalentProcSet" />
@@ -2213,9 +2232,9 @@
     <EffectArray value="ApplyAbilityImpactReveal" />
   </CEffectSet>
   <CEffectSet id="OrpheaWeaponLaunchMissileSet">
+    <EffectArray value="UniversalWeaponLaunchSet" />
     <EffectArray value="OrpheaWeaponLaunchMissile" />
     <EffectArray value="LockFacingToUnit" />
-    <EffectArray value="UniversalWeaponLaunchSet" />
   </CEffectSet>
   <CEffectLaunchMissile id="OrpheaWeaponLaunchMissile">
     <ValidatorArray index="0" value="TargetNotDead" />
@@ -2225,9 +2244,14 @@
     <AmmoUnit value="OrpheaWeaponMissile" />
   </CEffectLaunchMissile>
   <CEffectSet id="OrpheaWeaponImpactSet">
+    <EffectArray value="UniversalWeaponImpact" />
+    <EffectArray value="OrpheaWeaponPreImpactSet" />
     <EffectArray value="OrpheaWeaponDamage" />
+    <EffectArray value="OrpheaWeaponPostImpactSet" />
     <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
+  <CEffectSet id="OrpheaWeaponPreImpactSet" />
+  <CEffectSet id="OrpheaWeaponPostImpactSet" />
   <CEffectApplyBehavior id="OrpheaOverflowingChaosArmorApply">
     <Behavior value="OrpheaOverflowingChaosArmor" />
     <WhichUnit Value="Caster" />
@@ -2538,16 +2562,24 @@
     <EffectArray value="OrpheaWeaponOverflowingChaosDamageSwitch" />
   </CEffectSet>
   <CEffectSet id="OrpheaWeaponOverflowingChaosLaunchSet">
+    <EffectArray value="UniversalWeaponLaunchSet" />
+    <EffectArray value="UniversalWeaponImpact" />
     <EffectArray value="LockFacingToUnit" />
-    <EffectArray value="OrpheaOverflowingChaosAncestralStrengthTalentSlowApply" />
+    <EffectArray value="OrpheaWeaponOverflowingChaosPreImpactSet" />
     <EffectArray value="OrpheaWeaponOverflowingChaosDamageSwitch" />
+    <EffectArray value="OrpheaWeaponOverflowingChaosPostImpactSet" />
     <EffectArray value="OrpheaDeadMagicSearchArea" />
     <EffectArray value="OrpheaEldritchConduitSwitch" />
     <EffectArray value="OrpheaOverflowingChaosResetToken" />
     <EffectArray value="OrpheaOverflowingChaosChaoticAssaultTalentResetToken" />
-    <EffectArray value="UniversalWeaponLaunchSet" />
     <EffectArray value="UniversalWeaponPostImpactSet" />
     <ValidatorArray value="OrpheaOverflowingChaosAttackCombine" />
+  </CEffectSet>
+  <CEffectSet id="OrpheaWeaponOverflowingChaosPreImpactSet">
+    <EffectArray value="OrpheaDeadMagicDamage" />
+  </CEffectSet>
+  <CEffectSet id="OrpheaWeaponOverflowingChaosPostImpactSet">
+    <EffectArray value="OrpheaOverflowingChaosAncestralStrengthTalentSlowApply" />
   </CEffectSet>
   <CEffectSet id="OrpheaCrushingJawsInitialSet">
     <EffectArray value="LockFacingRemoveBehaviors" />
@@ -2599,7 +2631,7 @@
     <LaunchLocation Effect="OrpheaCrushingJawsInitialPersistent" Value="TargetPoint" />
     <ImpactLocation Value="TargetPoint" />
     <SearchFilters value="-;Player,Ally,Neutral,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
-    <AreaArray Effect="OrpheaCrushingJawsKnockbackApply">
+    <AreaArray Effect="OrpheaCrushingJawsKnockbackApplySet">
       <RectangleWidth value="4" />
       <RectangleHeight value="2" />
     </AreaArray>
@@ -2608,6 +2640,12 @@
     </RevealerParams>
     <SearchFlags index="DoActorSearch" value="1" />
   </CEffectEnumArea>
+  <CEffectSet id="OrpheaCrushingJawsKnockbackApplySet">
+    <ValidatorArray value="TargetNotUnstoppable" />
+    <EffectArray value="HeroRemovePushPullDebuffs" />
+    <EffectArray value="HeroRemovePreventsMovement" />
+    <EffectArray value="OrpheaCrushingJawsKnockbackApply" />
+  </CEffectSet>
   <CEffectApplyBehavior id="OrpheaCrushingJawsKnockbackApply">
     <Behavior value="OrpheaCrushingJawsKnockback" />
   </CEffectApplyBehavior>
@@ -2964,6 +3002,7 @@
     <Radius value="5" />
   </CEffectDestroyPersistent>
   <CEffectEnumArea id="OrpheaDeadMagicSearchArea">
+    <ExcludeArray Value="Target" />
     <ImpactLocation Value="TargetPoint" />
     <AreaArray Effect="OrpheaDeadMagicDamage">
       <Radius value="2.5" />
@@ -2977,6 +3016,7 @@
     <SearchFlags index="DoActorSearch" value="1" />
   </CEffectEnumArea>
   <CEffectDamage id="OrpheaDeadMagicDamage" parent="StormSpell">
+    <ValidatorArray value="OrpheaHasDeadMagicTalent" />
     <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
     <Amount value="90" />
   </CEffectDamage>
@@ -3115,6 +3155,43 @@
     <Flags index="UseDuration" value="1" />
     <Duration value="1.5625" />
   </CEffectApplyBehavior>
+  <CEffectSet id="OrpheaShadowWaltzDashCancelSet">
+    <EffectArray value="OrpheaShadowWaltzDashCancelCreateUnit" />
+  </CEffectSet>
+  <CEffectCreateUnit id="OrpheaShadowWaltzDashCancelCreateUnit">
+    <WhichLocation Value="CasterPoint" />
+    <SpawnUnit value="OrpheaShadowWaltzMovingWalkStartDummy" />
+    <SpawnRange value="3" />
+    <SpawnEffect value="OrpheaShadowWaltzMovingWalkStartDummyCreateUnitSet" />
+  </CEffectCreateUnit>
+  <CEffectSet id="OrpheaShadowWaltzMovingWalkStartDummyCreateUnitSet">
+    <EffectArray value="OrpheaShadowWaltzDummyApplyStartWalking" />
+    <EffectArray value="OrpheaShadowWaltzDashCopyOrderToDummy" />
+  </CEffectSet>
+  <CEffectApplyBehavior id="OrpheaShadowWaltzDummyApplyStartWalking">
+    <Behavior value="OrpheaShadowWaltzStartWalkingDummyBehavior" />
+  </CEffectApplyBehavior>
+  <CEffectModifyUnit id="OrpheaShadowWaltzDashCopyOrderToDummy">
+    <LaunchUnit Value="Caster" />
+    <ImpactUnit Value="Target" />
+    <CopyOrderCount value="4294967295" />
+  </CEffectModifyUnit>
+  <CEffectRemoveBehavior id="OrpheaStartWalkingRemove">
+    <WhichUnit Effect="OrpheaShadowWaltzMovingWalkStartDummyCreateUnitSet" Value="Target" />
+    <Count value="1" />
+    <BehaviorLink value="OrpheaShadowWaltzStartWalkingDummyBehavior" />
+  </CEffectRemoveBehavior>
+  <CEffectCancelOrder id="OrpheaShadowWaltzDummyUnitCancelOrders">
+    <WhichUnit Effect="OrpheaShadowWaltzMovingWalkStartDummyCreateUnitSet" Value="Target" />
+    <Count value="40" />
+    <Flags index="Queued" value="1" />
+    <Flags index="Uninterruptible" value="1" />
+  </CEffectCancelOrder>
+  <CEffectSet id="OrpheaShadowWaltzStartWalkingDummySet">
+    <EffectArray value="OrpheaStartWalkingRemove" />
+    <EffectArray value="OrpheaShadowWaltzDummyUnitCancelOrders" />
+    <EffectArray value="OrpheaShadowWaltzDashStartWalkingSet" />
+  </CEffectSet>
   <CEffectSet id="OrpheaShadowWaltzDashStartWalkingSet">
     <EffectArray value="OrpheaShadowWaltzDashCancelMoveOrder" />
     <EffectArray value="OrpheaShadowWaltzDashAllowedRemoveBehavior" />
@@ -3132,6 +3209,7 @@
     <WhichUnit Value="Caster" />
   </CEffectApplyBehavior>
   <CEffectLaunchMissileAdvanced id="OrpheaShadowWaltzDashLaunch">
+    <LaunchLocation Value="CasterUnit" />
     <ImpactLocation>
       <Value value="TargetPoint" />
       <UsesLineDash value="1" />
@@ -3799,6 +3877,25 @@
     <HeroPlaystyleFlags index="SoloLaner" value="1" />
     <HeroPlaystyleFlags index="WaveClearer" value="1" />
   </CUnit>
+  <CUnit id="OrpheaShadowWaltzMovingWalkStartDummy" parent="StormSummonFigment">
+    <FlagArray index="Unselectable" value="1" />
+    <FlagArray index="Untargetable" value="1" />
+    <FlagArray index="NoDraw" value="1" />
+    <FlagArray index="Undetectable" value="1" />
+    <FlagArray index="Invulnerable" value="1" />
+    <FlagArray index="PlayerRevivable" value="0" />
+    <Attributes index="ImmuneToAOE" value="1" />
+    <Attributes index="ImmuneToSkillshots" value="1" />
+    <Attributes index="ImmuneToFriendlyAbilities" value="1" />
+    <Collide index="Structure" value="0" />
+    <Mover value="Fly" />
+    <AbilArray Link="move" />
+    <Speed value="4" />
+    <Acceleration value="1000" />
+    <BehaviorArray Link="OrpheaShadowWaltzMovingWalkStartDummyTimedLife" />
+    <StationaryTurningRate value="1499.9414" />
+    <TurningRate value="1759.9218" />
+  </CUnit>
   <CUnit id="OrpheaWeaponMissile" parent="MISSILE_INVULNERABLE">
     <Mover value="OrpheaWeaponMissileMover" />
   </CUnit>
@@ -3942,6 +4039,10 @@
     <Behavior value="OrpheaChompKnockback" />
     <WhichUnit Value="Caster" />
   </CValidatorUnitCompareBehaviorCount>
+  <CValidatorUnitCompareBehaviorCount id="OrpheaDoesNotHaveChompBackbiterForce">
+    <WhichUnit Value="Caster" />
+    <Behavior value="OrpheaChompKnockback" />
+  </CValidatorUnitCompareBehaviorCount>
   <CValidatorUnitCompareWeaponLegacyState id="OrpheaWeaponNotInSwing">
     <Compare value="NE" />
     <Value value="Swing" />
@@ -4008,6 +4109,15 @@
     <Behavior value="OrpheaShadowWaltzDashAllowed" />
     <WhichUnit Value="Caster" />
   </CValidatorUnitCompareBehaviorCount>
+  <CValidatorCombine id="OrpheaShadowWaltzDashRemoveCombine">
+    <CombineArray value="CasterIsStationary" />
+    <CombineArray value="OrpheaShadowWaltzDashHasNoMoveOrder" />
+    <CombineArray value="CasterIsPushPull" />
+  </CValidatorCombine>
+  <CValidatorUnitCompareOrderCount id="OrpheaShadowWaltzDashHasNoMoveOrder">
+    <WhichUnit Value="Caster" />
+    <AbilLink value="move" />
+  </CValidatorUnitCompareOrderCount>
   <CValidatorUnitCompareCooldown id="OrpheaShadowWaltzIsOnCooldown">
     <Ability value="OrpheaShadowWaltz" />
     <CooldownLink value="Abil/OrpheaShadowWaltz" />

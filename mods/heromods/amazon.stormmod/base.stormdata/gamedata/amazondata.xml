@@ -460,7 +460,7 @@
     <Aliases value="_TimeStopAffectedActor" />
     <On Terms="StatusOn.*.TimeStopPaused" Send="AnimSetPausedAll" />
     <On Terms="StatusOff.*.TimeStopPaused" Send="AnimSetPausedAll 0" />
-    <On Terms="Behavior.AmazonHeroWeaponChargedStrikesActive.On" Send="Create" />
+    <On Terms="Effect.AmazonChargedStrikesFXModifyUnit.Start; At Caster; ValidateEffect AmazonHeroWeaponChargedStrikesIsActive" Send="Create" />
     <On Terms="Behavior.AmazonHeroWeaponChargedStrikesActive.Off" Send="AnimBracketStop BSD" />
     <On Terms="ActorCreation" Send="Create AmazonHeroWeaponChargedStrikesActivateSound" />
     <On Terms="Behavior.*.On; BehaviorCategory DebuffBlind" Send="SetOpacity 0.000000 0.000000 BlindedOpacity" />
@@ -946,12 +946,20 @@
     <SortIndex value="10" />
   </CBehaviorTokenCounter>
   <CBehaviorTokenCounter id="AmazonChargedStrikesTokenCounter" parent="StormGenericToken">
+    <Alignment value="Positive" />
+    <InfoIcon value="Assets\Textures\storm_ui_icon_cassia_new_chargedstrikes.dds" />
+    <MinStackCountDisplayed value="1" />
+    <Min value="1" />
     <Max value="3" />
-    <AtMaxEvents Effect="AmazonChargedStrikesResetTokens" />
-    <DeltaEvents>
-      <Event Effect="AmazonHeroWeaponChargedStrikesApplyBehavior" />
-    </DeltaEvents>
+    <AtMinEvents Effect="AmazonChargedStrikesRemoveActive" />
+    <AtMaxEvents Effect="AmazonHeroWeaponChargedStrikesApplyBehavior" />
+    <SortIndex value="5" />
   </CBehaviorTokenCounter>
+  <CBehaviorBuff id="AmazonHeroWeaponChargedStrikesActive" parent="CarryBehaviorParent">
+    <InitialEffect value="AmazonChargedStrikesFXPersistent" />
+    <FinalEffect value="AmazonChargedStrikesDestroyFXPersistent" />
+  </CBehaviorBuff>
+  <CBehaviorBuff id="AmazonChargedStrikesMissileBehavior" />
   <CBehaviorBuff id="AmazonFendChanneling">
     <BehaviorCategories index="Restorable" value="1" />
     <DisplayDuration index="Self" value="1" />
@@ -1092,7 +1100,8 @@
       <MoveSpeedMinimum value="12" />
     </Modification>
     <Period value="0.0625" />
-    <PeriodicEffect value="AmazonValkyrieImpaleApplyForce" />
+    <InitialEffect value="AmazonValkyrieApplyForcePeriodicSwitch" />
+    <PeriodicEffect value="AmazonValkyrieApplyForcePeriodicSwitch" />
     <RemoveValidatorArray index="0" value="AmazonValkyrieIsImpaledTarget" />
     <RemoveValidatorArray index="1" removed="1" />
   </CBehaviorBuff>
@@ -1102,12 +1111,21 @@
   <CBehaviorBuff id="AmazonValkyrieImprisoningLightSilence" parent="StormSilence">
     <Duration value="3" />
   </CBehaviorBuff>
-  <CBehaviorBuff id="AmazonValkyrieKnockbackMoveSpeed" parent="PushPullParent">
-    <Duration value="0.1875" />
+  <CBehaviorBuff id="AmazonValkyriePushOffsetParent" parent="PushPullParent">
+    <Duration value="0.125" />
+    <Period value="0.0625" />
     <Modification>
-      <MoveSpeedMaximum value="20" />
-      <MoveSpeedMinimum value="20" />
+      <MoveSpeedMaximum value="17" />
+      <MoveSpeedMinimum value="17" />
     </Modification>
+  </CBehaviorBuff>
+  <CBehaviorBuff id="AmazonValkyrieLeftPush" parent="AmazonValkyriePushOffsetParent">
+    <InitialEffect value="AmazonValkyrieApplyForceLeft" />
+    <PeriodicEffect value="AmazonValkyrieApplyForceLeft" />
+  </CBehaviorBuff>
+  <CBehaviorBuff id="AmazonValkyrieRightPush" parent="AmazonValkyriePushOffsetParent">
+    <InitialEffect value="AmazonValkyrieApplyForceRight" />
+    <PeriodicEffect value="AmazonValkyrieApplyForceRight" />
   </CBehaviorBuff>
   <CBehaviorBuff id="AmazonAvoidanceDamageReduction" parent="StormArmor">
     <ArmorModification StackCount="48">
@@ -1873,15 +1891,46 @@
   <CEffectApplyBehavior id="AmazonHeroWeaponChargedStrikesApplyBehavior">
     <Behavior value="AmazonHeroWeaponChargedStrikesActive" />
   </CEffectApplyBehavior>
-  <CEffectCreatePersistent id="AmazonHeroWeaponChargedStrikesDelayPersistent">
-    <WhichLocation Value="TargetUnit" />
+  <CEffectRemoveBehavior id="AmazonChargedStrikesRemoveActive">
+    <WhichUnit Value="Caster" />
+    <BehaviorLink value="AmazonHeroWeaponChargedStrikesActive" />
+  </CEffectRemoveBehavior>
+  <CEffectApplyBehavior id="AmazonChargedStrikesApplyMissileBehavior">
     <ValidatorArray value="AmazonHeroWeaponChargedStrikesIsActive" />
-    <PeriodCount value="1" />
-    <PeriodicEffectArray value="AmazonHeroWeaponChargedStrikesSearchArea" />
-    <PeriodicPeriodArray value="0.0625" />
-    <PeriodicValidator value="TargetNotDeadAndNoSpecialDeathState" />
+    <WhichUnit Value="Source" />
+    <Behavior value="AmazonChargedStrikesMissileBehavior" />
+  </CEffectApplyBehavior>
+  <CEffectSwitch id="AmazonChargedStrikesSwitch">
+    <ValidatorArray value="AmazonHeroWeaponChargedStrikesHasTalent" />
+    <CaseArray Validator="AmazonChargedStrikesLTMaxStacks" Effect="AmazonChargedStrikesAddToken" />
+    <CaseDefault value="AmazonChargedStrikesResetTokens" />
+  </CEffectSwitch>
+  <CEffectCreatePersistent id="AmazonChargedStrikesFXPersistent">
+    <ExpireDelay value="0.1875" />
+    <ExpireEffect value="AmazonChargedStrikesFXModifyUnit" />
+    <TimeScaleSource Value="Caster" />
+    <WhichLocation Value="Caster" />
   </CEffectCreatePersistent>
+  <CEffectModifyUnit id="AmazonChargedStrikesFXModifyUnit">
+    <ValidatorArray value="AmazonHeroWeaponChargedStrikesIsActive" />
+    <ImpactUnit Value="Caster" />
+  </CEffectModifyUnit>
+  <CEffectDestroyPersistent id="AmazonChargedStrikesDestroyFXPersistent">
+    <WhichLocation Value="CasterPoint" />
+    <Effect value="AmazonChargedStrikesFXPersistent" />
+    <Count value="1" />
+    <Radius value="0.25" />
+    <RequireCaster Value="Caster" />
+  </CEffectDestroyPersistent>
   <CEffectModifyUnit id="AmazonHeroWeaponChargedStrikesImpactDummy" />
+  <CEffectSet id="AmazonChargedStrikesMeleeSet">
+    <ValidatorArray value="AmazonHeroWeaponChargedStrikesIsActive" />
+    <EffectArray value="AmazonHeroWeaponChargedStrikesSearchArea" />
+  </CEffectSet>
+  <CEffectSet id="AmazonChargedStrikesRangedSet">
+    <ValidatorArray value="AmazonSourceIsAmazonHeroWeaponMissileAndHasChargedStrikesMissileMarker" />
+    <EffectArray value="AmazonHeroWeaponChargedStrikesSearchArea" />
+  </CEffectSet>
   <CEffectEnumArea id="AmazonHeroWeaponChargedStrikesSearchArea">
     <ExcludeArray Value="Target" />
     <SearchFilters value="Heroic,Visible;Self,Player,Ally,Neutral,Missile,Item,Stasis,Dead,Hidden,Invulnerable,Benign" />
@@ -1889,52 +1938,58 @@
       <Radius value="3.5" />
     </AreaArray>
     <SearchFlags index="ExtendByUnitRadius" value="1" />
-    <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
-    <ValidatorArray value="AmazonHeroWeaponChargedStrikesIsActive" />
+    <ValidatorArray value="TargetNotEvading" />
   </CEffectEnumArea>
   <CEffectSet id="AmazonHeroWeaponChargedStrikesImpactSet">
     <EffectArray value="AmazonHeroWeaponChargedStrikesImpactDummy" />
     <EffectArray value="AmazonChargedStrikesDamageSet" />
-    <ValidatorArray value="TargetNotDead" />
-    <ValidatorArray value="TargetNotEvading" />
-  </CEffectSet>
-  <CEffectSet id="AmazonHeroWeaponDamageSet">
-    <EffectArray value="UniversalWeaponImpact" />
-    <EffectArray value="AmazonHeroWeaponDamageSwitch" />
-    <EffectArray value="AmazonMartialLawDamageSet" />
   </CEffectSet>
   <CEffectSet id="AmazonChargedStrikesDamageSet">
     <EffectArray value="UniversalWeaponImpact" />
+    <EffectArray value="AmazonChargedStrikesPreImpactSet" />
     <EffectArray value="AmazonChargedStrikesWeaponDamageSwitch" />
-    <EffectArray value="AmazonMartialLawDamageSet" />
+    <EffectArray value="AmazonChargedStrikesPostImpactSet" />
     <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
+  <CEffectSet id="AmazonChargedStrikesPreImpactSet">
+    <EffectArray value="AmazonMartialLawDamageSet" />
+  </CEffectSet>
+  <CEffectSet id="AmazonChargedStrikesPostImpactSet" />
   <CEffectSet id="AmazonHeroWeaponSharedImpactSet">
-    <EffectArray value="AmazonHeroWeaponChargedStrikesSearchArea" />
-    <EffectArray value="AmazonHeroWeaponDamageSet" />
+    <EffectArray value="UniversalWeaponImpact" />
+    <EffectArray value="AmazonWeaponPrimaryPreImpactSet" />
+    <EffectArray value="AmazonHeroWeaponDamageSwitch" />
+    <EffectArray value="AmazonWeaponPrimaryPostImpactSet" />
+  </CEffectSet>
+  <CEffectSet id="AmazonWeaponPrimaryPreImpactSet">
     <EffectArray value="AmazonBlindingLightSeraphsHymnModifyCooldown" />
     <EffectArray value="AmazonBlindingLightSeraphsHymnCreateManaHealer" />
-    <EffectArray value="AmazonChargedStrikesTokenGrantDelayCreateDummyPersistent" />
+    <EffectArray value="AmazonMartialLawDamageSet" />
   </CEffectSet>
+  <CEffectSet id="AmazonWeaponPrimaryPostImpactSet" />
   <CEffectModifyUnit id="AmazonHeroWeaponMeleeImpactDummy" />
   <CEffectSet id="AmazonHeroWeaponMeleeImpactSet">
-    <EffectArray value="AmazonHeroWeaponSharedImpactSet" />
     <EffectArray value="AmazonHeroWeaponMeleeImpactDummy" />
+    <EffectArray value="AmazonHeroWeaponSharedImpactSet" />
+    <EffectArray value="AmazonChargedStrikesMeleeSet" />
     <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectModifyUnit id="AmazonHeroWeaponRangedImpactDummy" />
   <CEffectSet id="AmazonHeroWeaponMeleeInitialSet">
     <EffectArray value="UniversalWeaponLaunchSet" />
     <EffectArray value="AmazonHeroWeaponMeleeImpactSet" />
+    <EffectArray value="AmazonChargedStrikesSwitch" />
   </CEffectSet>
   <CEffectSet id="AmazonHeroWeaponRangedImpactSet">
-    <EffectArray value="AmazonHeroWeaponSharedImpactSet" />
     <EffectArray value="AmazonHeroWeaponRangedImpactDummy" />
+    <EffectArray value="AmazonHeroWeaponSharedImpactSet" />
+    <EffectArray value="AmazonChargedStrikesRangedSet" />
     <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectSet id="AmazonHeroWeaponRangedInitialSet">
     <EffectArray value="UniversalWeaponLaunchSet" />
     <EffectArray value="AmazonHeroWeaponLaunchMissile" />
+    <EffectArray value="AmazonChargedStrikesSwitch" />
   </CEffectSet>
   <CEffectDamage id="AmazonLightningFuryLightningDamage" parent="AmazonSpellDamageParent">
     <Amount value="158" />
@@ -2043,9 +2098,6 @@
     <Amount value="225" />
     <SourceButtonFace value="AmazonValkyrie" />
   </CEffectDamage>
-  <CEffectApplyBehavior id="AmazonValkyrieKnockbackApplyMoveSpeed">
-    <Behavior value="AmazonValkyrieKnockbackMoveSpeed" />
-  </CEffectApplyBehavior>
   <CEffectDamage id="AmazonLightningFuryDamage" parent="AmazonSpellDamageParent">
     <Amount value="158" />
     <SourceButtonFace value="AmazonLightningFury" />
@@ -2370,9 +2422,42 @@
     <EffectArray value="AmazonValkyrieImprisoningLightApplyBlind" />
     <EffectArray value="AmazonValkyrieImprisoningLightApplyNonHeroesBlind" />
   </CEffectSet>
-  <CEffectApplyForce id="AmazonValkyrieImpaleApplyForce">
-    <Amount value="-1" />
-    <WhichLocation Effect="AmazonValkyrieInitialSet" Value="OriginPoint" />
+  <CEffectSwitch id="AmazonValkyrieApplyForcePeriodicSwitch">
+    <CaseArray Validator="AmazonValkyrieImpaleDistanceCheck" Effect="AmazonValkyrieApplyForceTowardsValkyrie" />
+    <CaseDefault value="AmazonValkyrieApplyForceTowardsOriginPoint" />
+  </CEffectSwitch>
+  <CEffectApplyForce id="AmazonValkyrieApplyForceTowardsValkyrie">
+    <Amount value="-20" />
+    <IgnoreMaxMovespeed value="1" />
+    <WhichLocation>
+      <Value value="TargetPoint" />
+      <Effect value="AmazonValkyrieSearchSet" />
+      <ProjectionMultiplier value="1" />
+      <ProjectionSourceEffect value="AmazonValkyrieSearchSet" />
+      <ProjectionSourceValue value="TargetPoint" />
+      <ProjectionTargetEffect value="AmazonValkyrieInitialSet" />
+      <ProjectionTargetValue value="OriginPoint" />
+      <UsesLineDash value="1" />
+      <LineDashType value="AllowedInUnpathable" />
+      <ProjectionDistanceScale value="3" />
+    </WhichLocation>
+    <WhichUnit Effect="AmazonValkyrieImpaleApplyTargetBehaviorsSet" />
+  </CEffectApplyForce>
+  <CEffectApplyForce id="AmazonValkyrieApplyForceTowardsOriginPoint">
+    <Amount value="-10" />
+    <WhichLocation>
+      <Value value="OriginPoint" />
+      <Effect value="AmazonValkyrieInitialSet" />
+      <ProjectionMultiplier value="1" />
+      <ProjectionSourceEffect value="AmazonValkyrieInitialSet" />
+      <ProjectionSourceValue value="OriginPoint" />
+      <ProjectionTargetEffect value="AmazonValkyrieDelayPersistent" />
+      <ProjectionTargetValue value="TargetPoint" />
+      <UsesLineDash value="1" />
+      <LineDashType value="AllowedInUnpathable" />
+      <ProjectionDistanceScale value="1" />
+    </WhichLocation>
+    <WhichUnit Effect="AmazonValkyrieImpaleApplyTargetBehaviorsSet" />
   </CEffectApplyForce>
   <CEffectApplyBehavior id="AmazonValkyrieImpaleApplyMissileBehavior">
     <WhichUnit Value="Source" />
@@ -2394,42 +2479,46 @@
     <WhichUnit Value="Source" />
     <Behavior value="AmazonValkyriePeriodicSearch" />
   </CEffectApplyBehavior>
-  <CEffectApplyForce id="AmazonValkyrieKnockbackApplyRightForce">
+  <CEffectApplyForce id="AmazonValkyrieApplyForceRight">
     <WhichUnit Effect="AmazonValkyrieKnockbackImpactRightSet" />
-    <Amount value="-1" />
-    <WhichLocation Value="TargetPoint" />
+    <WhichLocation Effect="AmazonValkyrieRightPushApply" Value="TargetPoint" />
+    <Amount value="1" />
   </CEffectApplyForce>
-  <CEffectApplyForce id="AmazonValkyrieKnockbackApplyLeftForce">
+  <CEffectApplyForce id="AmazonValkyrieApplyForceLeft">
     <WhichUnit Effect="AmazonValkyrieKnockbackImpactLeftSet" />
-    <Amount value="-1" />
-    <WhichLocation Value="TargetPoint" />
+    <WhichLocation Effect="AmazonValkyrieLeftPushApply" Value="TargetPoint" />
+    <Amount value="1" />
   </CEffectApplyForce>
   <CEffectSet id="AmazonValkyrieKnockbackImpactRightSet">
     <EffectArray value="AmazonValkyrieKnockbackImpactSharedSet" />
-    <EffectArray value="AmazonValkyrieKnockbackOffsetRightPersistent" />
+    <EffectArray value="AmazonValkyrieSecondaryKnockbackCreationPersistentRight" />
   </CEffectSet>
+  <CEffectCreatePersistent id="AmazonValkyrieSecondaryKnockbackCreationPersistentRight">
+    <OffsetVectorStartLocation Effect="AmazonValkyrieInitialSet" Value="OriginPoint" />
+    <OffsetVectorEndLocation Effect="AmazonValkyrieDelayPersistent" Value="TargetPoint" />
+    <WhichLocation Effect="AmazonValkyrieKnockbackImpactRightSet" Value="TargetUnit" />
+    <InitialOffset X="-5" />
+    <InitialEffect value="AmazonValkyrieRightPushApply" />
+  </CEffectCreatePersistent>
+  <CEffectApplyBehavior id="AmazonValkyrieRightPushApply">
+    <WhichUnit Effect="AmazonValkyrieKnockbackImpactRightSet" />
+    <Behavior value="AmazonValkyrieRightPush" />
+  </CEffectApplyBehavior>
   <CEffectSet id="AmazonValkyrieKnockbackImpactLeftSet">
     <EffectArray value="AmazonValkyrieKnockbackImpactSharedSet" />
-    <EffectArray value="AmazonValkyrieKnockbackOffsetLeftPersistent" />
+    <EffectArray value="AmazonValkyrieSecondaryKnockbackCreationPersistentLeft" />
   </CEffectSet>
-  <CEffectCreatePersistent id="AmazonValkyrieKnockbackOffsetLeftPersistent">
-    <WhichLocation Value="TargetUnit" />
-    <OffsetVectorStartLocation Value="SourcePoint" />
-    <PeriodCount value="2" />
-    <PeriodicEffectArray value="AmazonValkyrieKnockbackApplyLeftForce" />
-    <PeriodicOffsetArray X="5" />
-    <PeriodicPeriodArray value="0.0625" />
-    <ValidatorArray value="AmazonValkyrieKnockbackTargetHasPushPull" />
+  <CEffectCreatePersistent id="AmazonValkyrieSecondaryKnockbackCreationPersistentLeft">
+    <OffsetVectorStartLocation Effect="AmazonValkyrieInitialSet" Value="OriginPoint" />
+    <OffsetVectorEndLocation Effect="AmazonValkyrieDelayPersistent" Value="TargetPoint" />
+    <WhichLocation Effect="AmazonValkyrieKnockbackImpactLeftSet" Value="TargetUnit" />
+    <InitialOffset X="5" />
+    <InitialEffect value="AmazonValkyrieLeftPushApply" />
   </CEffectCreatePersistent>
-  <CEffectCreatePersistent id="AmazonValkyrieKnockbackOffsetRightPersistent">
-    <PeriodCount value="3" />
-    <PeriodicEffectArray value="AmazonValkyrieKnockbackApplyRightForce" />
-    <PeriodicOffsetArray X="-5" />
-    <PeriodicPeriodArray value="0.0625" />
-    <WhichLocation Value="TargetUnit" />
-    <OffsetVectorStartLocation Value="SourcePoint" />
-    <ValidatorArray value="AmazonValkyrieKnockbackTargetHasPushPull" />
-  </CEffectCreatePersistent>
+  <CEffectApplyBehavior id="AmazonValkyrieLeftPushApply">
+    <WhichUnit Effect="AmazonValkyrieKnockbackImpactLeftSet" />
+    <Behavior value="AmazonValkyrieLeftPush" />
+  </CEffectApplyBehavior>
   <CEffectSet id="AmazonValkyrieMissileLaunchSet">
     <EffectArray value="AmazonValkyrieApplyCasterBehavior" />
     <EffectArray value="AmazonValkyrieApplySearchBehavior" />
@@ -2470,8 +2559,8 @@
   <CEffectSet id="AmazonValkyrieKnockbackImpactSharedSet">
     <ValidatorArray value="noMarkers" />
     <EffectArray value="HeroRemovePushPullDebuffs" />
+    <EffectArray value="HeroRemovePreventsMovement" />
     <EffectArray value="AmazonValkyrieKnockbackImpactDummy" />
-    <EffectArray value="AmazonValkyrieKnockbackApplyMoveSpeed" />
     <EffectArray value="ApplyAbilityImpactReveal" />
   </CEffectSet>
   <CEffectSet id="AmazonValkyrieImpaleImpactSet">
@@ -2518,7 +2607,7 @@
   <CEffectDamage id="AmazonHeroWeaponDamage" parent="StormWeapon">
     <MultiplicativeModifierArray index="TargetBlinded" Validator="TargetIsBlinded" Modifier="0.15" Crit="1" />
     <MultiplicativeModifierArray index="SeraphsHymn" Validator="AmazonBlindingLightSeraphsHymnHasTalentAndTargetIsBlinded" Modifier="0.15" />
-    <MultiplicativeModifierArray index="ChargedStrikes" Validator="AmazonHeroWeaponChargedStrikesIsActive" Modifier="0.2" Crit="1" />
+    <MultiplicativeModifierArray index="ChargedStrikes" Validator="AmazonHeroWeaponChargedStrikesIsActiveCombine" Modifier="0.2" Crit="1" />
     <MultiplicativeModifierArray index="TitansRevenge" Validator="AmazonAvoidanceIsMaxedAndHasTitansRevenge" Modifier="0.2" Crit="1" />
     <Amount value="125" />
     <LeechFraction index="Life" value="0.2" />
@@ -2536,7 +2625,7 @@
   <CEffectDamage id="AmazonChargedStrikesWeaponDamage" parent="StormWeapon">
     <MultiplicativeModifierArray index="TargetBlinded" Validator="TargetIsBlinded" Modifier="0.15" Crit="1" />
     <MultiplicativeModifierArray index="SeraphsHymn" Validator="AmazonBlindingLightSeraphsHymnHasTalentAndTargetIsBlinded" Modifier="0.15" />
-    <MultiplicativeModifierArray index="ChargedStrikes" Validator="AmazonHeroWeaponChargedStrikesIsActive" Modifier="0.2" Crit="1" />
+    <MultiplicativeModifierArray index="ChargedStrikes" Modifier="0.2" Crit="1" />
     <MultiplicativeModifierArray index="TitansRevenge" Validator="AmazonAvoidanceIsMaxedAndHasTitansRevenge" Modifier="0.2" Crit="1" />
     <Amount value="125" />
     <SourceButtonFace value="Attack" />
@@ -2547,6 +2636,7 @@
   </CEffectDamage>
   <CEffectLaunchMissile id="AmazonHeroWeaponLaunchMissile">
     <ValidatorArray index="0" value="TargetNotDead" />
+    <LaunchEffect value="AmazonChargedStrikesApplyMissileBehavior" />
     <ImpactEffect value="AmazonHeroWeaponRangedImpactSet" />
     <AmmoUnit value="AmazonHeroWeaponMissile" />
   </CEffectLaunchMissile>
@@ -3641,11 +3731,44 @@
     <Value value="AmazonChargedStrikes" />
     <WhichPlayer Value="Caster" />
   </CValidatorPlayerTalent>
+  <CValidatorUnitCompareTokenCount id="AmazonChargedStrikesLTMaxStacks">
+    <Compare value="LT" />
+    <Value value="3" />
+    <TokenId value="AmazonChargedStrikesTokenCounter" />
+  </CValidatorUnitCompareTokenCount>
   <CValidatorUnitCompareBehaviorCount id="AmazonHeroWeaponChargedStrikesIsActive">
     <WhichUnit Value="Caster" />
     <Compare value="GT" />
     <Behavior value="AmazonHeroWeaponChargedStrikesActive" />
   </CValidatorUnitCompareBehaviorCount>
+  <CValidatorUnitType id="AmazonSourceIsNotAmazonAttackMissile">
+    <WhichUnit Value="Source" />
+    <Find value="0" />
+    <Value value="AmazonHeroWeaponMissile" />
+  </CValidatorUnitType>
+  <CValidatorUnitCompareBehaviorCount id="AmazonSourceHasChargedStrikesMissileMarker">
+    <WhichUnit Value="Source" />
+    <Compare value="GT" />
+    <Behavior value="AmazonChargedStrikesMissileBehavior" />
+  </CValidatorUnitCompareBehaviorCount>
+  <CValidatorUnitType id="AmazonSourceIsAmazonAttackMissile">
+    <WhichUnit Value="Source" />
+    <Value value="AmazonHeroWeaponMissile" />
+  </CValidatorUnitType>
+  <CValidatorCombine id="AmazonHeroWeaponChargedStrikesIsActiveCombine">
+    <CombineArray value="AmazonSourceIsNotAmazonHeroWeaponMissileHasChargedStrikesActive" />
+    <CombineArray value="AmazonSourceIsAmazonHeroWeaponMissileAndHasChargedStrikesMissileMarker" />
+  </CValidatorCombine>
+  <CValidatorCombine id="AmazonSourceIsNotAmazonHeroWeaponMissileHasChargedStrikesActive">
+    <Type value="And" />
+    <CombineArray value="AmazonSourceIsNotAmazonAttackMissile" />
+    <CombineArray value="AmazonHeroWeaponChargedStrikesIsActive" />
+  </CValidatorCombine>
+  <CValidatorCombine id="AmazonSourceIsAmazonHeroWeaponMissileAndHasChargedStrikesMissileMarker">
+    <Type value="And" />
+    <CombineArray value="AmazonSourceIsAmazonAttackMissile" />
+    <CombineArray value="AmazonSourceHasChargedStrikesMissileMarker" />
+  </CValidatorCombine>
   <CValidatorCombine id="AmazonHeroWeaponTargetBlindedOrHasChargedStrikesActive">
     <CombineArray value="TargetIsBlinded" />
     <CombineArray value="AmazonHeroWeaponChargedStrikesIsActive" />
@@ -3779,14 +3902,34 @@
     <Value value="AmazonImprisoningLight" />
     <WhichPlayer Value="Caster" />
   </CValidatorPlayerTalent>
-  <CValidatorUnitCompareBehaviorCount id="AmazonValkyrieKnockbackTargetHasPushPull">
-    <Compare value="GT" />
-    <Behavior value="AmazonValkyrieKnockbackMoveSpeed" />
-  </CValidatorUnitCompareBehaviorCount>
   <CValidatorUnitCompareBehaviorCount id="AmazonTargetHasImprisoningLightBlind">
     <Compare value="GT" />
     <Behavior value="AmazonValkyrieImprisoningLightBlind" />
   </CValidatorUnitCompareBehaviorCount>
+  <CValidatorLocationCompareRange id="AmazonValkyrieImpaleDistanceCheck">
+    <WhichLocation>
+      <Value value="OriginPoint" />
+      <Effect value="AmazonValkyrieInitialSet" />
+      <ProjectionMultiplier value="1" />
+      <ProjectionSourceEffect value="AmazonValkyrieInitialSet" />
+      <ProjectionSourceValue value="OriginPoint" />
+      <ProjectionTargetEffect value="AmazonValkyrieDelayPersistent" />
+      <ProjectionTargetValue value="TargetPoint" />
+      <UsesLineDash value="1" />
+      <LineDashType value="AllowedInUnpathable" />
+      <ProjectionDistanceScale value="1" />
+    </WhichLocation>
+    <Compare value="GT" />
+    <Range value="1.5" />
+    <Value Value="SourceUnit" />
+  </CValidatorLocationCompareRange>
+  <CValidatorCombine id="StormTargetHasRootCombineIncludeDisabled">
+    <CombineArray value="AmazonTargetHasImprisoningLightRootIncludeDisabled" />
+  </CValidatorCombine>
+  <CValidatorUnitHasBehavior id="AmazonTargetHasImprisoningLightRootIncludeDisabled">
+    <Behavior value="AmazonValkyrieImprisoningLightRoot" />
+    <IncludeDisabled value="1" />
+  </CValidatorUnitHasBehavior>
   <CWeaponLegacy id="AmazonHeroWeaponRanged" parent="StormHeroFastWeapon">
     <DisplayEffect value="AmazonHeroWeaponDamage" />
     <MinScanRange value="4.5" />

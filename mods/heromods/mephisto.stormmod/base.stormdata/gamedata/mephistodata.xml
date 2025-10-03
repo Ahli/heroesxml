@@ -1083,6 +1083,7 @@
     <DisplayDuration index="Ally" value="1" />
     <DisplayDuration index="Neutral" value="1" />
     <DisplayDuration index="Enemy" value="1" />
+    <DisplayPriority value="10" />
     <Duration value="2.5" />
     <ExpireEffect value="MephistoShadeOfMephistoReturnToShadeSet" />
     <RemoveValidatorArray value="CasterNotStasis" />
@@ -1148,7 +1149,7 @@
   <CBehaviorBuff id="MephistoDuranceOfHatePrimaryRootBehavior" parent="StormRoot">
     <Duration value="2.5" />
     <InitialEffect value="MephistoUnspeakableHorrorRootSilenceApplyBehavior" />
-    <FinalEffect value="MephistoDuranceOfHatePrimaryRootFinalSet" />
+    <ExpireEffect value="MephistoUnspeakableHorrorPostRootSilenceApplyBehavior" />
   </CBehaviorBuff>
   <CBehaviorBuff id="MephistoDuranceOfHateDoTBehavior" parent="StormDot">
     <Duration value="2.5" />
@@ -1272,7 +1273,7 @@
   </CBehaviorUnitTracker>
   <CBehaviorBuff id="MephistoDuranceOfHateSecondaryRootBehavior" parent="StormRoot">
     <Duration value="2.5" />
-    <FinalEffect value="MephistoUnspeakableHorrorPostRootSilenceApplyBehavior" />
+    <ExpireEffect value="MephistoUnspeakableHorrorPostRootSilenceApplyBehavior" />
     <InitialEffect value="MephistoUnspeakableHorrorRootSilenceApplyBehavior" />
   </CBehaviorBuff>
   <CBehaviorBuff id="MephistoShadeOfMephistoMaliciousIntentPostTeleportSpellPowerBuff" parent="StormDamageIncrease">
@@ -1571,9 +1572,6 @@
     <PeriodCount value="1" />
     <PeriodicPeriodArray value="0.0625" />
   </CEffectCreatePersistent>
-  <CEffectSet id="MephistoDuranceOfHatePrimaryRootFinalSet">
-    <EffectArray value="MephistoUnspeakableHorrorPostRootSilenceApplyBehavior" />
-  </CEffectSet>
   <CEffectCreatePersistent id="MephistoDuranceOfHateSecondaryPersistent">
     <WhichLocation Effect="MephistoDuranceOfHatePrimaryImpactSet" />
     <PeriodCount value="11" />
@@ -1696,26 +1694,36 @@
   </CEffectDamage>
   <CEffectSet id="MephistoWeaponShardOfHateImpactSet">
     <ValidatorArray value="noMarkers" />
-    <EffectArray value="UniversalWeaponImpactSet" />
-    <EffectArray value="MephistoAngerCDRSet" />
+    <EffectArray value="UniversalWeaponImpact" />
+    <EffectArray value="MephistoShardOfHateWeaponPreImpactSet" />
     <EffectArray value="MephistoWeaponShardOfHateDamage" />
+    <EffectArray value="MephistoShardOfHateWeaponPostImpactSet" />
     <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
+  <CEffectSet id="MephistoShardOfHateWeaponPreImpactSet">
+    <EffectArray value="MephistoAngerCDRSet" />
+  </CEffectSet>
+  <CEffectSet id="MephistoShardOfHateWeaponPostImpactSet" />
   <CEffectSet id="MephistoWeaponInitialSet">
     <Marker>
       <MatchFlags index="Id" value="1" />
     </Marker>
     <EffectArray value="UniversalWeaponLaunchSet" />
+    <EffectArray value="UniversalWeaponImpact" />
     <EffectArray value="MephistoLightningNovaAnimosityLoopSearchArea" />
     <EffectArray value="MephistoWeaponImpactSet" />
-  </CEffectSet>
-  <CEffectSet id="MephistoWeaponImpactSet">
-    <EffectArray value="UniversalWeaponImpactSet" />
-    <EffectArray value="MephistoAngerCDRSet" />
-    <EffectArray value="MephistoWeaponDamage" />
     <EffectArray value="MephistoWeaponShardOfHateSearch" />
     <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
+  <CEffectSet id="MephistoWeaponImpactSet">
+    <EffectArray value="MephistoWeaponPreImpactSet" />
+    <EffectArray value="MephistoWeaponDamage" />
+    <EffectArray value="MephistoWeaponPostImpactSet" />
+  </CEffectSet>
+  <CEffectSet id="MephistoWeaponPreImpactSet">
+    <EffectArray value="MephistoAngerCDRSet" />
+  </CEffectSet>
+  <CEffectSet id="MephistoWeaponPostImpactSet" />
   <CEffectDamage id="MephistoWeaponDamage" parent="StormWeapon">
     <Amount value="66" />
     <SourceButtonFace value="Attack" />
@@ -2154,6 +2162,7 @@
   </CEffectEnumArea>
   <CEffectApplyBehavior id="MephistoUnspeakableHorrorPostRootSilenceApplyBehavior">
     <ValidatorArray value="TargetNotUnstoppable" />
+    <ValidatorArray value="MephistoDuranceofHateTargetHasUnspeakableHorrorRootSilence" />
     <Chance value="0" />
     <WhichUnit Value="Source" />
     <Behavior value="MephistoUnspeakableHorrorPostRootSilenceBehavior" />
@@ -2261,6 +2270,7 @@
     <EffectArray Operation="Set" Reference="Abil,MephistoSkullMissile,Cost.Charge.HideCount" Value="0" />
   </CEffectModifyPlayer>
   <CEffectEnumArea id="MephistoWeaponShardOfHateSearch">
+    <ValidatorArray value="TargetNotEvading" />
     <Chance value="0" />
     <SearchFilters value="-;Self,Player,Ally,Neutral,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
     <AreaArray Effect="MephistoWeaponShardOfHateImpactSet">
@@ -4612,12 +4622,28 @@
     <Behavior value="MephistoDuranceOfHateSecondaryRootBehavior" />
     <IncludeDisabled value="1" />
   </CValidatorUnitHasBehavior>
+  <CValidatorUnitCompareBehaviorCount id="MephistoDuranceofHateTargetHasUnspeakableHorrorRootSilence">
+    <Value value="1" />
+    <Behavior value="MephistoUnspeakableHorrorRootSilenceBehavior" />
+  </CValidatorUnitCompareBehaviorCount>
   <CValidatorUnitCompareTokenCount id="MephistoUnyieldingPowerDoesNotHaveMaxTokens">
     <WhichUnit Value="Caster" />
     <Compare value="LT" />
     <Value value="40" />
     <TokenId value="MephistoSkullMissileUnyieldingPowerQuestToken" />
   </CValidatorUnitCompareTokenCount>
+  <CValidatorUnitHasBehavior id="MephistoTargetHasDuranceOfHatePrimaryRootIncludeDisabled">
+    <Behavior value="MephistoDuranceOfHatePrimaryRootBehavior" />
+    <IncludeDisabled value="1" />
+  </CValidatorUnitHasBehavior>
+  <CValidatorUnitHasBehavior id="MephistoTargetHasDuranceOfHateSecondaryRootIncludeDisabled">
+    <Behavior value="MephistoDuranceOfHateSecondaryRootBehavior" />
+    <IncludeDisabled value="1" />
+  </CValidatorUnitHasBehavior>
+  <CValidatorCombine id="StormTargetHasRootCombineIncludeDisabled">
+    <CombineArray value="MephistoTargetHasDuranceOfHatePrimaryRootIncludeDisabled" />
+    <CombineArray value="MephistoTargetHasDuranceOfHateSecondaryRootIncludeDisabled" />
+  </CValidatorCombine>
   <CWeaponLegacy id="MephistoHeroWeapon" parent="StormHeroMediumWeapon">
     <DisplayEffect value="MephistoWeaponDamage" />
     <MinScanRange value="4" />

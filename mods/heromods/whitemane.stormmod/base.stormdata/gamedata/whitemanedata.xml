@@ -130,7 +130,7 @@
   </CAbilEffectTarget>
   <CAbilEffectTarget id="WhitemaneSearingLash">
     <CmdButtonArray index="Execute" DefaultButtonFace="WhitemaneSearingLash">
-      <Flags index="AllowSelfCast" value="0" />
+      <Flags index="AllowSelfCast" value="1" />
     </CmdButtonArray>
     <PrepEffect value="DismountDecloakCasterSet" />
     <Cost>
@@ -970,7 +970,7 @@
     <On Terms="Effect.WhitemaneSearingLashInitialDelay.Start; At Effect" Send="Create" />
     <Sound value="Whitemane_SearingLash_Warning" />
   </CActorSound>
-  <CActorAction id="WhitemaneWeaponAttackAction" parent="RangedHeroAttackMissile" effectImpact="WhitemaneWeaponImpactSet" effectLaunch="WhitemaneWeaponLaunchSet">
+  <CActorAction id="WhitemaneWeaponAttackAction" parent="RangedHeroAttackMissile" effectImpact="WhitemaneWeaponImpactDummy" effectLaunch="WhitemaneWeaponLaunchSet">
     <On Terms="ActorCreation" Send="Create Whitemane_Attack_Vox" />
     <LaunchAssets Model="" Sound="WhitemaneWeaponLaunchSound" />
     <Missile value="WhitemaneWeaponAttackMissile" />
@@ -1274,10 +1274,13 @@
   </CBehaviorBuff>
   <CBehaviorBuff id="WhitemaneDivineReckoningJudgmentDayPullBehavior" parent="PushPullParent">
     <Duration value="0.1875" />
+    <Period value="0.0625" />
     <Modification>
       <MoveSpeedMaximum value="25" />
       <MoveSpeedMinimum value="25" />
     </Modification>
+    <InitialEffect value="WhitemaneDivineReckoningJudgmentDayApplyForce" />
+    <PeriodicEffect value="WhitemaneDivineReckoningJudgmentDayApplyForce" />
   </CBehaviorBuff>
   <CBehaviorBuff id="WhitemaneScarletAegisScarletCrusadeCleanseBuff" parent="StormUnstoppableParent">
     <Duration value="2" />
@@ -1641,11 +1644,15 @@
     <ValidatorArray value="TargetIsHero" />
     <Behavior value="WhitemaneSearingLashSaintlyGreatstaffMarkedBehavior" />
   </CEffectApplyBehavior>
+  <CEffectSet id="WhitemaneSaintlyGreatstaffImpactSet">
+    <ValidatorArray value="WhitemaneSearingLashSaintlyGreatstaffCombine" />
+    <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
+    <EffectArray value="WhitemaneSearingLashSaintlyGreatstaffDamage" />
+    <EffectArray value="WhitemaneSearingLashSaintlyGreatstaffRemoveMarkedBehavior" />
+  </CEffectSet>
   <CEffectDamage id="WhitemaneSearingLashSaintlyGreatstaffDamage" parent="StormSpell">
     <Amount value="55" />
     <MultiplicativeModifierArray index="FanaticalPower" Validator="WhitemaneHasFanaticalPowerBehavior" Crit="1" />
-    <ValidatorArray value="WhitemaneSearingLashSaintlyGreatstaffCombine" />
-    <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
   </CEffectDamage>
   <CEffectRemoveBehavior id="WhitemaneSearingLashSaintlyGreatstaffRemoveMarkedBehavior">
     <BehaviorLink value="WhitemaneSearingLashSaintlyGreatstaffMarkedBehavior" />
@@ -1871,29 +1878,22 @@
   </CEffectModifyUnit>
   <CEffectApplyForce id="WhitemaneDivineReckoningJudgmentDayApplyForce">
     <WhichLocation Effect="WhitemaneDivineReckoningSearchPersistent" Value="TargetPoint" />
+    <WhichUnit Effect="WhitemaneDivineReckoningJudgementDayPullInitialSet" />
     <Amount value="-28" />
   </CEffectApplyForce>
   <CEffectApplyBehavior id="WhitemaneDivineReckoningJudgmentDayApplyPullBehavior">
     <Behavior value="WhitemaneDivineReckoningJudgmentDayPullBehavior" />
   </CEffectApplyBehavior>
-  <CEffectCreatePersistent id="WhitemaneDivineReckoningJudgmentDayPullPersistent">
+  <CEffectSet id="WhitemaneDivineReckoningJudgementDayPullInitialSet">
     <ValidatorArray value="TargetNotUnstoppable" />
-    <WhichLocation Value="TargetUnit" />
-    <InitialEffect value="WhitemaneDivineReckoningJudgmentDayPullPersistentInitialSet" />
-    <FinalEffect value="WhitemaneDivineReckoningJudgmentDayRemovePullBehavior" />
-    <PeriodCount value="3" />
-    <PeriodicValidator value="WhitemaneDivineReckoningJudgmentDayHasPullBehavior" />
-    <PeriodicEffectArray value="WhitemaneDivineReckoningJudgmentDayApplyForce" />
-    <PeriodicPeriodArray value="0.0625" />
-  </CEffectCreatePersistent>
-  <CEffectSet id="WhitemaneDivineReckoningJudgmentDayPullPersistentInitialSet">
     <EffectArray value="HeroRemovePushPullDebuffs" />
+    <EffectArray value="HeroRemovePreventsMovement" />
     <EffectArray value="WhitemaneDivineReckoningJudgmentDayApplyPullBehavior" />
   </CEffectSet>
   <CEffectSet id="WhitemaneDivineReckoningJudgmentDayPullSet">
     <ValidatorArray value="noMarkers" />
     <Chance value="0" />
-    <EffectArray value="WhitemaneDivineReckoningJudgmentDayPullPersistent" />
+    <EffectArray value="WhitemaneDivineReckoningJudgementDayPullInitialSet" />
   </CEffectSet>
   <CEffectRemoveBehavior id="WhitemaneDivineReckoningJudgmentDayRemovePullBehavior">
     <BehaviorLink value="WhitemaneDivineReckoningJudgmentDayPullBehavior" />
@@ -2115,13 +2115,21 @@
     <Flags index="Crit" value="1" />
   </CEffectDamage>
   <CEffectSet id="WhitemaneWeaponImpactSet">
+    <EffectArray value="UniversalWeaponImpact" />
+    <EffectArray value="WhitemaneWeaponImpactDummy" />
+    <EffectArray value="WhitemaneWeaponPreImpactSet" />
+    <EffectArray value="WhitemaneSaintlyGreatstaffImpactSet" />
     <EffectArray value="WhitemaneWeaponDamage" />
-    <EffectArray value="WhitemaneSearingLashSaintlyGreatstaffDamage" />
-    <EffectArray value="ZealScarletWrathEnumerateTrackedUnits" />
-    <EffectArray value="WhitemaneSearingLashSaintlyGreatstaffRemoveMarkedBehavior" />
-    <EffectArray value="WhitemaneZealScarletWrathModifyCooldown" />
-    <EffectArray value="WhitemaneInquisitorsPrayerAttackAddToken" />
+    <EffectArray value="WhitemaneWeaponPostImpactSet" />
     <EffectArray value="UniversalWeaponPostImpactSet" />
+  </CEffectSet>
+  <CEffectModifyUnit id="WhitemaneWeaponImpactDummy" />
+  <CEffectSet id="WhitemaneWeaponPreImpactSet">
+    <EffectArray value="WhitemaneZealScarletWrathModifyCooldown" />
+    <EffectArray value="ZealScarletWrathEnumerateTrackedUnits" />
+  </CEffectSet>
+  <CEffectSet id="WhitemaneWeaponPostImpactSet">
+    <EffectArray value="WhitemaneInquisitorsPrayerAttackAddToken" />
   </CEffectSet>
   <CEffectLaunchMissile id="WhitemaneWeaponLaunchMissile">
     <ImpactEffect value="WhitemaneWeaponImpactSet" />
@@ -3876,6 +3884,13 @@
     <Find value="0" />
     <Queued value="1" />
   </CValidatorUnitOrderQueue>
+  <CValidatorUnitHasBehavior id="WhitemaneTargetHasHarshDisciplineRootIncludeDisabled">
+    <Behavior value="WhitemaneSearingLashHarshDisciplineRoot" />
+    <IncludeDisabled value="1" />
+  </CValidatorUnitHasBehavior>
+  <CValidatorCombine id="StormTargetHasRootCombineIncludeDisabled">
+    <CombineArray value="WhitemaneTargetHasHarshDisciplineRootIncludeDisabled" />
+  </CValidatorCombine>
   <CValidatorUnitHasBehavior id="WhitemaneSearingLashHarshDisciplineTargetDoesNotHaveRootBehavior">
     <Behavior value="WhitemaneSearingLashHarshDisciplineRoot" />
     <Negate value="1" />

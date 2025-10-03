@@ -135126,6 +135126,7 @@
         <Item Type="PresetValue" Library="Ntve" Id="88F0DC0A"/>
         <Item Type="PresetValue" Library="Ntve" Id="865BA2DF"/>
         <Item Type="PresetValue" Library="Ntve" Id="FB79F629"/>
+        <Item Type="PresetValue" Library="Ntve" Id="504499F8"/>
     </Element>
     <Element Type="PresetValue" Id="82F299DC">
         <Identifier>Permanent</Identifier>
@@ -135338,6 +135339,10 @@
     <Element Type="PresetValue" Id="FB79F629">
         <Identifier>StackingComboMarker</Identifier>
         <Value>c_behaviorCategoryStackingComboMarker</Value>
+    </Element>
+    <Element Type="PresetValue" Id="504499F8">
+        <Identifier>PreventsMovement</Identifier>
+        <Value>c_behaviorCategoryPreventsMovement</Value>
     </Element>
     <Element Type="Preset" Id="01BA7810">
         <Identifier>BehaviorBuff</Identifier>

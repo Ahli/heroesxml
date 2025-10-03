@@ -491,7 +491,7 @@
   </CActorModel>
   <CActorModel id="HeroSylvanasDeathRagdoll" parent="StormHeroDeathRagdoll" />
   <CActorMissile id="HeroSylvanasAttackMissile" parent="StormMissileWithDeathEarly" unitName="HeroSylvanasAttackMissile" />
-  <CActorAction id="HeroSylvanasAttack" parent="RangedHeroAttack" effectImpact="SylvanasWeaponImpactSet" effectLaunch="SylvanasWeaponLaunchMissile">
+  <CActorAction id="HeroSylvanasAttack" parent="RangedHeroAttackMissile" effectImpact="SylvanasWeaponDamage" effectLaunch="SylvanasWeaponLaunchMissile">
     <ImpactMap index="None" Model="SylvanasAttackImpact" Sound="Sylvanas_Attack_Impact_Unit" />
     <ImpactMap index="Rock" Sound="Sylvanas_Attack_Impact_Building" />
     <LaunchAssets Sound="Sylvanas_Attack_Launch" />
@@ -1043,12 +1043,11 @@
     <DisableValidatorArray value="SylvanasPossessionNoChargesUsed" />
   </CBehaviorBuff>
   <CBehaviorBuff id="SylvanasBlackArrowsActiveSelfDurationBuff">
-    <BehaviorCategories index="Restorable" value="1" />
     <DisplayDuration index="Self" value="1" />
     <DisplayDuration index="Ally" value="1" />
     <DisplayDuration index="Neutral" value="1" />
     <DisplayDuration index="Enemy" value="1" />
-    <DisplayPriority value="1001" />
+    <DisplayPriority value="1" />
     <Duration value="10" />
   </CBehaviorBuff>
   <CBehaviorBuff id="SylvanasMindControlDarkLadysCallVisionReduction">
@@ -1130,6 +1129,8 @@
     <Max value="9001" />
   </CBehaviorTokenCounter>
   <CBehaviorBuff id="SylvanasBlackArrowsStackingBehavior" parent="StormStackingComboMarker">
+    <BehaviorFlags index="Permanent" value="1" />
+    <BehaviorFlags index="EnabledWhileDead" value="1" />
     <BuffFlags index="RefreshStack" value="1" />
     <MaxStackCount value="3" />
     <Duration value="3" />
@@ -1209,7 +1210,7 @@
       <AbilClassDisableArray index="CAbilAttack" value="1" />
       <AbilClassDisableArray index="CAbilStop" value="1" />
     </Modification>
-    <DisplayPriority value="0" />
+    <DisplayPriority value="4" />
   </CBehaviorBuff>
   <CBehaviorBuff id="SylvanasCorruptionDamageResponse">
     <DamageResponse>
@@ -2140,8 +2141,8 @@
     <Behavior value="SylvanasBlackArrowsOverwhelmingAfflictionSlow" />
   </CEffectApplyBehavior>
   <CEffectSet id="RangedAttackSylvanasLaunchMissileSet">
-    <EffectArray value="SylvanasWeaponLaunchMissile" />
     <EffectArray value="UniversalWeaponLaunchSet" />
+    <EffectArray value="SylvanasWeaponLaunchMissile" />
   </CEffectSet>
   <CEffectSwitch id="SylvanasBlackArrowImpactSwitch">
     <CaseArray Validator="OverwhelmingAfflictionCombine" Effect="SylvanasBlackArrowsApplyOverwhelmingAfflictionTalentSlowDebuff" />
@@ -2251,15 +2252,24 @@
   </CEffectLaunchMissile>
   <CEffectSet id="SylvanasWeaponImpactSet">
     <EffectArray value="UniversalWeaponImpact" />
+    <EffectArray value="SylvanasWeaponPreImpactSet" />
     <EffectArray value="SylvanasWeaponNormalDamageSet" />
-    <EffectArray value="SylvanasBlackArrowsWeaponDamageOverwhelmingAfflictionPercentBonusDamage" />
+    <EffectArray value="SylvanasWeaponPostImpactSet" />
     <EffectArray value="SylvanasWitheringFireSearchAreaRemorseless" />
+    <EffectArray value="SylvanasWeaponBlackArrowsApplySet" />
+    <EffectArray value="UniversalWeaponPostImpactSet" />
+  </CEffectSet>
+  <CEffectSet id="SylvanasWeaponPreImpactSet">
     <EffectArray value="SylvanasShadowDaggerLostSoulModifyCooldown" />
+    <EffectArray value="SylvanasWitheringFireEvasiveFireBasicAttackBuffRefresh" />
+    <EffectArray value="SylvanasBlackArrowsWeaponDamageOverwhelmingAfflictionPercentBonusDamage" />
+  </CEffectSet>
+  <CEffectSet id="SylvanasWeaponPostImpactSet" />
+  <CEffectSet id="SylvanasWeaponBlackArrowsApplySet">
+    <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
     <EffectArray value="SylvanasBlackArrowsDebuffSet" />
     <EffectArray value="SylvanasBlackArrowsMercMinionOrStructureStunApplyBehaviorBasicAttacks" />
-    <EffectArray value="SylvanasWitheringFireEvasiveFireBasicAttackBuffRefresh" />
     <EffectArray value="SylvanasMercenaryQueenStunApplyBehavior" />
-    <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
   <CEffectSwitch id="SylvanasWeaponDamageSwitch">
     <Chance value="0" />
@@ -3251,6 +3261,7 @@
     <VoiceLineArray value="SylvanasBase_VoiceLine05" />
     <Rarity value="Epic" />
     <HeroSpecificUIArray Location="HeroSpecificStackingBuffsStatus" DescName="Sylvanas/SylvanasStacksFrameContainer" />
+    <HeroSpecificUIArray Location="FullscreenStatus" DescName="Sylvanas/SylvanasBlackArrowsDuration" />
     <ExpandedRole value="RangedAssassin" />
   </CHero>
   <CHeroMastery id="SylvanasMasteryRing1" parent="MasteryRingRank1">
@@ -4651,7 +4662,7 @@
     <WhichLocation Effect="SylvanasWailingArrowActivateSearchArea" />
     <Compare value="LT" />
     <Range value="1.75" />
-    <Value Value="TargetPoint" />
+    <Value Value="TargetUnit" />
   </CValidatorLocationCompareRange>
   <CWeaponLegacy id="SylvanasHeroWeapon" parent="StormHeroFastWeapon">
     <Icon value="Assets\Textures\storm_temp_btn-upgrade-terran-infantryweaponslevel3.dds" />

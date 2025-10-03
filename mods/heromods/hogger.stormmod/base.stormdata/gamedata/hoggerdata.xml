@@ -1011,7 +1011,7 @@
   <CActorPortrait id="HoggerPortrait" parent="StormCompositePortrait" />
   <CActorModel id="HoggerPortraitAddition" parent="StormCompositePortraitAddition" />
   <CActorModel id="HeroHoggerDeathRagdoll" parent="StormHeroDeathRagdoll" />
-  <CActorAction id="HoggerWeaponAttackAction" parent="MeleeHeroAttack" effectAttack="HoggerHeroWeaponImpactSet">
+  <CActorAction id="HoggerWeaponAttackAction" parent="MeleeHeroAttack" effectAttack="HoggerHeroWeaponDamage">
     <ImpactMap index="None" Sound="HoggerBaseWeaponImpactSound" />
   </CActorAction>
   <CActorSound id="HoggerWeaponImpactSound" parent="SoundOneShot">
@@ -1298,17 +1298,6 @@
     <Period value="1" />
     <InitialEffect value="HoggerHoardapultSecretStashTalentPersistentsSet" />
   </CBehaviorBuff>
-  <CBehaviorBuff id="HoggerFurzerkerTalentDamageCarry" parent="CarryBehaviorParent">
-    <DisableValidatorArray value="HoggerHasGTE1FurzerkerStack" />
-    <Modification>
-      <DamageDealtFraction index="Basic" value="0.5" />
-    </Modification>
-    <DamageResponse Chance="1" Handled="HoggerFurzerkerTalentProcSet" Location="Attacker">
-      <Kind index="Splash" value="0" />
-      <Kind index="Ability" value="0" />
-      <ProvideCategories index="Proc" value="1" />
-    </DamageResponse>
-  </CBehaviorBuff>
   <CBehaviorBuff id="HoggerFurzerkerTalentDamageStack">
     <Alignment value="Positive" />
     <InfoFlags index="Hidden" value="0" />
@@ -1478,11 +1467,14 @@
     </Modification>
   </CBehaviorBuff>
   <CBehaviorBuff id="HoggerRiverpawLootHoard" parent="PushPullParent">
-    <Duration value="0.0625" />
+    <Duration value="0.125" />
+    <Period value="0.0625" />
     <Modification>
-      <MoveSpeedMaximum value="12" />
-      <MoveSpeedMinimum value="12" />
+      <MoveSpeedMaximum value="4.5" />
+      <MoveSpeedMinimum value="4.5" />
     </Modification>
+    <InitialEffect value="HoggerRiverpawLootHoardApplyKnockbackForce" />
+    <PeriodicEffect value="HoggerRiverpawLootHoardApplyKnockbackForce" />
   </CBehaviorBuff>
   <CBehaviorUnitTracker id="HoggerHoggWildUnitTracker">
     <BehaviorFlags index="Permanent" value="1" />
@@ -1831,12 +1823,6 @@
     <ImpactUnit Value="Caster" />
     <RechargeVitalFraction value="0.08" />
   </CEffectCreateHealer>
-  <CEffectRemoveBehavior id="HoggerFurzerkerTalentRemoveStackBlind">
-    <ValidatorArray index="0" value="CasterIsBlindedOrTargetIsEvading" />
-    <WhichUnit Value="Caster" />
-    <BehaviorLink value="HoggerFurzerkerTalentDamageStack" />
-    <Count value="1" />
-  </CEffectRemoveBehavior>
   <CEffectApplyBehavior id="HoggerHoardapultApplyMissileTimeStopController">
     <WhichUnit Value="Source" />
     <Behavior value="HoggerHoardapultMissileTimeStopController" />
@@ -2751,10 +2737,6 @@
     <Chance value="0" />
     <EffectArray value="HoggerStaggeringBlowBruteForceTalentAddBonusTokens" />
   </CEffectSet>
-  <CEffectSet id="HoggerFurzerkerTalentProcSet">
-    <EffectArray value="HoggerFurzerkerTalentRemoveStack" />
-    <ValidatorArray value="TargetNotEvading" />
-  </CEffectSet>
   <CEffectSet id="HoggerHoggWildCasterBuffInitialSet" />
   <CEffectModifyUnit id="HoggerHoggWildModifyCooldowns">
     <ImpactUnit Value="Caster" />
@@ -3102,8 +3084,8 @@
     <Behavior value="HoggerRiverpawLootHoard" />
   </CEffectApplyBehavior>
   <CEffectApplyForce id="HoggerRiverpawLootHoardApplyKnockbackForce">
-    <WhichLocation Value="SourceUnit" />
-    <Amount value="50" />
+    <WhichLocation Effect="HoggerRiverpawLootHoardGroundImpactSet" Value="SourceUnit" />
+    <Amount value="25" />
   </CEffectApplyForce>
   <CEffectApplyBehavior id="HoggerLootHoardApplyGarbageFireTalentBuff">
     <Chance value="0" />
@@ -3115,19 +3097,12 @@
   <CEffectSet id="HoggerRiverpawLootHoardGroundImpactSet">
     <ValidatorArray value="noMarkers" />
     <EffectArray value="HoggerLootHoardGroundImpactDamage" />
-    <EffectArray value="HoggerRiverpawLootHoardKnockbackPersistent" />
+    <EffectArray value="HoggerRiverpawLootHoardKnockbackInitialSet" />
   </CEffectSet>
-  <CEffectCreatePersistent id="HoggerRiverpawLootHoardKnockbackPersistent">
+  <CEffectSet id="HoggerRiverpawLootHoardKnockbackInitialSet">
     <ValidatorArray value="TargetNotUnstoppable" />
-    <ValidatorArray value="NotStructureTarget" />
-    <WhichLocation Value="TargetUnit" />
-    <InitialEffect value="HoggerRiverpawLootHoardKnockbackPersistentInitialSet" />
-    <PeriodCount value="1" />
-    <PeriodicEffectArray value="HoggerRiverpawLootHoardApplyKnockbackForce" />
-    <PeriodicPeriodArray value="0.0625" />
-  </CEffectCreatePersistent>
-  <CEffectSet id="HoggerRiverpawLootHoardKnockbackPersistentInitialSet">
     <EffectArray value="HeroRemovePushPullDebuffs" />
+    <EffectArray value="HeroRemovePreventsMovement" />
     <EffectArray value="HoggerRiverpawLootHoardApplyKnockback" />
   </CEffectSet>
   <CEffectSet id="HoggerRiverpawLootHoardMissileGroundImpactSet">
@@ -3375,7 +3350,19 @@
     <Behavior value="HoggerShockwavePowerspikeTalentDebuff" />
   </CEffectApplyBehavior>
   <CEffectApplyForce id="HoggerStaggeringBlowApplyForce">
-    <WhichLocation Value="OriginPoint" />
+    <WhichLocation>
+      <Value value="OriginPoint" />
+      <Effect value="HoggerStaggeringBlowInitialSet" />
+      <ProjectionMultiplier value="1" />
+      <ProjectionSourceEffect value="HoggerStaggeringBlowInitialSet" />
+      <ProjectionSourceValue value="OriginPoint" />
+      <ProjectionTargetEffect value="HoggerStaggeringBlowInitialSet" />
+      <ProjectionTargetValue value="TargetPoint" />
+      <UsesLineDash value="1" />
+      <LineDashType value="AllowedInUnpathable" />
+      <ProjectionAngle value="180" />
+      <ProjectionDistanceScale value="2" />
+    </WhichLocation>
     <Amount value="50" />
     <TimeScaleSource Value="Target" />
   </CEffectApplyForce>
@@ -3385,6 +3372,17 @@
   <CEffectApplyBehavior id="HoggerStaggeringBlowApplyPathingProbe">
     <Behavior value="HoggerStaggeringBlowPathingProbe" />
   </CEffectApplyBehavior>
+  <CEffectCreatePersistent id="HoggerStaggeringBlowPathingBlockerDetectionPersistent">
+    <WhichLocation Value="TargetUnit" />
+    <TimeScaleSource Value="Target" />
+    <ExpireDelay value="0.25" />
+    <CancelEffect value="HoggerStaggeringBlowPathingBlockerCancelSet" />
+    <PeriodicValidator value="HoggerStaggeringBlowPathingBlockerCheckCombine" />
+  </CEffectCreatePersistent>
+  <CEffectSet id="HoggerStaggeringBlowPathingBlockerCancelSet">
+    <ValidatorArray value="HoggerHasStaggeringBlowPathingProbes" />
+    <EffectArray value="HoggerStaggeringBlowCollisionProcSet" />
+  </CEffectSet>
   <CEffectSet id="HoggerStaggeringBlowHeadbangerTalentProcSet">
     <Chance value="0" />
     <EffectArray value="HoggerStaggeringBlowHeadbangerTalentDamage" />
@@ -3451,8 +3449,10 @@
   </CEffectCreatePersistent>
   <CEffectSet id="HoggerStaggeringBlowKnockbackPersistentInitialSet">
     <EffectArray value="HeroRemovePushPullDebuffs" />
+    <EffectArray value="HeroRemovePreventsMovement" />
     <EffectArray value="HoggerStaggeringBlowApplyKnockback" />
     <EffectArray value="HoggerStaggeringBlowApplyPathingProbe" />
+    <EffectArray value="HoggerStaggeringBlowPathingBlockerDetectionPersistent" />
   </CEffectSet>
   <CEffectSet id="HoggerStaggeringBlowKnockbackPersistentFinalSet">
     <EffectArray value="HoggerStaggeringBlowApplyPathingProbeSlop" />
@@ -3544,13 +3544,16 @@
   </CEffectModifyUnit>
   <CEffectSet id="HoggerHeroWeaponAttackSet">
     <EffectArray value="UniversalWeaponLaunchSet" />
-    <EffectArray value="HoggerHeroWeaponImpactSet" />
+    <EffectArray value="UniversalWeaponImpact" />
+    <EffectArray value="HoggerWeaponPreImpactSet" />
+    <EffectArray value="HoggerHeroWeaponDamage" />
+    <EffectArray value="HoggerWeaponPostImpactSet" />
     <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
-  <CEffectSet id="HoggerHeroWeaponImpactSet">
-    <EffectArray value="HoggerHeroWeaponDamage" />
+  <CEffectSet id="HoggerWeaponPreImpactSet" />
+  <CEffectSet id="HoggerWeaponPostImpactSet">
     <EffectArray value="HoggerHeroWeaponGnollFrenzyModifyRageSet" />
-    <EffectArray value="HoggerFurzerkerTalentRemoveStackBlind" />
+    <EffectArray value="HoggerFurzerkerTalentRemoveStack" />
   </CEffectSet>
   <CEffectDamage id="HoggerHeroWeaponDamage" parent="StormWeapon">
     <Amount value="150">
@@ -3559,7 +3562,7 @@
     <SourceButtonFace value="Attack" />
     <LeechFraction index="Life" value="0.33" />
     <LeechValidator index="Life" value="HoggerBloodthirstProcCombine" />
-    <MultiplicativeModifierArray index="FurserkerRageCrit" Validator="HoggerHasGTE1FurzerkerStack" Crit="1" />
+    <MultiplicativeModifierArray index="Furzerker" Validator="HoggerHasGTE1FurzerkerStack" Modifier="0.5" Crit="1" />
   </CEffectDamage>
   <CEffectRemoveBehavior id="HoggerHoggWildCasterBuffRemove">
     <WhichUnit Value="Caster" />
@@ -4646,9 +4649,6 @@
   </CTalent>
   <CTalent id="HoggerFurzerker">
     <Face value="HoggerFurzerker" />
-    <RankArray>
-      <BehaviorArray value="HoggerFurzerkerTalentDamageCarry" />
-    </RankArray>
     <AbilityModificationArray>
       <Modifications>
         <Type value="FlatModification" />
@@ -5434,10 +5434,25 @@
     <Find value="1" />
     <Value value="HoggerDenseBlastingPowder" />
   </CValidatorPlayerTalent>
+  <CValidatorUnitCompareBehaviorCount id="HoggerHasStaggeringBlowPathingProbes">
+    <Value value="1" />
+    <Behavior value="HoggerStaggeringBlowPathingProbe" />
+  </CValidatorUnitCompareBehaviorCount>
   <CValidatorUnitCompareBehaviorCount id="HoggerHasStaggeringBlowPathingProbeSlop">
     <Value value="1" />
     <Behavior value="HoggerStaggeringBlowPathingProbeSlop" />
   </CValidatorUnitCompareBehaviorCount>
+  <CValidatorCombine id="HoggerStaggeringBlowPathingBlockerCheckCombine">
+    <Type value="And" />
+    <CombineArray value="HoggerStaggeringBlowNotInContactWithPathingBlocker" />
+  </CValidatorCombine>
+  <CValidatorUnitState id="HoggerStaggeringBlowNotInContactWithPathingBlocker" parent="UnitIsInContactWithPathingBlocker">
+    <WhichUnit Effect="HoggerStaggeringBlowSearchImpactSet" Value="Target" />
+    <Enabled value="0" />
+  </CValidatorUnitState>
+  <CValidatorUnitState id="HoggerStaggeringBlowInContactWithPathingBlocker" parent="UnitIsInContactWithPathingBlocker">
+    <WhichUnit Effect="HoggerStaggeringBlowSearchImpactSet" Value="Target" />
+  </CValidatorUnitState>
   <CValidatorLocationEnumArea id="HoggerEzThroDynamiteDirectHit">
     <AreaArray Compare="GT" Count="0">
       <Radius value="0.75" />

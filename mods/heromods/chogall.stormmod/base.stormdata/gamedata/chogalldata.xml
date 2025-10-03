@@ -343,7 +343,7 @@
     <On Terms="ActorCreation" Send="QueryPersistent ChoSurgingFistGuideRegionAdd StormGuideRegionRemove AgainstRadiusGame" />
   </CActorRegion>
   <CActorModel id="ChoFuelForTheFlameExplosionRing" parent="StormModelAnimationStyleOneShot">
-    <On Terms="Effect.ChoFuelForTheFlameSearch.Start; At Effect" Send="Create" />
+    <On Terms="Effect.ChoFuelForTheFlameSearchSwitch.Start; At Effect" Send="Create" />
     <On Terms="ActorCreation" Send="SetTintColor {64,0,128 1.500000}" />
     <Scale value="1.050000" />
     <HostSiteOps Ops="SOpTargetPointStationary" HoldPosition="1" HoldRotation="1" />
@@ -399,7 +399,7 @@
     <HostSiteOps Ops="SOpAttachCenter" />
     <Sound value="Cho_TwoHeadedOgre_PhysicalCast2" />
   </CActorSound>
-  <CActorAction id="ChoHammerofTwilightAttackActionActor" parent="MeleeHeroAttack" effectAttack="ChoHeroWeaponHammerofTwilightTalentMeleeImpactSet">
+  <CActorAction id="ChoHammerofTwilightAttackActionActor" parent="MeleeHeroAttack" effectAttack="ChoHammerOfTwilightImpactDummy">
     <LaunchSiteOps Ops="SOpAttachWeaponRight" />
     <ImpactMap index="None" Model="Invisible" Sound="ChoGall_TwilightHammerAttackImpact_Unit" ModelReaction="ChoAttackActionActorImpactReaction" />
     <ImpactMap index="Rock" Model="Invisible" Sound="ChoGall_TwilightHammerAttackImpact_Building" />
@@ -543,7 +543,7 @@
     <Magnitude value="50.000000" />
     <Radius value="4.500000" />
   </CActorForceSphere>
-  <CActorAction id="ChoCthunsGiftAttack" parent="RangedHeroAttack" effectImpact="ChoHeroWeaponCthunsGiftTalentRangedImpactSet" effectLaunch="ChoHeroWeaponCThunsGiftTalentLaunchMissile">
+  <CActorAction id="ChoCthunsGiftAttack" parent="RangedHeroAttackMissile" effectImpact="ChoCthunsGiftImpactDummy" effectLaunch="ChoHeroWeaponCThunsGiftTalentLaunchMissile">
     <LaunchAttachQuery Methods="AMFilterWeaponRight" />
     <LaunchAssets Model="ChoCThunsGiftBeam" />
     <Missile value="ChoCthunsGiftMissile" />
@@ -553,7 +553,7 @@
   <CActorMissile id="ChoCthunsGiftMissile" parent="GenericAttackMissile" unitName="ChoCThunsGiftMissile">
     <ModelFlags index="AutomateGlobalLoops" value="1" />
   </CActorMissile>
-  <CActorAction id="ChoAttackActionActor" parent="MeleeHeroAttack" effectAttack="ChoHeroWeaponMeleeImpactSet">
+  <CActorAction id="ChoAttackActionActor" parent="MeleeHeroAttack" effectAttack="ChoMeleeWeaponImpactDummy">
     <LaunchSiteOps Ops="SOpAttachWeaponRight" />
     <ImpactMap index="None" Model="Invisible" />
     <ImpactMap index="Rock" Model="Invisible" Sound="ChoGall_AttackImpact_Building" />
@@ -1933,8 +1933,7 @@
     <Buttons Face="ChoTalentMoltenBlock" Type="AbilCmd" AbilCmd="ChoTalentMoltenBlock,On" />
     <Buttons Face="ChoTalentMoltenBlockCancel" Type="AbilCmd" AbilCmd="ChoTalentMoltenBlock,Off" />
   </CBehaviorAbility>
-  <CBehaviorBuff id="ChoOgreHideCallousedHideTalentMoveSpeedCarry">
-    <BehaviorCategories index="Fast" value="1" />
+  <CBehaviorBuff id="ChoOgreHideCallousedHideTalentMoveSpeedCarry" parent="CarryBehaviorParent">
     <DisableValidatorArray value="ChoHasCallousedHideTalent" />
     <DisableValidatorArray value="CasterLifeLT60Percent" />
     <Modification>
@@ -1998,15 +1997,6 @@
   <CBehaviorBuff id="ChoOgreRageVisualController" parent="CarryBehaviorParent">
     <DisableValidatorArray value="ChoHasOgreHideAbilityAvailableBuff" />
     <DisableValidatorArray value="TargetNotDead" />
-  </CBehaviorBuff>
-  <CBehaviorBuff id="ChoRunedGauntletCarryBehavior" parent="CarryBehaviorParent">
-    <DisableValidatorArray value="ChoTalentHasRunedGauntlet" />
-    <DamageResponse Chance="1" Handled="ChoRunedGauntletDamageResponseSet" Location="Attacker">
-      <RequireEffectArray value="ChoHeroWeaponDamage" />
-      <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
-      <Kind index="Splash" value="0" />
-      <Kind index="Ability" value="0" />
-    </DamageResponse>
   </CBehaviorBuff>
   <CBehaviorBuff id="GallOgreRageOgreRampageDurationBuff">
     <DisableValidatorArray value="GallHasOgreRampageTalentTarget" />
@@ -2228,6 +2218,11 @@
     <BehaviorFlags index="Permanent" value="1" />
     <Requirements value="CasterNotVisionImpared" />
   </CBehaviorConjoined>
+  <CBehaviorUnitTracker id="ChoGallConjoinedUnitTracker">
+    <BehaviorFlags index="Permanent" value="1" />
+    <BehaviorFlags index="EnabledWhileDead" value="1" />
+    <MaxTrackedUnits value="1" />
+  </CBehaviorUnitTracker>
   <CBehaviorBuff id="ChoRuneBombSlowDownController">
     <Duration value="1.8125" />
   </CBehaviorBuff>
@@ -2386,12 +2381,21 @@
       <ModifyFlags index="OrdersUninterruptible" value="1" />
     </Modification>
   </CBehaviorBuff>
-  <CBehaviorBuff id="ChoSurgingFistKnockbackBehavior" parent="PushPullParent">
+  <CBehaviorBuff id="ChoSurgingFistPushOffsetParent" parent="PushPullParent">
     <Duration value="0.125" />
+    <Period value="0.0625" />
     <Modification>
-      <MoveSpeedMaximum value="16" />
-      <MoveSpeedMinimum value="16" />
+      <MoveSpeedMaximum value="20" />
+      <MoveSpeedMinimum value="20" />
     </Modification>
+  </CBehaviorBuff>
+  <CBehaviorBuff id="ChoSurgingFistLeftPush" parent="ChoSurgingFistPushOffsetParent">
+    <InitialEffect value="ChoSurgingFistApplyForceLeft" />
+    <PeriodicEffect value="ChoSurgingFistApplyForceLeft" />
+  </CBehaviorBuff>
+  <CBehaviorBuff id="ChoSurgingFistRightPush" parent="ChoSurgingFistPushOffsetParent">
+    <InitialEffect value="ChoSurgingFistApplyForceRight" />
+    <PeriodicEffect value="ChoSurgingFistApplyForceRight" />
   </CBehaviorBuff>
   <CBehaviorBuff id="ChoHammerOfTwilightCarryBehavior">
     <BehaviorFlags index="Permanent" value="1" />
@@ -2399,10 +2403,13 @@
   </CBehaviorBuff>
   <CBehaviorBuff id="ChoHammerOfTwilightKnockbackBehavior" parent="PushPullParent">
     <Duration value="0.25" />
+    <Period value="0.0625" />
     <Modification>
-      <MoveSpeedMaximum value="20" />
-      <MoveSpeedMinimum value="20" />
+      <MoveSpeedMaximum value="17.7" />
+      <MoveSpeedMinimum value="17.7" />
     </Modification>
+    <InitialEffect value="ChoHammerOfTwilightKnockbackForce" />
+    <PeriodicEffect value="ChoHammerOfTwilightKnockbackForce" />
   </CBehaviorBuff>
   <CBehaviorBuff id="ChoHammerOfTwilightKnockbackBehaviorStun" parent="StormStun">
     <Duration value="0.75" />
@@ -2417,32 +2424,26 @@
     <InfoFlags index="AlwaysUseGameText" value="1" />
     <InitialEffect value="GallRunicBlastResetCooldown" />
   </CBehaviorBuff>
-  <CBehaviorBuff id="ChoUpheavalKnockbackBehaviorClose" parent="PushPullParent">
+  <CBehaviorBuff id="ChoUpheavalKnockbackBehaviorParent" parent="PushPullParent">
     <Duration value="0.5" />
-    <InitialEffect value="ChoUpheavalCloseRangeHeightDelay" />
+    <Period value="0.0625" />
+    <InitialEffect value="ChoUpheavalForceApply" />
+    <PeriodicEffect value="ChoUpheavalForceApply" />
+    <FinalEffect value="ChoUpheavalApplyFavoroftheOldGodsTalentRoot" />
     <Modification>
       <StateFlags index="LineMovement" value="1" />
       <MoveSpeedMaximum value="22" />
       <MoveSpeedMinimum value="22" />
     </Modification>
   </CBehaviorBuff>
-  <CBehaviorBuff id="ChoUpheavalKnockbackBehaviorMedium" parent="PushPullParent">
-    <Duration value="0.5" />
-    <InitialEffect value="ChoUpheavalMidRangeHeighDelay" />
-    <Modification>
-      <StateFlags index="LineMovement" value="1" />
-      <MoveSpeedMaximum value="22" />
-      <MoveSpeedMinimum value="22" />
-    </Modification>
+  <CBehaviorBuff id="ChoUpheavalKnockbackBehaviorClose" parent="ChoUpheavalKnockbackBehaviorParent">
+    <EnableEffect value="ChoUpheavalCloseRangeHeightDelay" />
   </CBehaviorBuff>
-  <CBehaviorBuff id="ChoUpheavalKnockbackBehaviorFar" parent="PushPullParent">
-    <Duration value="0.5" />
-    <InitialEffect value="ChoUpheavalApplyHeightBehavior" />
-    <Modification>
-      <StateFlags index="LineMovement" value="1" />
-      <MoveSpeedMaximum value="22" />
-      <MoveSpeedMinimum value="22" />
-    </Modification>
+  <CBehaviorBuff id="ChoUpheavalKnockbackBehaviorMedium" parent="ChoUpheavalKnockbackBehaviorParent">
+    <EnableEffect value="ChoUpheavalMidRangeHeighDelay" />
+  </CBehaviorBuff>
+  <CBehaviorBuff id="ChoUpheavalKnockbackBehaviorFar" parent="ChoUpheavalKnockbackBehaviorParent">
+    <EnableEffect value="ChoUpheavalApplyHeightBehavior" />
   </CBehaviorBuff>
   <CBehaviorBuff id="ChoUpheavalSlowBehavior" parent="StormSlowParent">
     <Duration value="3" />
@@ -2991,15 +2992,6 @@
     <RechargeVitalRate value="10" />
     <SourceButtonFace value="ChoEnragedRegeneration" />
   </CEffectCreateHealer>
-  <CEffectModifyUnit id="ChoRuneBombRunedGauntletTalentModifyGallCooldowns">
-    <ImpactUnit Effect="ChoGallLinkUnitsInitialSet" />
-    <Cost Abil="GallShadowboltVolley,Execute" CooldownOperation="Add">
-      <Fraction Cooldown="-0.06" />
-    </Cost>
-    <Cost Abil="GallTwistingNether,Execute" CooldownOperation="Add">
-      <Fraction Cooldown="-0.06" />
-    </Cost>
-  </CEffectModifyUnit>
   <CEffectApplyBehavior id="ChoSurgingFirstPowerSurgePostCastMoveSpeedBuffApplyBehavior">
     <ValidatorArray value="ChoTalentHasPowerSurge" />
     <WhichUnit Value="Caster" />
@@ -3092,17 +3084,6 @@
     <ImpactUnit Effect="ChoGallLinkUnitsInitialSet" />
     <Cost Abil="GallShove,Execute" CooldownOperation="Add" CooldownTimeUse="-1" />
   </CEffectModifyUnit>
-  <CEffectModifyPlayer id="ChoRuneBombRunedGauntletTalentModifyGallPlayerCooldowns">
-    <WhichPlayer Effect="ChoGallLinkUnitsInitialSet" />
-    <Cost>
-      <Cooldown>
-        <Link value="Abil/GallTwistingNether" />
-        <Location value="Player" />
-        <Operation value="Add" />
-        <TimeUse value="-0.75" />
-      </Cooldown>
-    </Cost>
-  </CEffectModifyPlayer>
   <CEffectSwitch id="ChoRuneBombRunicFeedbackTalentImpactSwitch">
     <CaseArray Validator="TargetIsHero" Effect="ChoRuneBombRunicFeedbackTalentModifyCooldownHeroTarget" />
     <CaseDefault value="ChoRuneBombRunicFeedbackTalentModifyCooldown" />
@@ -3112,19 +3093,51 @@
     <ImpactUnit Value="Caster" />
     <Cost Abil="ChoRuneBomb,Execute" CooldownOperation="Add" CooldownTimeUse="-2" />
   </CEffectModifyUnit>
-  <CEffectApplyBehavior id="ChoRunedGauntletApplyCarry">
-    <WhichUnit Effect="ChoGallLinkUnitsInitialSet" Value="Caster" />
-    <Behavior value="ChoRunedGauntletCarryBehavior" />
-  </CEffectApplyBehavior>
   <CEffectApplyBehavior id="GallShoveApplyTaskmasterTalentCarry">
     <WhichUnit Effect="ChoGallLinkUnitsInitialSet" Value="Caster" />
     <Behavior value="GallShoveTaskmasterTalentCarry" />
   </CEffectApplyBehavior>
-  <CEffectSet id="ChoRunedGauntletDamageResponseSet">
+  <CEffectSet id="ChoRunedGauntletActivateSet">
+    <ValidatorArray value="ChoCasterHasHasRunedGauntletTalent" />
+    <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
     <EffectArray value="ChoRuneBombRunedGauntletTalentModifyChoCooldowns" />
+    <EffectArray value="ChoRunedGauntletEnumGallUnit" />
+  </CEffectSet>
+  <CEffectModifyUnit id="ChoRuneBombRunedGauntletTalentModifyChoCooldowns">
+    <ImpactUnit Value="Caster" />
+    <Cost Abil="ChoUpheaval,Execute" CooldownOperation="Add">
+      <Fraction Cooldown="-0.06" />
+    </Cost>
+    <Cost Abil="ChoHammerOfTwilight,Execute" CooldownOperation="Add">
+      <Fraction Cooldown="-0.06" />
+    </Cost>
+  </CEffectModifyUnit>
+  <CEffectEnumTrackedUnits id="ChoRunedGauntletEnumGallUnit">
+    <BehaviorLink value="ChoGallConjoinedUnitTracker" />
+    <Effect value="ChoRunedGauntletModifyGallCooldownsSet" />
+  </CEffectEnumTrackedUnits>
+  <CEffectSet id="ChoRunedGauntletModifyGallCooldownsSet">
     <EffectArray value="ChoRuneBombRunedGauntletTalentModifyGallCooldowns" />
     <EffectArray value="ChoRuneBombRunedGauntletTalentModifyGallPlayerCooldowns" />
   </CEffectSet>
+  <CEffectModifyUnit id="ChoRuneBombRunedGauntletTalentModifyGallCooldowns">
+    <Cost Abil="GallShadowboltVolley,Execute" CooldownOperation="Add">
+      <Fraction Cooldown="-0.06" />
+    </Cost>
+    <Cost Abil="GallTwistingNether,Execute" CooldownOperation="Add">
+      <Fraction Cooldown="-0.06" />
+    </Cost>
+  </CEffectModifyUnit>
+  <CEffectModifyPlayer id="ChoRuneBombRunedGauntletTalentModifyGallPlayerCooldowns">
+    <Cost>
+      <Cooldown>
+        <Link value="Abil/GallTwistingNether" />
+        <Location value="Player" />
+        <Operation value="Add" />
+        <TimeUse value="-0.75" />
+      </Cooldown>
+    </Cost>
+  </CEffectModifyPlayer>
   <CEffectModifyUnit id="ChoOgreHideModifyGallOgreRageCooldown">
     <Cost Abil="GallOgreRage,Execute">
       <Fraction Cooldown="1" />
@@ -3423,19 +3436,20 @@
   </CEffectModifyTokenCount>
   <CEffectSet id="ChoGallLinkUnitsInitialSet">
     <EffectArray value="ChoOgreHideApplyArmorBuff" />
-    <EffectArray value="ChoRunedGauntletApplyCarry" />
     <EffectArray value="GallShoveApplyTaskmasterTalentCarry" />
     <EffectArray value="GallShoveApplyShoveDisablerBehavior" />
+    <EffectArray value="ChoAddGallUnitToConjoinedTracker" />
+    <EffectArray value="GallAddChoUnitToConjoinedTracker" />
   </CEffectSet>
-  <CEffectModifyUnit id="ChoRuneBombRunedGauntletTalentModifyChoCooldowns">
-    <ImpactUnit Effect="ChoGallLinkUnitsInitialSet" Value="Caster" />
-    <Cost Abil="ChoUpheaval,Execute" CooldownOperation="Add">
-      <Fraction Cooldown="-0.06" />
-    </Cost>
-    <Cost Abil="ChoHammerOfTwilight,Execute" CooldownOperation="Add">
-      <Fraction Cooldown="-0.06" />
-    </Cost>
-  </CEffectModifyUnit>
+  <CEffectAddTrackedUnit id="ChoAddGallUnitToConjoinedTracker">
+    <BehaviorLink value="ChoGallConjoinedUnitTracker" />
+    <TrackedUnit Value="Target" />
+  </CEffectAddTrackedUnit>
+  <CEffectAddTrackedUnit id="GallAddChoUnitToConjoinedTracker">
+    <BehaviorLink value="ChoGallConjoinedUnitTracker" />
+    <TrackerUnit Value="Target" />
+    <TrackedUnit Value="Caster" />
+  </CEffectAddTrackedUnit>
   <CEffectModifyTokenCount id="ChoSurgingFistResetUppercutTalentTokenCount" parent="BaseEffectModifyTokenCount">
     <ValidatorArray value="ChoHasUppercutTalent" />
     <TokenId value="ChoUppercutTokenCounter" />
@@ -3510,22 +3524,17 @@
     <EffectArray value="GallTwistingNetherApplyFirstSecondLeadIn" />
   </CEffectSet>
   <CEffectSet id="GallShiftingNetherNetherShiftTalentChoImpactSet">
-    <ValidatorArray value="TargetisCho" />
     <EffectArray value="GallShiftingNetherNetherShiftTalentTeleport" />
   </CEffectSet>
-  <CEffectEnumArea id="GallShiftingNetherNetherShiftTalentChoSearch">
-    <LaunchLocation Value="CasterUnit" />
-    <ImpactLocation Value="CasterUnit" />
-    <SearchFilters value="Heroic;Neutral,Enemy,Hallucination" />
-    <AreaArray Effect="GallShiftingNetherNetherShiftTalentChoImpactSet">
-      <Radius value="0.5" />
-    </AreaArray>
-  </CEffectEnumArea>
+  <CEffectEnumTrackedUnits id="GallShiftingNetherEnumGallUnit">
+    <BehaviorLink value="ChoGallConjoinedUnitTracker" />
+    <Effect value="GallShiftingNetherNetherShiftTalentChoImpactSet" />
+  </CEffectEnumTrackedUnits>
   <CEffectSet id="GallShoveForceFinalSet">
     <EffectArray value="GallShoveApplyMoveSpeedSwitch" />
   </CEffectSet>
   <CEffectSet id="GallShiftingNetherNetherShiftTalentCastSet">
-    <EffectArray value="GallShiftingNetherNetherShiftTalentChoSearch" />
+    <EffectArray value="GallShiftingNetherEnumGallUnit" />
     <EffectArray value="GallShiftingNetherNetherShiftTalentInitialSet" />
     <EffectArray value="GallShiftingNetherNetherShiftTalentModifyCooldown" />
     <TargetLocationType value="Point" />
@@ -3611,6 +3620,7 @@
     <TokenId value="GallTheWillofGallTokenCounter" />
   </CEffectModifyTokenCount>
   <CEffectSet id="ChoHeroWeaponHammerofTwilightTalentMeleeImpactSet">
+    <EffectArray value="ChoHammerOfTwilightImpactDummy" />
     <EffectArray value="ChoHeroWeaponImpactSet" />
   </CEffectSet>
   <CEffectLaunchMissile id="ChoHeroWeaponCThunsGiftTalentLaunchMissile">
@@ -4003,21 +4013,26 @@
     <EffectArray value="ChoConsumingBlazeSearchArea" />
     <EffectArray value="ChoConsumingBlazeSetWeaponCooldown" />
   </CEffectSet>
-  <CEffectEnumArea id="ChoFuelForTheFlameSearch">
-    <ValidatorArray value="TargetNotInvulnerableOrBenign" />
-    <ValidatorArray value="TargetNotStasis" />
+  <CEffectSwitch id="ChoFuelForTheFlameSearchSwitch">
     <ValidatorArray value="ChoTalentHasFuelForTheFlame" />
     <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
+    <CaseArray Validator="TargetIsBenign" Effect="ChoFuelForTheFlameSearchIncludeBenign" />
+    <CaseDefault value="ChoFuelForTheFlameSearch" />
+  </CEffectSwitch>
+  <CEffectEnumArea id="ChoFuelForTheFlameSearch">
     <ImpactLocation Value="TargetPoint" />
     <ExcludeArray Value="Target" />
-    <SearchFilters value="-;Player,Ally,Neutral,ImmuneToAOE,Missile,Stasis,Dead,Hidden,Invulnerable" />
+    <SearchFilters value="-;Player,Ally,Neutral,ImmuneToAOE,Missile,Stasis,Dead,Hidden,Invulnerable,Benign" />
     <AreaArray Effect="ChoFuelForTheFlameExplosionDamage">
       <Radius value="3.3" />
     </AreaArray>
-    <RevealerParams HeightMap="Ground" Duration="0.5" ShapeExpansion="0.5">
+    <RevealerParams Duration="0.75" ShapeExpansion="1">
       <RevealFlags index="Unfog" value="1" />
     </RevealerParams>
     <SearchFlags index="DoActorSearch" value="1" />
+  </CEffectEnumArea>
+  <CEffectEnumArea id="ChoFuelForTheFlameSearchIncludeBenign" parent="ChoFuelForTheFlameSearch">
+    <SearchFilters value="-;Player,Ally,Neutral,ImmuneToAOE,Missile,Stasis,Dead,Hidden,Invulnerable" />
   </CEffectEnumArea>
   <CEffectSwitch id="ChoConsumingBlazeApplyCasterHealerSwitch">
     <ValidatorArray value="NoDestructibleBehavior" />
@@ -4063,10 +4078,6 @@
     <Weapon Weapon="ChoShortRangeHeroWeapon" CooldownOperation="Max" CooldownAmount="0.25" />
     <Weapon Weapon="ChoLongRangeHeroWeaponCthunsGift" CooldownOperation="Max" CooldownAmount="0.25" />
   </CEffectModifyUnit>
-  <CEffectSet id="ChoUpheavalKnockbackPersistentInitialSet">
-    <EffectArray value="ChoUpheavalApplyKnockbackBehaviorSwitch" />
-    <EffectArray value="ChoUpheavalKnockbackForce" />
-  </CEffectSet>
   <CEffectSet id="GallShadowBoltVolleyInitialCastIssueOrderSet">
     <EffectArray value="GallShadowBoltVolleyInitialCastIssueOrder" />
     <TargetLocationType value="Point" />
@@ -4283,8 +4294,7 @@
   </CEffectEnumArea>
   <CEffectSet id="ChoSurgingFistImpactSetLeft">
     <ValidatorArray value="noMarkers" />
-    <EffectArray value="ChoSurgingFistApplyKnockbackBehavior" />
-    <EffectArray value="ChoSurgingFistImpactOffsetLeftPersistent" />
+    <EffectArray value="ChoSurgingFistKnockbackInitialSetLeft" />
     <EffectArray value="ChoSurgingFistImpactedDamage" />
     <EffectArray value="ChoSurgingFistUppercutTalentDamage" />
     <EffectArray value="ChoSurgingFistUppercutTalentModifyCooldown" />
@@ -4293,52 +4303,56 @@
   </CEffectSet>
   <CEffectSet id="ChoSurgingFistImpactSetRight">
     <ValidatorArray value="noMarkers" />
-    <EffectArray value="ChoSurgingFistApplyKnockbackBehavior" />
-    <EffectArray value="ChoSurgingFistImpactOffsetRightPersistent" />
+    <EffectArray value="ChoSurgingFistKnockbackInitialSetRight" />
     <EffectArray value="ChoSurgingFistImpactedDamage" />
     <EffectArray value="ChoSurgingFistUppercutTalentDamage" />
     <EffectArray value="ChoSurgingFistUppercutTalentModifyCooldown" />
     <EffectArray value="ChoEnragedRegenerationApplyHoT" />
     <EffectArray value="ChoSurgingFistPowerSurgeSlowApplyBehavior" />
   </CEffectSet>
-  <CEffectApplyBehavior id="ChoSurgingFistApplyKnockbackBehavior">
-    <Behavior value="ChoSurgingFistKnockbackBehavior" />
-  </CEffectApplyBehavior>
-  <CEffectCreatePersistent id="ChoSurgingFistImpactOffsetLeftPersistent">
+  <CEffectSet id="ChoSurgingFistKnockbackInitialSetLeft">
     <ValidatorArray value="TargetNotUnstoppable" />
-    <WhichLocation Value="TargetUnit" />
-    <OffsetVectorStartLocation Value="TargetPoint" />
-    <InitialEffect value="ChoSurgingFistImpactForceLeft" />
-    <InitialOffset X="5" />
-  </CEffectCreatePersistent>
-  <CEffectCreatePersistent id="ChoSurgingFistImpactForceLeft">
-    <InitialEffect value="ChoSurgingFistImpactApplyForceLeft" />
-    <PeriodCount value="4" />
-    <PeriodicEffectArray value="ChoSurgingFistImpactApplyForceLeft" />
-    <PeriodicPeriodArray value="0.0625" />
-  </CEffectCreatePersistent>
-  <CEffectApplyForce id="ChoSurgingFistImpactApplyForceLeft">
-    <WhichLocation Value="TargetPoint" />
-    <WhichUnit Effect="ChoSurgingFistImpactOffsetLeftPersistent" />
-    <Amount value="-20" />
-  </CEffectApplyForce>
-  <CEffectCreatePersistent id="ChoSurgingFistImpactOffsetRightPersistent">
+    <EffectArray value="HeroRemovePushPullDebuffs" />
+    <EffectArray value="HeroRemovePreventsMovement" />
+    <EffectArray value="ChoSurgingFistKnockbackCreationPersistentLeft" />
+  </CEffectSet>
+  <CEffectSet id="ChoSurgingFistKnockbackInitialSetRight">
     <ValidatorArray value="TargetNotUnstoppable" />
-    <WhichLocation Value="TargetUnit" />
-    <OffsetVectorStartLocation Value="TargetPoint" />
-    <InitialEffect value="ChoSurgingFistImpactForceRight" />
+    <EffectArray value="HeroRemovePushPullDebuffs" />
+    <EffectArray value="HeroRemovePreventsMovement" />
+    <EffectArray value="ChoSurgingFistKnockbackCreationPersistentRight" />
+  </CEffectSet>
+  <CEffectCreatePersistent id="ChoSurgingFistKnockbackCreationPersistentLeft">
+    <OffsetVectorStartLocation Effect="ChoSurgingFistCastSet" Value="OriginPoint" />
+    <OffsetVectorEndLocation Effect="ChoSurgingFistExecutionPersistent" Value="TargetPoint" />
+    <WhichLocation Effect="ChoSurgingFistKnockbackInitialSetLeft" Value="TargetUnit" />
     <InitialOffset X="-5" />
+    <InitialEffect value="ChoSurgingFistLeftPushApply" />
   </CEffectCreatePersistent>
-  <CEffectCreatePersistent id="ChoSurgingFistImpactForceRight">
-    <InitialEffect value="ChoSurgingFistImpactApplyForceRight" />
-    <PeriodCount value="4" />
-    <PeriodicEffectArray value="ChoSurgingFistImpactApplyForceRight" />
-    <PeriodicPeriodArray value="0.0625" />
+  <CEffectApplyBehavior id="ChoSurgingFistLeftPushApply">
+    <WhichUnit Effect="ChoSurgingFistKnockbackInitialSetLeft" />
+    <Behavior value="ChoSurgingFistLeftPush" />
+  </CEffectApplyBehavior>
+  <CEffectCreatePersistent id="ChoSurgingFistKnockbackCreationPersistentRight">
+    <OffsetVectorStartLocation Effect="ChoSurgingFistCastSet" Value="OriginPoint" />
+    <OffsetVectorEndLocation Effect="ChoSurgingFistExecutionPersistent" Value="TargetPoint" />
+    <WhichLocation Effect="ChoSurgingFistKnockbackInitialSetRight" Value="TargetUnit" />
+    <InitialOffset X="5" />
+    <InitialEffect value="ChoSurgingFistRightPushApply" />
   </CEffectCreatePersistent>
-  <CEffectApplyForce id="ChoSurgingFistImpactApplyForceRight">
-    <WhichLocation Value="TargetPoint" />
-    <WhichUnit Effect="ChoSurgingFistImpactOffsetRightPersistent" />
-    <Amount value="-20" />
+  <CEffectApplyBehavior id="ChoSurgingFistRightPushApply">
+    <WhichUnit Effect="ChoSurgingFistKnockbackInitialSetRight" />
+    <Behavior value="ChoSurgingFistRightPush" />
+  </CEffectApplyBehavior>
+  <CEffectApplyForce id="ChoSurgingFistApplyForceLeft">
+    <WhichUnit Effect="ChoSurgingFistKnockbackInitialSetLeft" />
+    <WhichLocation Effect="ChoSurgingFistLeftPushApply" Value="TargetPoint" />
+    <Amount value="20" />
+  </CEffectApplyForce>
+  <CEffectApplyForce id="ChoSurgingFistApplyForceRight">
+    <WhichUnit Effect="ChoSurgingFistKnockbackInitialSetRight" />
+    <WhichLocation Effect="ChoSurgingFistRightPushApply" Value="TargetPoint" />
+    <Amount value="20" />
   </CEffectApplyForce>
   <CEffectDamage id="ChoSurgingFistImpactedDamage" parent="StormSpell">
     <Amount value="46" />
@@ -4461,36 +4475,40 @@
     <EffectArray value="ChoUpheavalImpactSet" />
   </CEffectSet>
   <CEffectSet id="ChoUpheavalImpactSet">
-    <EffectArray value="ChoUpheavalPushbackOffsetPersistent" />
+    <EffectArray value="ChoUpheavalPushbackApplySet" />
     <EffectArray value="ChoUpheavalDamage" />
     <EffectArray value="ChoUpheavalApplySlowBehavior" />
     <EffectArray value="ChoEnragedRegenerationApplyHoT" />
     <EffectArray value="ApplyAbilityImpactReveal" />
   </CEffectSet>
-  <CEffectCreatePersistent id="ChoUpheavalPushbackOffsetPersistent">
+  <CEffectSet id="ChoUpheavalPushbackApplySet">
     <ValidatorArray value="TargetNotUnstoppable" />
-    <OffsetVectorStartLocation Value="OriginPoint" />
-    <InitialEffect value="ChoUpheavalLocationSet" />
-    <InitialOffset Y="18" />
-  </CEffectCreatePersistent>
-  <CEffectSet id="ChoUpheavalLocationSet">
     <EffectArray value="HeroRemovePushPullDebuffs" />
-    <EffectArray value="ChoUpheavalKnockbackPersistent" />
+    <EffectArray value="HeroRemovePreventsMovement" />
+    <EffectArray value="ChoUpheavalPushbackCreationPersistent" />
   </CEffectSet>
-  <CEffectCreatePersistent id="ChoUpheavalKnockbackPersistent">
-    <InitialEffect value="ChoUpheavalKnockbackPersistentInitialSet" />
-    <FinalEffect value="ChoUpheavalRemoveKnockbackBehaviorSet" />
-    <PeriodCount value="7" />
-    <PeriodicEffectArray value="ChoUpheavalKnockbackForce" />
-    <PeriodicPeriodArray value="0.0625" />
-    <WhichLocation Effect="ChoUpheavalImpactSet" Value="TargetUnit" />
-    <PeriodicValidator value="HasChoUpheavalKnockbackCombine" />
+  <CEffectCreatePersistent id="ChoUpheavalPushbackCreationPersistent">
+    <OffsetVectorStartLocation Value="OriginPoint" />
+    <InitialEffect value="ChoUpheavalApplyKnockbackSwitch" />
+    <InitialOffset Y="-18" />
   </CEffectCreatePersistent>
-  <CEffectSwitch id="ChoUpheavalApplyKnockbackBehaviorSwitch">
-    <CaseArray Validator="ChoUpheavalRangeLT6" Effect="ChoUpheavalApplyKnockbackBehaviorClose" />
-    <CaseArray Validator="ChoUpheavalMidRangeCombine" Effect="ChoUpheavalApplyKnockbackBehaviorMedium" />
-    <CaseDefault value="ChoUpheavalApplyKnockbackBehaviorFar" />
+  <CEffectSwitch id="ChoUpheavalApplyKnockbackSwitch">
+    <CaseArray Validator="ChoUpheavalRangeLT6" Effect="ChoUpheavalApplyKnockbackClose" />
+    <CaseArray Validator="ChoUpheavalMidRangeCombine" Effect="ChoUpheavalApplyKnockbackMedium" />
+    <CaseDefault value="ChoUpheavalApplyKnockbackFar" />
   </CEffectSwitch>
+  <CEffectApplyBehavior id="ChoUpheavalApplyKnockbackClose">
+    <WhichUnit Effect="ChoUpheavalImpactSet" />
+    <Behavior value="ChoUpheavalKnockbackBehaviorClose" />
+  </CEffectApplyBehavior>
+  <CEffectApplyBehavior id="ChoUpheavalApplyKnockbackMedium">
+    <WhichUnit Effect="ChoUpheavalImpactSet" />
+    <Behavior value="ChoUpheavalKnockbackBehaviorMedium" />
+  </CEffectApplyBehavior>
+  <CEffectApplyBehavior id="ChoUpheavalApplyKnockbackFar">
+    <WhichUnit Effect="ChoUpheavalImpactSet" />
+    <Behavior value="ChoUpheavalKnockbackBehaviorFar" />
+  </CEffectApplyBehavior>
   <CEffectApplyBehavior id="ChoUpheavalApplyKnockbackBehaviorClose">
     <Behavior value="ChoUpheavalKnockbackBehaviorClose" />
   </CEffectApplyBehavior>
@@ -4500,6 +4518,11 @@
   <CEffectApplyBehavior id="ChoUpheavalApplyKnockbackBehaviorFar">
     <Behavior value="ChoUpheavalKnockbackBehaviorFar" />
   </CEffectApplyBehavior>
+  <CEffectApplyForce id="ChoUpheavalForceApply">
+    <WhichLocation Effect="ChoUpheavalApplyKnockbackSwitch" Value="TargetPoint" />
+    <WhichUnit Effect="ChoUpheavalImpactSet" />
+    <Amount value="100" />
+  </CEffectApplyForce>
   <CEffectCreatePersistent id="ChoUpheavalMidRangeHeighDelay">
     <WhichLocation Value="TargetUnit" />
     <InitialDelay value="0.0625" />
@@ -4516,11 +4539,6 @@
   <CEffectApplyBehavior id="ChoUpheavalApplySlowBehavior" parent="StormSlowApply">
     <Behavior value="ChoUpheavalSlowBehavior" />
   </CEffectApplyBehavior>
-  <CEffectApplyForce id="ChoUpheavalKnockbackForce">
-    <Amount value="-100" />
-    <WhichLocation Effect="ChoUpheavalLocationSet" Value="TargetPoint" />
-    <WhichUnit Effect="ChoUpheavalImpactSet" />
-  </CEffectApplyForce>
   <CEffectSet id="ChoUpheavalRemoveKnockbackBehaviorSet">
     <EffectArray value="ChoUpheavalRemoveKnockbackBehaviorClose" />
     <EffectArray value="ChoUpheavalRemoveKnockbackBehaviorMedium" />
@@ -4612,29 +4630,35 @@
   <CEffectSet id="ChoHammerOfTwilightImpactSet">
     <ValidatorArray value="noMarkers" />
     <EffectArray value="ChoGallTwilightHammerDamage" />
-    <EffectArray value="ChoHammerOfTwilightKnockbackPersistent" />
+    <EffectArray value="ChoHammerOfTwilightApplyKnockbackSet" />
     <EffectArray value="ChoEnragedRegenerationApplyHoT" />
     <EffectArray value="ApplyAbilityImpactReveal" />
     <EffectArray value="CameraShakeLightTauntingTotemSet" />
     <EffectArray value="CameraShakeLightCasterDummySet" />
   </CEffectSet>
-  <CEffectCreatePersistent id="ChoHammerOfTwilightKnockbackPersistent">
-    <WhichLocation Value="TargetUnit" />
-    <InitialEffect value="ChoHammerOfTwilightApplyBehaviorSet" />
-    <PeriodCount value="4" />
-    <PeriodicValidator value="ChoTargetHasHammerOfTwilightKnockback" />
-    <PeriodicEffectArray value="ChoHammerOfTwilightKnockbackForce" />
-    <PeriodicPeriodArray value="0.0625" />
-  </CEffectCreatePersistent>
-  <CEffectApplyForce id="ChoHammerOfTwilightKnockbackForce">
-    <Amount value="9000" />
-  </CEffectApplyForce>
-  <CEffectSet id="ChoHammerOfTwilightApplyBehaviorSet">
+  <CEffectSet id="ChoHammerOfTwilightApplyKnockbackSet">
     <ValidatorArray value="TargetNotUnstoppable" />
     <EffectArray value="HeroRemovePushPullDebuffs" />
+    <EffectArray value="HeroRemovePreventsMovement" />
     <EffectArray value="ChoHammerOfTwilightApplyKnockbackBehavior" />
     <EffectArray value="ChoHammerOfTwilightApplyStunBehavior" />
   </CEffectSet>
+  <CEffectApplyForce id="ChoHammerOfTwilightKnockbackForce">
+    <WhichLocation>
+      <Value value="OriginPoint" />
+      <Effect value="ChoHammerOfTwilightInitialOffsetPersistent" />
+      <ProjectionMultiplier value="1" />
+      <ProjectionSourceEffect value="ChoHammerOfTwilightInitialOffsetPersistent" />
+      <ProjectionSourceValue value="OriginPoint" />
+      <ProjectionTargetEffect value="ChoHammerOfTwilightInitialOffsetPersistent" />
+      <ProjectionTargetValue value="TargetPoint" />
+      <UsesLineDash value="1" />
+      <LineDashType value="AllowedInUnpathable" />
+      <ProjectionAngle value="180" />
+      <ProjectionDistanceScale value="2" />
+    </WhichLocation>
+    <Amount value="9000" />
+  </CEffectApplyForce>
   <CEffectApplyBehavior id="ChoHammerOfTwilightApplyKnockbackBehavior">
     <Behavior value="ChoHammerOfTwilightKnockbackBehavior" />
   </CEffectApplyBehavior>
@@ -5250,22 +5274,34 @@
     <Count value="1" />
   </CEffectRemoveBehavior>
   <CEffectSet id="ChoHeroWeaponImpactSet">
-    <EffectArray value="ChoFuelForTheFlameDamage" />
-    <EffectArray value="ChoHeroWeaponDamage" />
-    <EffectArray value="ChoSearedFleshSwitch" />
-    <EffectArray value="ChoFuelForTheFlameSearch" />
-    <EffectArray value="ChoConsumingBlazeBasicAttackSet" />
-    <EffectArray value="ChoHeroWeaponCthunsGiftTalentApplySlow" />
-    <EffectArray value="ChoEnragedRegenerationBasicAttackApplyHoT" />
     <EffectArray value="UniversalWeaponImpact" />
+    <EffectArray value="ChoWeaponPreImpactSet" />
+    <EffectArray value="ChoHeroWeaponDamage" />
+    <EffectArray value="ChoWeaponPostImpactSet" />
+    <EffectArray value="ChoFuelForTheFlameSearchSwitch" />
     <EffectArray value="UniversalWeaponPostImpactSet" />
   </CEffectSet>
+  <CEffectSet id="ChoWeaponPreImpactSet">
+    <EffectArray value="ChoConsumingBlazeBasicAttackSet" />
+    <EffectArray value="ChoEnragedRegenerationBasicAttackApplyHoT" />
+    <EffectArray value="ChoRunedGauntletActivateSet" />
+    <EffectArray value="ChoFuelForTheFlameDamage" />
+  </CEffectSet>
+  <CEffectSet id="ChoWeaponPostImpactSet">
+    <EffectArray value="ChoSearedFleshSwitch" />
+    <EffectArray value="ChoHeroWeaponCthunsGiftTalentApplySlow" />
+  </CEffectSet>
   <CEffectSet id="ChoHeroWeaponCthunsGiftTalentRangedImpactSet">
+    <EffectArray value="ChoCthunsGiftImpactDummy" />
     <EffectArray value="ChoHeroWeaponImpactSet" />
   </CEffectSet>
   <CEffectSet id="ChoHeroWeaponMeleeImpactSet">
+    <EffectArray value="ChoMeleeWeaponImpactDummy" />
     <EffectArray value="ChoHeroWeaponImpactSet" />
   </CEffectSet>
+  <CEffectModifyUnit id="ChoMeleeWeaponImpactDummy" />
+  <CEffectModifyUnit id="ChoHammerOfTwilightImpactDummy" />
+  <CEffectModifyUnit id="ChoCthunsGiftImpactDummy" />
   <CEffectDamage id="ChoHeroWeaponDamage" parent="StormWeapon">
     <Amount value="130" />
     <MultiplicativeModifierArray index="1" Validator="ChoTalentHasHammerOfTwilight" Modifier="0.25" />
@@ -5384,6 +5420,7 @@
   </CEffectCreatePersistent>
   <CEffectSet id="GallShoveForceInitialSet">
     <EffectArray value="HeroRemovePushPullDebuffs" />
+    <EffectArray value="HeroRemovePreventsMovement" />
     <EffectArray value="GallShoveApplyPullBehavior" />
     <EffectArray value="HeroGenericDummyInterruptDamage" />
   </CEffectSet>
@@ -6692,6 +6729,9 @@
   <CTalent id="ChoCallousedHide">
     <Face value="ChoCallousedHide" />
     <Abil value="ChoOgreHide" />
+    <RankArray>
+      <BehaviorArray value="ChoOgreHideCallousedHideTalentMoveSpeedCarry" />
+    </RankArray>
     <Trait value="1" />
   </CTalent>
   <CTalent id="ChoHourofTwilight">
@@ -7225,7 +7265,7 @@
     <BehaviorArray Link="ChoOgreHideVisualController" />
     <BehaviorArray Link="ChoOgreRageVisualController" />
     <BehaviorArray Link="HeroGenericIsFat" />
-    <BehaviorArray Link="ChoOgreHideCallousedHideTalentMoveSpeedCarry" />
+    <BehaviorArray Link="ChoGallConjoinedUnitTracker" />
     <WeaponArray Link="ChoShortRangeHeroWeapon" />
     <WeaponArray Link="ChoHeroWeapon" />
     <WeaponArray Link="ChoLongRangeHeroWeaponCthunsGift" />
@@ -7309,6 +7349,7 @@
     <BehaviorArray Link="HeroGenericMapMechanicPickupDisallowed" />
     <BehaviorArray Link="DisableDanceAndTaunt" />
     <BehaviorArray Link="GallEyeOfKilrogg" />
+    <BehaviorArray Link="ChoGallConjoinedUnitTracker" />
     <CardLayouts index="0">
       <LayoutButtons index="1" Face="Dance" Type="AbilCmd" AbilCmd="stop,Dance" Slot="Dance" />
       <LayoutButtons index="2" Face="LootSpray" Type="AbilCmd" AbilCmd="LootSpray,Execute" Slot="Spray" />
@@ -7785,6 +7826,11 @@
     <Find value="1" />
     <Value value="ChoRunedGauntlet" />
   </CValidatorPlayerTalent>
+  <CValidatorPlayerTalent id="ChoCasterHasHasRunedGauntletTalent">
+    <WhichPlayer Value="Caster" />
+    <Find value="1" />
+    <Value value="ChoRunedGauntlet" />
+  </CValidatorPlayerTalent>
   <CValidatorPlayerTalent id="ChoTalentHasCthunsGift">
     <Find value="1" />
     <Value value="ChoCthunsGift" />
@@ -8133,6 +8179,13 @@
     <Value value="1" />
     <Behavior value="ChoUpheavalKnockbackBehaviorMedium" />
   </CValidatorUnitCompareBehaviorCount>
+  <CValidatorUnitHasBehavior id="ChoTargetHasFavoroftheOldGodsRootIncludeDisabled">
+    <Behavior value="ChoUpheavalFavoroftheOldGodsTalentRoot" />
+    <IncludeDisabled value="1" />
+  </CValidatorUnitHasBehavior>
+  <CValidatorCombine id="StormTargetHasRootCombineIncludeDisabled">
+    <CombineArray value="ChoTargetHasFavoroftheOldGodsRootIncludeDisabled" />
+  </CValidatorCombine>
   <CWeaponLegacy id="ChoHeroWeapon" parent="StormHeroFastWeapon">
     <Options index="Melee" value="1" />
     <Icon value="Assets\Textures\storm_temp_war3_btnorcmeleeuptwo.dds" />

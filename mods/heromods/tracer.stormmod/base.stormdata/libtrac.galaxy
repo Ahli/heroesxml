@@ -55,9 +55,6 @@ void libTrac_gf_HeroTracerIncrementHeroCountFunction () {
         TriggerEnable(libTrac_gt_HeroTracerUntouchableProc, true);
         TriggerEnable(libTrac_gt_HeroTracerSpatialEchoProc, true);
         TriggerEnable(libTrac_gt_HeroTracerPulseBombSetFacing, true);
-        TriggerEnable(libTrac_gt_HeroTracerFocusFireCleanup, true);
-        TriggerEnable(libTrac_gt_HeroTracerFocusFireSetTarget, true);
-        TriggerEnable(libTrac_gt_HeroTracerFocusFireIncrementCooldown, true);
         TriggerEnable(libTrac_gt_HeroTracerHeroWeaponApplyTargetingUnit, true);
         TriggerEnable(libTrac_gt_HeroTracerTargetAcquired, true);
         TriggerEnable(libTrac_gt_HeroTracerForceAcquireTargetTaunt, true);
@@ -90,9 +87,6 @@ void libTrac_gf_HeroTracerDecrementHeroCountFunction () {
         TriggerEnable(libTrac_gt_HeroTracerPulseBombSetFacing, false);
         TriggerEnable(libTrac_gt_HeroTracerPulseBombStuckOverlayOn, false);
         TriggerEnable(libTrac_gt_HeroTracerPulseBombStuckOverlayOff, false);
-        TriggerEnable(libTrac_gt_HeroTracerFocusFireCleanup, false);
-        TriggerEnable(libTrac_gt_HeroTracerFocusFireSetTarget, false);
-        TriggerEnable(libTrac_gt_HeroTracerFocusFireIncrementCooldown, false);
         TriggerEnable(libTrac_gt_HeroTracerHeroWeaponApplyTargetingUnit, false);
         TriggerEnable(libTrac_gt_HeroTracerTargetAcquired, false);
         TriggerEnable(libTrac_gt_HeroTracerForceAcquireTargetTaunt, false);
@@ -1159,7 +1153,7 @@ bool libTrac_gt_HeroTracerRecallCameraLock_Func (bool testConds, bool runActions
 
     libGame_gv_players[lv_ownerOfUnit].lv_cameraPlayerUnitGroupToFocusOn = libNtve_gf_ConvertUnitToUnitGroup(lv_unit);
     libGame_gv_players[lv_ownerOfUnit].lv_cameraForcedLock = true;
-    Wait(0.0625, c_timeGame);
+    Wait(0.1875, c_timeGame);
     libGame_gf_CameraUpdateCameraForPlayer(lv_ownerOfUnit);
     autoF5F65934_at = 0;
     while (!((UnitHasBehavior2(lv_unit, "TracerRecallActive") == false)) && autoF5F65934_at <= 2.0) {
