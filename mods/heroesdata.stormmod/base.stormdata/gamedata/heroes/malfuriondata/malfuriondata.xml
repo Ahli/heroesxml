@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="us-ascii"?>
 <Catalog>
+  <const id="$MalfurionVengefulRootsTreantHealth" value="550" />
+  <const id="$MalfurionVengefulRootsTreantDecayDuration" value="11" />
+  <const id="$MalfurionVengefulRootsTreantLifeDecayRate" value="/($MalfurionVengefulRootsTreantHealth $MalfurionVengefulRootsTreantDecayDuration)" evaluateAsExpression="1" />
   <CAbilEffectInstant id="MalfurionCenarionWard">
     <Effect value="MalfurionCenarionWardCastSet" />
     <Cost>
@@ -210,6 +213,9 @@
     <TokenId value="MalfurionVengefulRootsQuestToken" />
     <Scale value="7" />
     <MinAccumulation value="0" />
+  </CAccumulatorToken>
+  <CAccumulatorToken id="MalfurionEntanglingRootsVengefulRootsDamageCreatorAccumulator" parent="MalfurionEntanglingRootsVengefulRootsDamageAccumulator">
+    <UnitSource Value="Creator" />
   </CAccumulatorToken>
   <CAccumulatorToken id="MalfurionEntanglingRootsDeepRootsManaAccumulator" parent="BaseAccumulator">
     <MaxAccumulation value="65000" />
@@ -679,7 +685,7 @@
     <Sound value="Malfurion_EntanglingRoots_Treant_Birth" />
     <Layers Sound="Malfurion_EntanglingRoots_Treant_Birth_SFX" />
   </CActorSound>
-  <CActorAction id="MalfurionEntanglingRootsVengefulRootsTreantAttack" parent="GenericAttackStorm" effectAttack="MalfurionEntanglingRootsVengefulRootsTreantWeaponDamage">
+  <CActorAction id="MalfurionEntanglingRootsVengefulRootsTreantAttack" parent="GenericAttackStorm" effectAttack="MalfurionVengefulRootsTreantWeaponImpactDummy">
     <LaunchAssets Sound="" />
     <ImpactMap index="None" Model="MalfurionEntanglingRootsTreantAttackImpact" Sound="Malfurion_EntanglingRoots_Treant_AttackImpact" />
     <ShieldFlashType value="Header" />
@@ -721,7 +727,7 @@
     <On Terms="Effect.EntanglingRootsCreatePersistent.Stop" Send="AnimBracketStop Spell" />
     <On Terms="AnimDone; AnimName Spell" Send="Destroy" />
   </CActorModel>
-  <CActorModel id="MalfurionEntanglingRootsImpact" parent="StormModelRoot" effect="EntanglingRootsApplyRootBehavior" behavior="EntanglingRootsRoot">
+  <CActorModel id="MalfurionEntanglingRootsImpact" parent="StormModelRoot" behavior="EntanglingRootsRoot" effect="EntanglingRootsApplyRootBehavior">
     <HostSiteOps Ops="SOpAttachOriginSoft SOpRotationRandomDisc" HoldRotation="1" />
     <AutoScaleFactor value="1.000000" />
   </CActorModel>
@@ -1030,7 +1036,7 @@
     <InfoFlags index="AlwaysUseGameText" value="1" />
   </CBehaviorBuff>
   <CBehaviorBuff id="MalfurionEntanglingRootsVengefulRootsTreantTimedLife" parent="StormTimedLife">
-    <Duration value="10" />
+    <Duration value="-1" />
   </CBehaviorBuff>
   <CBehaviorBuff id="MalfurionMoonfireReveal" parent="StormReveal">
     <Duration value="2" />
@@ -1098,9 +1104,18 @@
     <Face value="MalfurionVengefulRootsEntanglingRootsTalentToken" />
     <TokenId value="MalfurionVengefulRootsQuestToken" />
     <Max value="65535" />
-    <IncreaseEvents index="0" EventId="QuestIncrease" Effect="MalfurionEntanglingRootsVengefulRootsModifyCatalog" />
     <SortIndex value="20" />
   </CBehaviorTokenCounter>
+  <CBehaviorBuff id="MalfurionVengefulRootsTreantAbilityController" parent="CarryBehaviorParent">
+    <EnableEffect value="MalfurionVengefulRootsTreantAddAbilityTargetController" />
+    <PeriodicEffect value="MalfurionVengefulRootsTreantAddAbilityTargetController" />
+    <Period value="0.0625" />
+    <DisableValidatorArray value="MalfurionVengefulRootsTreantDoesNotHaveAbilityTargetController" />
+  </CBehaviorBuff>
+  <CBehaviorBuff id="MalfurionVengefulRootsTreantAbilityTargetController" parent="CarryBehaviorParent">
+    <Face value="MalfurionEntanglingRootsVengefulRootsTalent" />
+    <CancelEffect value="MalfurionVengefulRootsTreantEnumTargetUnit" />
+  </CBehaviorBuff>
   <CBehaviorBuff id="MalfurionEntanglingRootsDeepRootsHealthBehavior" parent="CarryBehaviorParent">
     <Alignment value="Positive" />
     <InfoIcon value="Assets\Textures\storm_ui_icon_health.dds" />
@@ -1447,7 +1462,6 @@
   </CEffectEnumTrackedUnits>
   <CEffectModifyTokenCount id="MalfurionMoonfireHeroHitResetTokens">
     <TokenId value="MalfurionMoonfireHeroHitCounter" />
-    <ContextUnit Value="Caster" />
     <Operation value="Set" />
   </CEffectModifyTokenCount>
   <CEffectEnumTrackedUnits id="MalfurionRegrowthEnumerateTrackedUnits">
@@ -1586,14 +1600,6 @@
     <ValidatorArray index="0" value="MalfurionHasMasteryStranglingVinesEntanglingRoots" />
     <Behavior value="MalfurionEntanglingRootsStranglingVinesHealDebuff" />
   </CEffectApplyBehavior>
-  <CEffectModifyCatalogNumeric id="MalfurionEntanglingRootsVengefulRootsModifyCatalog">
-    <WhichPlayer Value="Caster" />
-    <CatalogModifications Operation="Set" Reference="Effect,MalfurionEntanglingRootsVengefulRootsTreantWeaponDamage,AmountArray">
-      <Value value="0">
-        <AccumulatorArray value="MalfurionEntanglingRootsVengefulRootsDamageAccumulator" />
-      </Value>
-    </CatalogModifications>
-  </CEffectModifyCatalogNumeric>
   <CEffectSet id="MalfurionAstralCommunionAnimationClearDummy" />
   <CEffectModifyUnit id="MalfurionAstralCommunionModifyUnitCooldown">
     <ImpactUnit Value="Caster" />
@@ -1825,23 +1831,58 @@
     <SpawnCount value="2" />
   </CEffectCreateUnit>
   <CEffectCreateUnit id="MalfurionEntanglingRootsVengefulRootsCreateUnit">
+    <Marker>
+      <MatchFlags index="Id" value="1" />
+    </Marker>
     <Chance value="0" />
     <WhichLocation Value="TargetPoint" />
     <SpawnUnit value="MalfurionEntanglingRootsVengefulRootsTreant" />
+    <SpawnEffect value="MalfurionVengefulRootsTreantAddAbilityController" />
   </CEffectCreateUnit>
-  <CEffectSwitch id="MalfurionEntanglingRootsVengefulRootsTreantWeaponSwitch" parent="SummonedBasicAttackAbilityDamageMissCheck">
+  <CEffectApplyBehavior id="MalfurionVengefulRootsTreantAddAbilityController">
+    <Behavior value="MalfurionVengefulRootsTreantAbilityController" />
+  </CEffectApplyBehavior>
+  <CEffectApplyBehavior id="MalfurionVengefulRootsTreantAddAbilityTargetController">
+    <ValidatorArray value="MalfurionVengefulRootsTreantDoesNotHaveAbilityTargetController" />
+    <Behavior value="MalfurionVengefulRootsTreantAbilityTargetController" />
+  </CEffectApplyBehavior>
+  <CEffectSet id="MalfurionVengefulRootsTreantWeaponSet" parent="StormSummonedUnitAddAttackTargetSet" behaviorRemoveEffect="MalfurionVengefulRootsTreantRemoveAbilityTargetController">
+    <EffectArray value="MalfurionVengefulRootsTreantWeaponImpactDummy" />
+  </CEffectSet>
+  <CEffectModifyUnit id="MalfurionVengefulRootsTreantWeaponImpactDummy">
+    <ValidatorArray value="StormSummonedUnitTargetIsTracked" />
+  </CEffectModifyUnit>
+  <CEffectRemoveBehavior id="MalfurionVengefulRootsTreantRemoveAbilityTargetController">
+    <WhichUnit Value="Caster" />
+    <BehaviorLink value="MalfurionVengefulRootsTreantAbilityTargetController" />
+    <CancelBehavior value="1" />
+  </CEffectRemoveBehavior>
+  <CEffectEnumTrackedUnits id="MalfurionVengefulRootsTreantEnumTargetUnit" parent="StormSummonedUnitEnumTrackedAttackUnit">
+    <Effect value="MalfurionVengefulRootsTreantWeaponSwitch" />
+  </CEffectEnumTrackedUnits>
+  <CEffectSwitch id="MalfurionVengefulRootsTreantWeaponSwitch">
+    <CaseArray Validator="MalfurionVengefulRootsTreantAttackerBlindedOrTargetIsEvadingAndNotGenjiDodge" Effect="BlindMissedDummy" />
     <CaseDefault value="MalfurionEntanglingRootsVengefulRootsTreantWeaponDamageSet" />
   </CEffectSwitch>
   <CEffectSet id="MalfurionEntanglingRootsVengefulRootsTreantWeaponDamageSet">
-    <EffectArray value="StormSummonedWeaponPhysicalDamageDummy" />
     <EffectArray value="MalfurionEntanglingRootsVengefulRootsTreantWeaponDamage" />
+    <EffectArray value="MalfurionVengefulRootsTreantDamagedUnitTrackerAdd" />
+    <EffectArray value="MalfurionVengefulRootsTreantCreatePersistentRevealDummy" />
   </CEffectSet>
-  <CEffectDamage id="MalfurionEntanglingRootsVengefulRootsTreantWeaponDamage" parent="StormSummonedUnitWeapon">
+  <CEffectDamage id="MalfurionEntanglingRootsVengefulRootsTreantWeaponDamage" parent="StormSpell">
     <Amount value="58" />
+    <FlatModifierArray index="VengefulRoots" Accumulator="MalfurionEntanglingRootsVengefulRootsDamageAccumulator" />
+    <Visibility value="Hidden" />
   </CEffectDamage>
-  <CEffectSet id="MalfurionEntanglingRootsVengefulRootsTreantWeaponSet">
-    <EffectArray value="MalfurionEntanglingRootsVengefulRootsTreantWeaponDamage" />
-  </CEffectSet>
+  <CEffectDamage id="MalfurionEntanglingRootsVengefulRootsTreantWeaponDamagePreview" parent="MalfurionEntanglingRootsVengefulRootsTreantWeaponDamage">
+    <FlatModifierArray index="VengefulRoots" Accumulator="MalfurionEntanglingRootsVengefulRootsDamageCreatorAccumulator" />
+  </CEffectDamage>
+  <CEffectAddTrackedUnit id="MalfurionVengefulRootsTreantDamagedUnitTrackerAdd" parent="StormSummonedUnitDamagedUnitTrackerAdd">
+    <TrackerUnit Effect="MalfurionVengefulRootsTreantEnumTargetUnit" Value="Target" />
+  </CEffectAddTrackedUnit>
+  <CEffectCreatePersistent id="MalfurionVengefulRootsTreantCreatePersistentRevealDummy" parent="StormSummonedUnitPhysicalDamageDealtPersistent">
+    <WhichLocation Effect="MalfurionVengefulRootsTreantEnumTargetUnit" Value="TargetUnit" />
+  </CEffectCreatePersistent>
   <CEffectSet id="TwilightDreamAbilitySet">
     <EffectArray value="TwilightDreamCreatePersistent" />
     <EffectArray value="TwilightDreamSearch" />
@@ -2290,6 +2331,13 @@
         <Catalog value="Unit" />
         <Entry value="MalfurionEntanglingRootsVengefulRootsTreant" />
         <Field value="LifeMax" />
+        <Value value="0.040000" />
+        <AffectedByOverdrive value="1" />
+      </Modifications>
+      <Modifications>
+        <Catalog value="Unit" />
+        <Entry value="MalfurionEntanglingRootsVengefulRootsTreant" />
+        <Field value="LifeRegenRate" />
         <Value value="0.040000" />
         <AffectedByOverdrive value="1" />
       </Modifications>
@@ -2818,14 +2866,15 @@
     <Abil value="MalfurionMoonfire" />
   </CTalent>
   <CUnit id="MalfurionEntanglingRootsVengefulRootsTreant" parent="StormSummonActive">
-    <LifeStart value="450" />
-    <LifeMax value="450" />
-    <LifeRegenDelay value="2" />
+    <LifeStart value="$MalfurionVengefulRootsTreantHealth" />
+    <LifeMax value="$MalfurionVengefulRootsTreantHealth" />
     <Speed value="4.8007" />
     <AbilArray Link="stop" />
     <AbilArray Link="attack" />
     <AbilArray Link="move" />
     <BehaviorArray Link="MalfurionEntanglingRootsVengefulRootsTreantTimedLife" />
+    <BehaviorArray Link="StormSummonedUnitTargetTracker" />
+    <BehaviorArray Link="StormSummonedUnitDamagedUnitTracker" />
     <WeaponArray Link="MalfurionEntanglingRootsVengefulRootsTreantWeapon" />
     <CardLayouts>
       <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Slot="Stop" />
@@ -2837,6 +2886,7 @@
     <AcquireLeashRadius value="10" />
     <FlagArray index="CreateAITreeOnSpawn" value="1" />
     <AIThinkTree value="AI\MalfurionTreant.aitree" />
+    <LifeRegenRate value="-$MalfurionVengefulRootsTreantLifeDecayRate" />
   </CUnit>
   <CUnit id="HeroMalfurion" parent="StormHeroMounted">
     <LifeStart value="1525" />
@@ -3212,10 +3262,23 @@
   <CValidatorUnitType id="HeroMalfurion">
     <Value value="HeroMalfurion" />
   </CValidatorUnitType>
+  <CValidatorUnitHasBehavior id="MalfurionVengefulRootsTreantDoesNotHaveAbilityTargetController">
+    <Behavior value="MalfurionVengefulRootsTreantAbilityTargetController" />
+    <Negate value="1" />
+  </CValidatorUnitHasBehavior>
+  <CValidatorUnitCompareBehaviorCount id="MalfurionVengefulRootsTreantAttackerBlinded">
+    <Compare value="GT" />
+    <WhichUnit Effect="MalfurionVengefulRootsTreantEnumTargetUnit" />
+    <Categories index="DebuffBlind" value="1" />
+  </CValidatorUnitCompareBehaviorCount>
+  <CValidatorCombine id="MalfurionVengefulRootsTreantAttackerBlindedOrTargetIsEvadingAndNotGenjiDodge">
+    <CombineArray value="MalfurionVengefulRootsTreantAttackerBlinded" />
+    <CombineArray value="TargetIsEvadingAndNotGenjiDodge" />
+  </CValidatorCombine>
   <CWeaponLegacy id="MalfurionEntanglingRootsVengefulRootsTreantWeapon">
     <Options index="Melee" value="1" />
     <Icon value="Assets\Textures\storm_temp_btn-upgrade-zerg-meleeattacks-level0.dds" />
-    <DisplayEffect value="MalfurionEntanglingRootsVengefulRootsTreantWeaponDamage" />
+    <DisplayEffect value="MalfurionEntanglingRootsVengefulRootsTreantWeaponDamagePreview" />
     <TargetFilters value="Visible;Player,Ally,Neutral,NoMinionAggro,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
     <AcquireFilters value="Visible;Player,Ally,Neutral,NoMinionAggro,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
     <MinScanRange value="9" />
@@ -3223,7 +3286,7 @@
     <Period value="1" />
     <DamagePoint value="0.25" />
     <Backswing value="0" />
-    <Effect value="MalfurionEntanglingRootsVengefulRootsTreantWeaponSwitch" />
+    <Effect value="MalfurionVengefulRootsTreantWeaponSet" />
   </CWeaponLegacy>
   <CWeaponLegacy id="HeroMalfurion" parent="StormHeroMediumWeapon">
     <Icon value="Assets\Textures\storm_temp_btn-upgrade-terran-infantryweaponslevel2.dds" />

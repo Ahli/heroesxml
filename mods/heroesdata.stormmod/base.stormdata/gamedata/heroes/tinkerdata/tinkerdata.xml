@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="us-ascii"?>
 <Catalog>
   <const id="$GazloweHeroWeaponDamage" value="100" />
-  <const id="$GazloweRoboGoblinBonusDamage" value="9" />
+  <const id="$GazloweRoboGoblinBonusDamage" value="10" />
   <const id="$GazloweHeroHealth" value="2275" />
   <const id="$GazloweHeroHealthRegen" value="4.74" />
   <const id="$GazloweHeroMaxEnergy" value="10" />
@@ -12,22 +12,24 @@
   <const id="$GazloweScrapTimedLifeExpiration" value="-($GazloweScrapTimedLifeDuration 1.5)" evaluateAsExpression="1" />
   <const id="$GazloweScrapPickupRange" value="1.5" />
   <const id="$GazloweSalvagerRange" value="7" />
-  <const id="$GazloweOneManWreckingCrewDamageModifier" value="0.6" />
+  <const id="$GazloweOneManWreckingCrewDamageModifier" value="0.75" />
   <const id="$GazloweOneManWreckingCrewMaxStacks" value="2" />
   <const id="$GazloweMechaLordDamageModifier" value="0.5" />
   <const id="$GazloweRockItSockItShieldAmount" value="200" />
   <const id="$GazloweRockItSockItShieldDuration" value="2.5" />
   <const id="$GazloweRockItSockItCooldown" value="0.5" />
-  <const id="$GazloweRockItTurretHealth" value="510" />
+  <const id="$GazloweRockItTurretHealth" value="600" />
   <const id="$GazloweRockItTurretCooldown" value="1" />
   <const id="$GazloweRockItTurretCost" value="4" />
-  <const id="$GazloweRockItTurretDuration" value="15" />
+  <const id="$GazloweRockItTurretDuration" value="-1" />
+  <const id="$GazloweRockitTurretDecayDuration" value="20" />
+  <const id="$GazloweRockitTurretLifeDecayRate" value="/($GazloweRockItTurretHealth $GazloweRockitTurretDecayDuration)" evaluateAsExpression="1" />
   <const id="$GazloweRockItTurretAttackRange" value="6" />
   <const id="$GazloweRockItTurretAttackSpeed" value="1" />
   <const id="$GazloweRockItTurretPlacementRange" value="3" />
   <const id="$GazloweRockItTurretGCD" value="0.5" />
-  <const id="$GazloweRockItTurretDamage" value="36" />
-  <const id="$GazloweXplodiumChargeArkReaktorRockItTurretDamage" value="36" />
+  <const id="$GazloweRockItTurretDamage" value="43" />
+  <const id="$GazloweXplodiumChargeArkReaktorRockItTurretDamage" value="43" />
   <const id="$GazloweRockItTurretXLSecondaryTargetDamage" value="*($GazloweRockItTurretDamage 0.6)" evaluateAsExpression="1" />
   <const id="$GazloweRockItTurretOverchargedCapacitorsDurationIncreaseValue" value="1.25" />
   <const id="$GazloweMasterBlasterSlowDuration" value="3" />
@@ -63,6 +65,8 @@
   <const id="$GazloweXplodiumChargeExtraTNTDamage2" value="0.5" />
   <const id="$GazloweXplodiumChargeExtraTNTDamage3" value="0.75" />
   <const id="$GazloweXplodiumChargeExtraTNTDamage4" value="1" />
+  <const id="$GazloweRocketBootsRangeModifier" value="0.3" />
+  <const id="$GazloweRocketBootsRangeIncrease" value="*($GazloweXplodiumChargeRange $GazloweRocketBootsRangeModifier)" evaluateAsExpression="1" />
   <const id="$GazloweRoboGoblinCooldown" value="40" />
   <const id="$GazloweGravOBomb3000Cooldown" value="60" />
   <const id="$GazloweGravOBomb3000Cost" value="1" />
@@ -409,6 +413,8 @@
     <On Terms="ActorCreation" Send="Create TinkerDethLazorFirinMahLazorzTalentLaunchSound" />
     <On Terms="ActorCreation" Send="AnimGroupApply B" />
     <On Terms="ActorCreation" Send="AnimPlay Birth Birth" />
+    <On Terms="ActorCreation" Send="TimerSet $GazloweDethLazorCastTime Destroy" />
+    <On Terms="TimerExpired; TimerName Destroy" Send="Destroy" />
     <HostLaunchSiteOps Ops="SOpTargetUnit SOpAttachWeapon SOpAttachCenter" />
     <HostImpactSiteOps Ops="SOpTargetUnit SOpGazloweDethLazorFirinMahLazorCastForward GazloewDethLazorFirinMahLazorzRangeOffset SOpMoveUpByDot5" />
     <Model value="TinkerDethLazorFirinMahLazorzTalentBeam" />
@@ -2205,13 +2211,12 @@
     <ValidatorArray value="GazloweHasBigGameHunter" />
     <ValidatorArray value="GazloweTargetIsHeroOrMercOrMonsterOrCreepCombine" />
   </CEffectModifyBehaviorBuffDuration>
-  <CEffectModifyBehaviorBuffDuration id="GazloweOverchargedCapacitorsTurretDurationIncrease">
-    <Behavior value="RockItTurretTimedLife" />
-    <Value value="$GazloweRockItTurretOverchargedCapacitorsDurationIncreaseValue" />
+  <CEffectCreateHealer id="GazloweOverchargedCapacitorsTurretDurationIncrease">
     <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
     <ValidatorArray value="GazloweHasOverchargedCapacitors" />
-    <WhichUnit Value="Target" />
-  </CEffectModifyBehaviorBuffDuration>
+    <FloaterCreation value="Suppress" />
+    <RechargeVitalFraction value="0.08" />
+  </CEffectCreateHealer>
   <CEffectApplyBehavior id="GazloweReduceReuseRecycleTraitScrapRegenerationApplyCooldown">
     <WhichUnit Value="Caster" />
     <Behavior value="GazloweReduceReuseRecycleTraitScrapRegenerationCooldown" />
@@ -2266,14 +2271,12 @@
     <EffectArray value="GazloweDethLazorFirinMahLazorzTurretTargetSetFacingPersistent" />
     <EffectArray value="GazloweDethLazorFirinMahLazorzWarningPersistent" />
     <EffectArray value="GazloweDethLazorFirinMahLazorsApplyChannel" />
-    <TargetLocationType value="Point" />
   </CEffectSet>
   <CEffectCreatePersistent id="GazloweDethLazorFirinMahLazorzWarningPersistent">
     <WhichLocation Value="TargetUnit" />
     <OffsetVectorStartLocation Value="TargetPoint" />
     <OffsetVectorEndLocation Effect="GazloweDethLazorPrepSet" />
     <InitialEffect value="GazloweDethLazorFirinMahLazorzWarningDummy" />
-    <InitialOffset Y="-$GazloweDethLazorFirinMahLazorzRange" />
   </CEffectCreatePersistent>
   <CEffectModifyUnit id="GazloweDethLazorFirinMahLazorzWarningDummy" />
   <CEffectApplyBehavior id="GazloweDethLazorFirinMahLazorsApplyChannel">
@@ -2292,7 +2295,6 @@
     <EffectArray value="GazloweDethLazorFirinMahLazorzInitialTargetPersistent" />
   </CEffectSet>
   <CEffectCreatePersistent id="GazloweDethLazorFirinMahLazorzInitialTargetPersistent">
-    <WhichLocation Value="TargetPoint" />
     <InitialEffect value="GazloweDethLazorFirinMahLazorzSearch" />
   </CEffectCreatePersistent>
   <CEffectCreatePersistent id="GazloweDethLazorFirinMahLazorzBeamPersistent">
@@ -2302,7 +2304,7 @@
   <CEffectCreatePersistent id="GazloweDethLazorFirinMahLazorzBeamTargetPersistent">
     <WhichLocation Value="TargetUnit" />
     <OffsetVectorStartLocation Value="TargetPoint" />
-    <OffsetVectorEndLocation Effect="GazloweDethLazorInitialSet" Value="TargetPoint" />
+    <OffsetVectorEndLocation Effect="GazloweDethLazorInitialSet" />
     <InitialEffect value="GazloweDethLazorFirinMahLazorzBeamDummy" />
   </CEffectCreatePersistent>
   <CEffectModifyUnit id="GazloweDethLazorFirinMahLazorzBeamDummy" />
@@ -2322,11 +2324,11 @@
     <LaunchLocation Effect="GazloweDethLazorFirinMahLazorzInitialSet" Value="TargetUnit" />
     <ImpactLocation>
       <ProjectionMultiplier value="0.001" />
-      <ProjectionOffset Y="-$GazloweDethLazorFirinMahLazorzSearchMidPoint" />
       <ProjectionSourceEffect value="GazloweDethLazorFirinMahLazorzInitialSet" />
       <ProjectionSourceValue value="TargetPoint" />
       <ProjectionTargetEffect value="GazloweDethLazorInitialSet" />
       <ProjectionTargetValue value="FocusPoint" />
+      <ProjectionOffset Y="-$GazloweDethLazorFirinMahLazorzSearchMidPoint" />
     </ImpactLocation>
   </CEffectEnumArea>
   <CEffectApplyBehavior id="GazloweOneManWreckingCrewApplyCasterBehavior">
@@ -3285,6 +3287,13 @@
       <Modifications>
         <Catalog value="Unit" />
         <Entry value="TinkerRockItTurret" />
+        <Field value="LifeRegenRate" />
+        <Value value="0.050000" />
+        <AffectedByOverdrive value="1" />
+      </Modifications>
+      <Modifications>
+        <Catalog value="Unit" />
+        <Entry value="TinkerRockItTurret" />
         <Field value="LifeStart" />
         <Value value="0.050000" />
         <AffectedByOverdrive value="1" />
@@ -3667,17 +3676,17 @@
     <Abil value="TinkerXplodiumBomb" />
     <AbilityModificationArray>
       <Modifications>
-        <Type value="MultiplyLevelModification" />
+        <Type value="FlatModification" />
         <Entry value="TinkerXplodiumBomb" />
         <Field value="Range" />
-        <Value value="1.300000" />
+        <Value value="$GazloweRocketBootsRangeIncrease" />
       </Modifications>
       <Modifications>
-        <Type value="MultiplyLevelModification" />
+        <Type value="FlatModification" />
         <Catalog value="Actor" />
         <Entry value="TinkerXplodiumBombRangeSplat" />
         <Field value="Scale" />
-        <Value value="1.300000" />
+        <Value value="$GazloweRocketBootsRangeIncrease" />
       </Modifications>
     </AbilityModificationArray>
   </CTalent>
@@ -4316,6 +4325,7 @@
     <BehaviorArray Link="StormSummonedUnitTargetTracker" />
     <BehaviorArray Link="StormSummonedUnitDamagedUnitTracker" />
     <DeathTime value="2" />
+    <LifeRegenRate value="-$GazloweRockitTurretLifeDecayRate" />
   </CUnit>
   <CUnit id="TinkerItsRainingScrapMissile" parent="MISSILE_INVULNERABLE" />
   <CUnit id="RockItTurretRelicSideMissile" parent="MISSILE_INVULNERABLE">
@@ -4401,12 +4411,11 @@
     <BehaviorArray Link="StormSummonedUnitDamagedUnitTracker" />
     <Attributes index="ImmuneToFriendlyAbilities" value="1" />
     <DeathTime value="2" />
+    <LifeRegenRate value="-$GazloweRockitTurretLifeDecayRate" />
   </CUnit>
   <CUnit id="TinkerRockItTurretPlaceholderDummy" parent="TinkerRockItTurret">
     <Name value="Unit/Name/TinkerRockItTurretPlaceholderDummy" />
     <Mover value="Fly" />
-    <AbilArray index="4" removed="1" />
-    <CardLayouts index="0" removed="1" />
     <DeathTime value="0" />
   </CUnit>
   <CUnit id="RockItTurretMissile" parent="MISSILE_INVULNERABLE" />

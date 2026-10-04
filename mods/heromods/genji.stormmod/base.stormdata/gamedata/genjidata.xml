@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="us-ascii"?>
 <Catalog>
+  <const id="$GenjiCyberAgilityRange" value="7" />
+  <const id="$GenjiAgileDismountRangeModifier" value="0.7" />
+  <const id="$GenjiAgileDismountRange" value="+($GenjiCyberAgilityRange *($GenjiCyberAgilityRange $GenjiAgileDismountRangeModifier))" evaluateAsExpression="1" />
   <CAbilEffectTarget id="GenjiCyberAgility">
     <PrepEffect value="GenjiCyberAgilityAbilityPrepSet" />
     <Effect value="GenjiCyberAgilityLaunchMissile" />
@@ -12,7 +15,7 @@
       <Charge HideCount="1" />
       <Cooldown TimeUse="20" />
     </Cost>
-    <Range value="7" />
+    <Range value="$GenjiCyberAgilityRange" />
     <Arc value="360" />
     <UninterruptibleArray index="Approach" value="1" />
     <UninterruptibleArray index="Cast" value="1" />
@@ -149,7 +152,6 @@
     <ApplicationRule value="Add" />
     <TokenId value="GenjiDeflectReflectTriggerTokenCounter" />
     <UnitSource Effect="GenjiDeflectImpactSet" Value="Source" />
-    <Scale value="1" />
   </CAccumulatorToken>
   <CAccumulatorToken id="GenjiSteadyBladeAccumulator" parent="BaseAccumulator">
     <TokenId value="GenjiSwiftStrikeSteadyBladeTokenCounter" />
@@ -233,7 +235,7 @@
   <CActorSplat id="GenjiCyberAgilityRangeSplat" parent="StormRangeSplat">
     <Filter index="All" value="1" />
     <VisibleTo index="Self" value="1" />
-    <Scale value="7.000000" />
+    <Scale value="$GenjiCyberAgilityRange" />
   </CActorSplat>
   <CActorRange id="GenjiDeflectDragonClawRange" parent="StormRangeAbilPlusSplat" abil="GenjiDeflectDragonClaw" />
   <CActorSplat id="GenjiDeflectDragonClawRangeSplat" parent="StormRangeSplat">
@@ -1259,7 +1261,7 @@
     <Modification>
       <UnifiedMoveSpeedFactor value="0.3" />
     </Modification>
-    <Duration value="4" />
+    <Duration value="6" />
   </CBehaviorBuff>
   <CBehaviorBuff id="GenjiCyberAgilityPathfinderSpeedIncrease30" parent="StormSprint">
     <Modification>
@@ -1424,7 +1426,7 @@
   <CBehaviorBuff id="GenjiSwiftStrikeSwiftAsTheWind" parent="StormSprint">
     <Duration value="3" />
     <Modification>
-      <UnifiedMoveSpeedFactor value="0.3" />
+      <UnifiedMoveSpeedFactor value="0.4" />
     </Modification>
   </CBehaviorBuff>
   <CBehaviorBuff id="GenjiSwiftStrikeStrikeAtTheHeart" parent="StormDot">
@@ -1737,7 +1739,7 @@
   </CEffectApplyBehavior>
   <CEffectModifyUnit id="GenjiDeflectPerfectDefenseCooldownReduction">
     <ImpactUnit Value="Caster" />
-    <Cost Abil="GenjiDeflectInstant,Execute" CooldownOperation="Add" CooldownTimeUse="-2" />
+    <Cost Abil="GenjiDeflectInstant,Execute" CooldownOperation="Add" CooldownTimeUse="-2.5" />
   </CEffectModifyUnit>
   <CEffectRemoveBehavior id="GenjiDeflectPerfectDefenseRemoveBehavior">
     <Chance value="0" />
@@ -1819,13 +1821,13 @@
   </CEffectLaunchMissileAdvanced>
   <CEffectModifyPlayer id="GenjiCyberAgilityAgileDismountDecreaseRange">
     <WhichPlayer Value="Caster" />
-    <EffectArray Operation="Set" Reference="Abil,GenjiCyberAgility,Range" Value="7" />
-    <EffectArray Operation="Set" Reference="Actor,GenjiCyberAgilityRangeSplat,Scale" Value="7.375000" />
+    <EffectArray Operation="Set" Reference="Abil,GenjiCyberAgility,Range" Value="$GenjiCyberAgilityRange" />
+    <EffectArray Operation="Set" Reference="Actor,GenjiCyberAgilityRangeSplat,Scale" Value="$GenjiCyberAgilityRange" />
   </CEffectModifyPlayer>
   <CEffectModifyPlayer id="GenjiCyberAgilityAgileDismountIncreaseRange">
     <WhichPlayer Value="Caster" />
-    <EffectArray Operation="Set" Reference="Abil,GenjiCyberAgility,Range" Value="11.9" />
-    <EffectArray Operation="Set" Reference="Actor,GenjiCyberAgilityRangeSplat,Scale" Value="12.275000" />
+    <EffectArray Operation="Set" Reference="Abil,GenjiCyberAgility,Range" Value="$GenjiAgileDismountRange" />
+    <EffectArray Operation="Set" Reference="Actor,GenjiCyberAgilityRangeSplat,Scale" Value="$GenjiAgileDismountRange" />
   </CEffectModifyPlayer>
   <CEffectRemoveBehavior id="GenjiCyberAgilityRemoveBehavior">
     <WhichUnit Value="Caster" />
@@ -2195,7 +2197,7 @@
     <SpawnEffect value="GenjiSwiftStrikeFinalCutSpawnSet" />
   </CEffectCreateUnit>
   <CEffectDamage id="GenjiSwiftStrikeFinalCutDamage" parent="StormSpell">
-    <Amount value="125" />
+    <Amount value="115" />
     <SourceButtonFace value="GenjiSwiftStrikeFinalCut" />
     <Visibility value="Hidden" />
   </CEffectDamage>
@@ -2289,7 +2291,7 @@
     <ValidatorArray value="TargetIsHero" />
     <Chance value="0" />
     <ImpactUnit Value="Caster" />
-    <Cost Abil="GenjiSwiftStrike,Execute" CooldownOperation="Add" CooldownTimeUse="-3" />
+    <Cost Abil="GenjiSwiftStrike,Execute" CooldownOperation="Add" CooldownTimeUse="-4" />
   </CEffectModifyUnit>
   <CEffectRemoveBehavior id="GenjiSwiftStrikeRemoveBehavior">
     <WhichUnit Value="Caster" />
@@ -2376,7 +2378,7 @@
     <Behavior value="GenjiSwiftStrikeStrikeAtTheHeart" />
   </CEffectApplyBehavior>
   <CEffectDamage id="GenjiSwiftStrikeStrikeAtTheHeartDamage" parent="StormSpellDot">
-    <Amount value="134" />
+    <Amount value="142" />
     <SourceButtonFace value="GenjiSwiftStrikeStrikeAtTheHeart" />
   </CEffectDamage>
   <CEffectEnumArea id="GenjiSwiftStrikeStrikeAtTheHeartSearchArea">

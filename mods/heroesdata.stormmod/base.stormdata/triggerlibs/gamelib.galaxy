@@ -10940,6 +10940,9 @@ void libGame_gf_ShareUnshareVisionOfAlliesForPlayer (bool lp_onOff, int lp_playe
 
     // Automatic Variable Declarations
     playergroup auto198D0B9F_g;
+    unitgroup autoB2B49E2C_g;
+    int autoB2B49E2C_u;
+    unit autoB2B49E2C_var;
 
     // Variable Initialization
     lv_allyPlayerGroup = PlayerGroupEmpty();
@@ -10956,6 +10959,16 @@ void libGame_gf_ShareUnshareVisionOfAlliesForPlayer (bool lp_onOff, int lp_playe
         }
 
     }
+    if ((UnitGroupCount(libGDHL_gv_updateOnAnyVisibilityChangeUnitGroup, c_unitCountAlive) >= 1)) {
+        autoB2B49E2C_g = libGDHL_gv_updateOnAnyVisibilityChangeUnitGroup;
+        autoB2B49E2C_u = UnitGroupCount(autoB2B49E2C_g, c_unitCountAll);
+        for (;; autoB2B49E2C_u -= 1) {
+            autoB2B49E2C_var = UnitGroupUnitFromEnd(autoB2B49E2C_g, autoB2B49E2C_u);
+            if (autoB2B49E2C_var == null) { break; }
+            libNtve_gf_SendActorMessageToUnit(autoB2B49E2C_var, "Signal VisUpdate");
+        }
+    }
+
 }
 
 void libGame_gf_EndGameForPlayerStorm (int lp_player) {
@@ -13673,27 +13686,47 @@ bool libGame_gt_CapturePointLogic_Func (bool testConds, bool runActions) {
             if (auto416AF879_val == libGame_ge_CapturePointDecay_DoNotDecay) {
             }
             else if (auto416AF879_val == libGame_ge_CapturePointDecay_Neutral) {
-                if ((libGame_gv_capturePoints[lv_capturePointIndex].lv_captureCounter != 0)) {
-                    if ((libGame_gv_capturePoints[lv_capturePointIndex].lv_capturePointState != libGame_ge_CapturePointState_RevertingtoNeutral)) {
-                        libGame_gv_capturePoints[lv_capturePointIndex].lv_capturePointState = libGame_ge_CapturePointState_RevertingtoNeutral;
-                        libCore_gf_SendActorMessageToDoodadsInRegion("Signal RevertingCapturePoint", RegionCircle(UnitGetPosition(libGame_gv_capturePoints[lv_capturePointIndex].lv_captureBeaconUnit), 12.0), null);
-                        if ((UnitGetType(libGame_gv_capturePoints[lv_capturePointIndex].lv_captureBeaconUnit) == "WatchTowerCaptureBeacon")) {
-                            libNtve_gf_SendActorMessageToUnit(libGame_gv_watchTowers[lv_capturePointIndex].lv_watchTowerUnit, "AnimBracketStop Capture");
-                            libNtve_gf_SendActorMessageToUnit(libGame_gv_watchTowers[lv_capturePointIndex].lv_watchTowerUnit, "Signal CapturePointEmpty");
+                if ((libGame_gv_watchTowers[lv_capturePointIndex].lv_decayDelayTicks <= (libGame_gv_TimeToStartDecay_C * 16)) && (UnitGetOwner(libGame_gv_capturePoints[lv_capturePointIndex].lv_captureBeaconUnit) != libCore_gv_cOMPUTER_Neutral) && (UnitGetType(libGame_gv_capturePoints[lv_capturePointIndex].lv_captureBeaconUnit) == "WatchTowerCaptureBeacon")) {
+                    libGame_gv_watchTowers[lv_capturePointIndex].lv_decayDelayTicks += 1;
+                    if ((libGame_gv_watchTowers[lv_capturePointIndex].lv_decayDelayTicks == (libGame_gv_TimeToStartDecay_C * 16))) {
+                        libGame_gv_watchTowers[lv_capturePointIndex].lv_decayDelayTicks += 1;
+                        libGame_gv_watchTowers[lv_capturePointIndex].lv_neutralDecayTicks = ((libGame_gv_TimeToDecay_C2 * 16) / libGame_gv_capturePoints[lv_capturePointIndex].lv_pointsNeededToCapture);
+                    }
+
+                }
+                else {
+                    if ((libGame_gv_capturePoints[lv_capturePointIndex].lv_captureCounter != 0)) {
+                        if ((libGame_gv_capturePoints[lv_capturePointIndex].lv_capturePointState != libGame_ge_CapturePointState_RevertingtoNeutral)) {
+                            libGame_gv_capturePoints[lv_capturePointIndex].lv_capturePointState = libGame_ge_CapturePointState_RevertingtoNeutral;
+                            libCore_gf_SendActorMessageToDoodadsInRegion("Signal RevertingCapturePoint", RegionCircle(UnitGetPosition(libGame_gv_capturePoints[lv_capturePointIndex].lv_captureBeaconUnit), 12.0), null);
+                            if ((UnitGetType(libGame_gv_capturePoints[lv_capturePointIndex].lv_captureBeaconUnit) == "WatchTowerCaptureBeacon")) {
+                                libNtve_gf_SendActorMessageToUnit(libGame_gv_watchTowers[lv_capturePointIndex].lv_watchTowerUnit, "AnimBracketStop Capture");
+                                libNtve_gf_SendActorMessageToUnit(libGame_gv_watchTowers[lv_capturePointIndex].lv_watchTowerUnit, "Signal CapturePointEmpty");
+                                libGame_gv_watchTowers[lv_capturePointIndex].lv_startedDecaying = true;
+                            }
+
                         }
 
                     }
 
-                }
+                    if ((libGame_gv_watchTowers[lv_capturePointIndex].lv_neutralDecayTicks < ((libGame_gv_TimeToDecay_C2 * 16) / libGame_gv_capturePoints[lv_capturePointIndex].lv_pointsNeededToCapture)) && (UnitGetOwner(libGame_gv_capturePoints[lv_capturePointIndex].lv_captureBeaconUnit) != libCore_gv_cOMPUTER_Neutral) && (UnitGetType(libGame_gv_capturePoints[lv_capturePointIndex].lv_captureBeaconUnit) == "WatchTowerCaptureBeacon")) {
+                        libGame_gv_watchTowers[lv_capturePointIndex].lv_neutralDecayTicks += 1;
+                    }
+                    else {
+                        if ((UnitGetType(libGame_gv_capturePoints[lv_capturePointIndex].lv_captureBeaconUnit) == "WatchTowerCaptureBeacon")) {
+                            libGame_gv_watchTowers[lv_capturePointIndex].lv_neutralDecayTicks = 0;
+                        }
 
-                if ((libGame_gv_capturePoints[lv_capturePointIndex].lv_captureCounter < 0)) {
-                    libGame_gv_capturePoints[lv_capturePointIndex].lv_captureCounter += lv_captureIncrement;
-                }
+                        if ((libGame_gv_capturePoints[lv_capturePointIndex].lv_captureCounter < 0)) {
+                            libGame_gv_capturePoints[lv_capturePointIndex].lv_captureCounter += lv_captureIncrement;
+                        }
 
-                if ((libGame_gv_capturePoints[lv_capturePointIndex].lv_captureCounter > 0)) {
-                    libGame_gv_capturePoints[lv_capturePointIndex].lv_captureCounter -= lv_captureIncrement;
-                }
+                        if ((libGame_gv_capturePoints[lv_capturePointIndex].lv_captureCounter > 0)) {
+                            libGame_gv_capturePoints[lv_capturePointIndex].lv_captureCounter -= lv_captureIncrement;
+                        }
 
+                    }
+                }
             }
             else if (auto416AF879_val == libGame_ge_CapturePointDecay_Owner) {
                 autoAF8EF2F0_val = UnitGetOwner(libGame_gv_capturePoints[lv_capturePointIndex].lv_captureBeaconUnit);
@@ -13758,7 +13791,13 @@ bool libGame_gt_CapturePointLogic_Func (bool testConds, bool runActions) {
             else {
             }
         }
+        else {
+            if ((UnitGetType(libGame_gv_capturePoints[lv_capturePointIndex].lv_captureBeaconUnit) == "WatchTowerCaptureBeacon")) {
+                libGame_gv_watchTowers[lv_capturePointIndex].lv_decayDelayTicks = 0;
+                libGame_gv_watchTowers[lv_capturePointIndex].lv_neutralDecayTicks = 0;
+            }
 
+        }
         if ((lv_orderTeamHeroes > 0) && (lv_chaosTeamHeroes > 0)) {
             DialogControlSetAnimationState(libGame_gv_capturePoints[lv_capturePointIndex].lv_captureProgressBar, PlayerGroupAll(), "IsContested", "Contested");
             autoB759D9BE_val = libGame_gv_capturePoints[lv_capturePointIndex].lv_contestedPointDecay;
@@ -13872,6 +13911,11 @@ bool libGame_gt_CapturePointLogic_Func (bool testConds, bool runActions) {
                     if ((UnitGetType(libGame_gv_capturePoints[lv_capturePointIndex].lv_captureBeaconUnit) == "WatchTowerCaptureBeacon")) {
                         libNtve_gf_SendActorMessageToUnit(libGame_gv_watchTowers[lv_capturePointIndex].lv_watchTowerUnit, "Signal CapturePointEmpty");
                         libNtve_gf_SendActorMessageToUnit(libGame_gv_capturePoints[lv_capturePointIndex].lv_captureBeaconUnit, "Signal WatchTowerOwnerOrder");
+                        if ((libGame_gv_watchTowers[lv_capturePointIndex].lv_startedDecaying == true)) {
+                            libGame_gv_watchTowers[lv_capturePointIndex].lv_startedDecaying = false;
+                            libNtve_gf_SendActorMessageToUnit(libGame_gv_watchTowers[lv_capturePointIndex].lv_watchTowerUnit, "AnimBracketStart Capture Stand,Work,Start Stand,Work Stand,Work,End");
+                        }
+
                     }
                     else {
                         libNtve_gf_SendActorMessageToUnit(libGame_gv_capturePoints[lv_capturePointIndex].lv_captureBeaconUnit, "Signal CapturePointOwnerOrder");
@@ -13918,6 +13962,11 @@ bool libGame_gt_CapturePointLogic_Func (bool testConds, bool runActions) {
                     if ((UnitGetType(libGame_gv_capturePoints[lv_capturePointIndex].lv_captureBeaconUnit) == "WatchTowerCaptureBeacon")) {
                         libNtve_gf_SendActorMessageToUnit(libGame_gv_watchTowers[lv_capturePointIndex].lv_watchTowerUnit, "Signal CapturePointEmpty");
                         libNtve_gf_SendActorMessageToUnit(libGame_gv_capturePoints[lv_capturePointIndex].lv_captureBeaconUnit, "Signal WatchTowerOwnerChaos");
+                        if ((libGame_gv_watchTowers[lv_capturePointIndex].lv_startedDecaying == true)) {
+                            libGame_gv_watchTowers[lv_capturePointIndex].lv_startedDecaying = false;
+                            libNtve_gf_SendActorMessageToUnit(libGame_gv_watchTowers[lv_capturePointIndex].lv_watchTowerUnit, "AnimBracketStart Capture Stand,Work,Start Stand,Work Stand,Work,End");
+                        }
+
                     }
                     else {
                         libNtve_gf_SendActorMessageToUnit(libGame_gv_capturePoints[lv_capturePointIndex].lv_captureBeaconUnit, "Signal CapturePointOwnerChaos");
@@ -18585,7 +18634,8 @@ bool libGame_gt_MinionSpawnCycle_Func (bool testConds, bool runActions) {
                 }
 
             }
-            Wait((TimerGetRemaining(lv_waveTimer) - 0.0625), c_timeGame);
+            Wait((TimerGetRemaining(lv_waveTimer) - 0.0625
+), c_timeGame);
         }
         else {
             Wait(TimerGetRemaining(lv_waveTimer), c_timeGame);
@@ -18816,7 +18866,7 @@ bool libGame_gt_TownTownHallKilledMoonwellSearch_Func (bool testConds, bool runA
     lv_structureIndex = 1;
     for ( ; ( (autoF80B0BD0_ai >= 0 && lv_structureIndex <= autoF80B0BD0_ae) || (autoF80B0BD0_ai < 0 && lv_structureIndex >= autoF80B0BD0_ae) ) ; lv_structureIndex += autoF80B0BD0_ai ) {
         lv_structure = libGame_gv_townTownData[lv_townIndex].lv_structureUnits[lv_structureIndex];
-        if ((UnitIsAlive(lv_structure) == true) && (libGame_gf_TownGetTownStructurePresetFromUnit(lv_structure) == libGame_ge_TownStructureTypes_Moonwell) && (UnitBehaviorCount(lv_structure, "HealingFountainIgnoreLinkedMinimapIcons") == 0)) {
+        if ((UnitIsAlive(lv_structure) == true) && ((libGame_gf_TownGetTownStructurePresetFromUnit(lv_structure) == libGame_ge_TownStructureTypes_Moonwell) || (libGame_gf_TownGetTownStructurePresetFromUnit(lv_structure) == libGame_ge_TownStructureTypes_Moonwell)) && (UnitBehaviorCount(lv_structure, "HealingFountainIgnoreLinkedMinimapIcons") == 0)) {
             UnitKill(lv_structure);
         }
 
@@ -21395,6 +21445,43 @@ void libGame_gt_InitializeTownSystem_Init () {
 }
 
 //--------------------------------------------------------------------------------------------------
+// Trigger: Kill Standalone Towers
+//--------------------------------------------------------------------------------------------------
+bool libGame_gt_KillStandaloneTowers_Func (bool testConds, bool runActions) {
+    // Automatic Variable Declarations
+    unitgroup auto61769700_g;
+    int auto61769700_u;
+    unit auto61769700_var;
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((UnitGetType(EventUnit()) == "TownTownHallL2")) {
+        auto61769700_g = UnitGroupSearch(null, c_playerAny, UnitGetPosition(EventUnit()), 15.0, UnitFilter((1 << c_targetFilterStructure), 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
+        auto61769700_u = UnitGroupCount(auto61769700_g, c_unitCountAll);
+        for (;; auto61769700_u -= 1) {
+            auto61769700_var = UnitGroupUnitFromEnd(auto61769700_g, auto61769700_u);
+            if (auto61769700_var == null) { break; }
+            if ((UnitGetType(auto61769700_var) == "TownCannonTowerL3Standalone")) {
+                UnitDamage(auto61769700_var, "TowerDeathDamage", auto61769700_var, 20000.0);
+                break;
+            }
+
+        }
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libGame_gt_KillStandaloneTowers_Init () {
+    libGame_gt_KillStandaloneTowers = TriggerCreate("libGame_gt_KillStandaloneTowers_Func");
+    TriggerAddEventUnitDied(libGame_gt_KillStandaloneTowers, null);
+}
+
+//--------------------------------------------------------------------------------------------------
 // Trigger: Initialize Moonwell Minimap Icons on Towns
 //--------------------------------------------------------------------------------------------------
 bool libGame_gt_InitializeMoonwellIconsonTowns_Func (bool testConds, bool runActions) {
@@ -22200,7 +22287,7 @@ bool libGame_gt_InitializeWatchTowers_Func (bool testConds, bool runActions) {
         libGame_gv_watchTowers[libGame_gv_watchTowersCurrentCount].lv_watchTowerUnit = lv_u;
         UnitSetCustomValue(lv_u, libCore_gf_CustomValueIndex(libCore_ge_CustomValueIndexes_WatchTowerIndex), libGame_gv_watchTowersCurrentCount);
         libNtve_gf_CreateUnitsWithDefaultFacing(1, "WatchTowerCaptureBeacon", c_unitCreateIgnorePlacement, UnitGetOwner(lv_u), UnitGetPosition(lv_u), null);
-        libGame_gf_CapturePointCreate(UnitLastCreated(), libCore_gv_data_WatchTower_CaptureRadius_C, libCore_gv_data_WatchTower_CaptureTime_C, 0.0, libGame_ge_CapturePointDecay_DoNotDecay, libGame_ge_CapturePointDecay_Owner, true);
+        libGame_gf_CapturePointCreate(UnitLastCreated(), libCore_gv_data_WatchTower_CaptureRadius_C, libCore_gv_data_WatchTower_CaptureTime_C, 0.0, libGame_ge_CapturePointDecay_DoNotDecay, libGame_ge_CapturePointDecay_Neutral, true);
         libGame_gv_watchTowers[libGame_gv_watchTowersCurrentCount].lv_capturePointIndex = libGame_gf_LastCreatedCapturePoint();
         AddUnitOfInterest(libGame_gv_watchTowers[libGame_gv_watchTowersCurrentCount].lv_watchTowerUnit, 3.5, 0.0, "VisionBeacon", libNtve_ge_GoalTeam_Both, libGame_gv_watchTowers[libGame_gv_watchTowersCurrentCount].lv_capturePointIndex);
     }
@@ -22452,6 +22539,7 @@ void libGame_InitTriggers () {
     libGame_gt_TowerTowerDeadStateGateCheck_Init();
     libGame_gt_TowerTowerMorphToDeadStateStructureDies_Init();
     libGame_gt_InitializeTownSystem_Init();
+    libGame_gt_KillStandaloneTowers_Init();
     libGame_gt_InitializeMoonwellIconsonTowns_Init();
     libGame_gt_TownMidLateGamePowerTransitionOn_Init();
     libGame_gt_HallOfStormsKnockbackLaunchMissile_Init();

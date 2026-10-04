@@ -2433,6 +2433,8 @@
   </CButton>
   <CButton id="DVaMechDefenseMatrixFace" parent="StormButtonParent">
     <Icon value="Assets\Textures\storm_ui_icon_dva_defensematrix.dds" />
+    <TooltipAppender Text="Button/TooltipAppender/DVaDefenseMatrixDamagePreventedTotal" />
+    <TooltipAppender Text="Button/TooltipAppender/DVaDefenseMatrixDamagePreventedHeroes" />
     <HotkeyAlias value="DVaMechDefenseMatrix" />
   </CButton>
   <CButton id="DVaPilotConcussivePulseTalent" parent="StormButtonParent">
@@ -4213,7 +4215,7 @@
   <CEffectDamage id="DVaMechBunnyHopImpactDamage" parent="StormSpell">
     <Amount value="78" />
     <SourceButtonFace value="DVaBunnyHopOn" />
-    <MultiplicativeModifierArray index="0" Validator="DVaTargetHas3StacksBunnyHopImpactMarker" Modifier=".8" Crit="1" />
+    <MultiplicativeModifierArray index="0" Validator="DVaTargetHas3StacksBunnyHopImpactMarker" Modifier="0.8" Crit="1" />
   </CEffectDamage>
   <CEffectApplyBehavior id="DVaMechBunnyHopApplySlow">
     <Behavior value="DVaMechBunnyHopSlow" />
@@ -4533,6 +4535,11 @@
     <EffectArray value="DVaTransferMapMechanicTargetAbilityUnload" />
     <EffectArray value="DVaTransferMapMechanicTargetAbility2Unload" />
   </CEffectSet>
+  <CEffectTransferBehavior id="DVaTransferMapMechanicStacksBlackhearts">
+    <LaunchUnit Value="Caster" />
+    <ImpactUnit Value="Target" />
+    <Behavior value="MapMechanicStack" />
+  </CEffectTransferBehavior>
   <CEffectTransferBehavior id="DVaTransferMapMechanicStacksUnload">
     <LaunchUnit Value="Caster" />
     <ImpactUnit Value="Target" />
@@ -4645,8 +4652,9 @@
   </CEffectSet>
   <CEffectApplyForce id="DVaPilotConcussivePulseKnockbackApplyForce">
     <WhichLocation>
-      <Value value="OriginPoint" />
       <Effect value="DVaPilotConcussivePulseInitialSet" />
+      <Value value="OriginPoint" />
+      <ProjectionAngle value="180" />
       <ProjectionMultiplier value="1" />
       <ProjectionSourceEffect value="DVaPilotConcussivePulseInitialSet" />
       <ProjectionSourceValue value="OriginPoint" />
@@ -4654,7 +4662,6 @@
       <ProjectionTargetValue value="TargetPoint" />
       <UsesLineDash value="1" />
       <LineDashType value="AllowedInUnpathable" />
-      <ProjectionAngle value="180" />
       <ProjectionDistanceScale value="2" />
     </WhichLocation>
     <WhichUnit Effect="DVaPilotConcussivePulseImpactSet" />
@@ -4725,7 +4732,7 @@
       <Flags index="AffectedByCooldownReduction" value="1" />
       <Flags index="AffectedByOverdrive" value="1" />
     </HeroAbilArray>
-    <HeroAbilArray Abil="DVaMechDefenseMatrixRetarget">
+    <HeroAbilArray Abil="DVaMechDefenseMatrixRetarget" Button="DVaRetargetDefenseMatrix">
       <Flags index="ShowInQuickCastSetting" value="1" />
       <Flags index="AffectedByCooldownReduction" value="1" />
       <Flags index="AffectedByOverdrive" value="1" />

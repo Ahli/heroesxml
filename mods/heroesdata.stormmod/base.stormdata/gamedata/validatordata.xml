@@ -46,6 +46,15 @@
     <Value value="1" />
     <Behavior value="HeroGenericExperienceGlobeReducedXPCarry" />
   </CValidatorUnitCompareBehaviorCount>
+  <CValidatorCombine id="CasterIsStunnedOrRootedOrSlowed">
+    <CombineArray value="CasterIsStunned" />
+    <CombineArray value="CasterIsRooted" />
+    <CombineArray value="CasterIsSlowed" />
+  </CValidatorCombine>
+  <CValidatorCombine id="IsMinionorStructureANDNotMerc">
+    <CombineArray value="TargetIsMinionAndNotMercLaner" />
+    <CombineArray value="IsStructureTarget" />
+  </CValidatorCombine>
   <CValidatorLocationEnumArea id="NoHeroNearby2">
     <ResultFailed value="MustTargetVisibleLocation" />
     <WhichLocation Value="CasterUnit" />
@@ -54,6 +63,10 @@
     </AreaArray>
     <SearchFilters value="Heroic;Self,Player,Neutral,Enemy,Missile,Item,Dead,Hidden,Benign" />
   </CValidatorLocationEnumArea>
+  <CValidatorCombine id="TargetIsEnemyStructureAndNotTownWallORHero">
+    <CombineArray value="TargetIsEnemyStructureAndNotTownWall" />
+    <CombineArray value="TargetIsHero" />
+  </CValidatorCombine>
   <CValidatorUnitType id="TargetIsExperienceGlobeMinion">
     <Value value="ExperienceGlobeMinion" />
   </CValidatorUnitType>
@@ -225,6 +238,15 @@
   <CValidatorUnitFilters id="SourceIsMinionAndNotMercOrMapBossOrStructureOrSummon">
     <WhichUnit Value="Source" />
     <Filters value="Minion;Merc,Structure,Heroic,User1,Summoned,MapBoss" />
+  </CValidatorUnitFilters>
+  <CValidatorCombine id="SourceIsMinionAndNotMercLaner">
+    <Type value="And" />
+    <CombineArray value="SourceIsMinion" />
+    <CombineArray value="SourceNotMerc" />
+  </CValidatorCombine>
+  <CValidatorUnitFilters id="SourceIsNotAMonster">
+    <Filters value="-;MapCreature" />
+    <WhichUnit Value="Source" />
   </CValidatorUnitFilters>
   <CValidatorUnitCompareBehaviorCount id="SylvanasTargetDoesNotHaveImmuneToSylvanasBlackArrowsStructureDebuff">
     <Behavior value="ImmunetoSylvanasBlackArrowStructureDebuff" />
@@ -920,6 +942,11 @@
     <Value value="1" />
     <BehaviorLink value="StormSummonedUnitDamagedUnitTracker" />
   </CValidatorCompareTrackedUnitsCount>
+  <CValidatorIsUnitTracked id="StormSummonedUnitTargetIsTracked">
+    <Find value="1" />
+    <BehaviorLink value="StormSummonedUnitDamagedUnitTracker" />
+    <TrackedUnit Value="Target" />
+  </CValidatorIsUnitTracked>
   <CValidatorUnitCompareBehaviorCount id="TargetIsTeleporter">
     <Value value="1" />
     <Behavior value="IsTeleporter" />
@@ -1250,6 +1277,10 @@
     <Type value="And" />
     <CombineArray value="TargetNotDead" />
     <CombineArray value="TargetNotSpecialDeathState" />
+  </CValidatorCombine>
+  <CValidatorCombine id="TargetIsDeadOrSpecialDeathState">
+    <CombineArray value="TargetIsDead" />
+    <CombineArray value="TargetIsSpecialDeathState" />
   </CValidatorCombine>
   <CValidatorUnitCompareVital id="CasterLifeGE25Percent" parent="CasterLifePercent">
     <Compare value="GE" />
@@ -2740,6 +2771,21 @@
     <CombineArray value="TargetNotStandaloneCannonTower2" />
     <CombineArray value="TargetNotStandaloneCannonTower3" />
   </CValidatorCombine>
+  <CValidatorCombine id="TargetIsHeroAndCasterNotT2Tower">
+    <Type value="And" />
+    <CombineArray value="CasterNotT2Tower" />
+    <CombineArray value="CasterNotT2TowerStandalone" />
+    <CombineArray value="TargetIsHero" />
+  </CValidatorCombine>
+  <CValidatorUnitType id="CasterNotT2Tower">
+    <WhichUnit Value="Caster" />
+    <Find value="0" />
+    <Value value="TownCannonTowerL2" />
+  </CValidatorUnitType>
+  <CValidatorUnitType id="CasterNotT2TowerStandalone">
+    <Value value="TownCannonTowerL2Standalone" />
+    <Find value="0" />
+  </CValidatorUnitType>
   <CValidatorUnitType id="TargetIsMercLanerSiegeGiant">
     <Value value="MercLanerSiegeGiant" />
   </CValidatorUnitType>
@@ -2991,9 +3037,13 @@
   <CValidatorUnitCompareBehaviorCount id="TargetNotMounted">
     <Behavior value="Mounted" />
   </CValidatorUnitCompareBehaviorCount>
+  <CValidatorUnitCompareBehaviorCount id="TargetNotMountedCaboose">
+    <Behavior value="MountCaboose" />
+  </CValidatorUnitCompareBehaviorCount>
   <CValidatorCombine id="TargetNotMountedCombine">
     <Type value="And" />
     <CombineArray value="TargetNotMounted" />
+    <CombineArray value="TargetNotMountedCaboose" />
     <CombineArray value="TargetHasNoGhostWolf" />
   </CValidatorCombine>
   <CValidatorUnitCompareBehaviorCount id="HasDestructibleBehavior">
@@ -3206,6 +3256,7 @@
     <CombineArray value="HasBucketSwiftStorm" />
     <CombineArray value="HeroNotInCombat" />
     <CombineArray value="CrusaderSourceHasSteedChargeActive" />
+    <CombineArray value="ArthasSourceHasPathofFrostActive" />
   </CValidatorCombine>
   <CValidatorCombine id="CasterEnergyNotFullAndIsManaUser">
     <Type value="And" />
@@ -5362,6 +5413,10 @@
   <CValidatorUnitFilters id="IsStructureTarget">
     <Filters value="Structure;-" />
   </CValidatorUnitFilters>
+  <CValidatorCombine id="TargetNotNoMinionAggroOrIsAndCanBeDisabled">
+    <CombineArray value="NotNoMinionAggro" />
+    <CombineArray value="TargetIsStandAloneCannonTower3" />
+  </CValidatorCombine>
   <CValidatorCombine id="IsTerranUnit">
     <Type value="And" />
     <CombineArray value="NotStructure" />
@@ -5567,6 +5622,11 @@
     <CombineArray value="TargetIsNotTownGate" />
     <CombineArray value="TargetIsNotTownWall" />
     <Type value="And" />
+  </CValidatorCombine>
+  <CValidatorCombine id="TargetIsEnemyStructureAndNotTownWall">
+    <Type value="And" />
+    <CombineArray value="IsEnemyStructure" />
+    <CombineArray value="TargetIsNotTownWall" />
   </CValidatorCombine>
   <CValidatorUnitCompareBehaviorCount id="SourceHasSuppressRegenGlobeCreation">
     <WhichUnit Value="Source" />
@@ -6962,7 +7022,6 @@
     <CombineArray value="MedicHasLifeSupportTalentActive" />
   </CValidatorCombine>
   <CValidatorCombine id="AbilButtonActiveQDamage">
-    <CombineArray value="LeoricHasRoyalFocusDamageBuff" />
     <CombineArray value="WizardHasTeleportAetherWalkerDummyBehaviorAndAetherWalkerTalent" />
     <CombineArray value="ChenStormStormEarthFireEmpoweredOtherButtonsUsedAndHas2StacksOfEmpoweredFinalAbilityCastStackingBehaviorCombine" />
     <CombineArray value="ChenHasStormEarthFireCasterBehaviorAndElementalConduitAndStormButtonNotUsed" />

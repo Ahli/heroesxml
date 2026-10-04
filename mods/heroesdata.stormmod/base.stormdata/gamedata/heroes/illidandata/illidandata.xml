@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="us-ascii"?>
 <Catalog>
+  <const id="$IllidanDiveRange" value="7.125" />
+  <const id="$IlliidanFriendorFoeRangeModifier" value="0.2" />
+  <const id="$IlliidanFriendorFoeRangeIncrease" value="*($IllidanDiveRange $IlliidanFriendorFoeRangeModifier)" evaluateAsExpression="1" />
   <CAbilEffectInstant id="IllidanBladesOfAzzinoth">
     <PrepEffect value="DismountDecloakCasterSet" />
     <Effect value="IllidanBladesOfAzzinothCastSet" />
@@ -61,11 +64,12 @@
     <Effect value="IllidanDiveTargetSwitch" />
     <Flags index="ClearLastAttackTargetOutOfRange" value="1" />
     <Flags index="ClearLastMoveTarget" value="1" />
+    <Flags index="RangeUseCasterRadius" value="0" />
     <Cost>
       <Cooldown TimeUse="6" />
     </Cost>
     <TargetFilters value="-;Player,Missile,Item,Stasis,Dead,Hidden" />
-    <Range value="6.5" />
+    <Range value="$IllidanDiveRange" />
     <Arc value="360" />
     <UninterruptibleArray index="Cast" value="1" />
     <UninterruptibleArray index="Channel" value="1" />
@@ -379,7 +383,7 @@
   </CActorModel>
   <CActorRange id="IllidanDiveRange" parent="StormRangeAbilPlusSplat" abil="IllidanDive" />
   <CActorSplat id="IllidanDiveRangeSplat" parent="StormRangeSplat">
-    <Scale value="7.125000" />
+    <Scale value="$IllidanDiveRange" />
   </CActorSplat>
   <CActorModel id="IllidanDiveLaunch" parent="StormModelAnimationStyleOneShotUnit">
     <HostSiteOps Ops="SOpAttachCenter" />
@@ -698,6 +702,7 @@
     <DisableValidatorArray value="IllidanDoesNotHaveBatteredAssaultTalentBuffTarget" />
     <BuffFlags index="UpdateDurationWhileDisabled" value="1" />
     <Duration value="3" />
+    <Aliases value="RangedDamageCrit" />
     <Modification>
       <DamageDealtFraction index="Basic" value="0.35" />
     </Modification>
@@ -1116,6 +1121,9 @@
       <WeaponDisableArray value="HeroIllidanMetamorphosis" />
     </Modification>
   </CBehaviorBuff>
+  <CButton id="IllidanBlindNotDeaf" parent="StormButtonParent">
+    <Icon value="Assets\Textures\storm_ui_icon_illidan_evasion_a.dds" />
+  </CButton>
   <CButton id="IllidanSweepingStrikeBuffFace" parent="StormButtonParent">
     <Name value="Button/Name/IllidanSweepingStrike" />
   </CButton>
@@ -1993,6 +2001,11 @@
     <BehaviorLink value="IllidanMetamorphosisDoubleDummyHealth" />
     <Count value="10" />
   </CEffectRemoveBehavior>
+  <CEffectApplyBehavior id="IllidanEvasionApplyBlindNotDeaf">
+    <ValidatorArray index="0" value="HasIllidanBlindNotDeafEvasion" />
+    <WhichUnit Value="Caster" />
+    <Behavior value="25PercentCCReduction" />
+  </CEffectApplyBehavior>
   <CEffectApplyBehavior id="IllidanTheHuntApplyBehavior">
     <WhichUnit Value="Caster" />
     <Behavior value="IllidanTheHunt" />
@@ -2136,7 +2149,6 @@
   </CEffectCreatePersistent>
   <CEffectCreatePersistent id="IllidanTheHuntCancelRedirectPersistent">
     <ValidatorArray value="HasTheHuntMissileMover" />
-    <WhichLocation Value="TargetPoint" />
     <InitialEffect value="IllidanTheHuntRedirctMissileTargetDead" />
     <InitialDelay value="0.0625" />
   </CEffectCreatePersistent>
@@ -2749,6 +2761,11 @@
       <BehaviorArray value="IllidanFieryBrandTargetTracker" />
     </RankArray>
   </CTalent>
+  <CTalent id="IllidanBlindNotDeafEvasion">
+    <Face value="IllidanBlindNotDeaf" />
+    <Abil value="IllidanEvasion" />
+    <RankArray />
+  </CTalent>
   <CTalent id="IllidanUnendingHatredPassive">
     <Face value="IllidanUnendingHatredTalent" />
     <RankArray>
@@ -2788,14 +2805,14 @@
         <Type value="FlatModification" />
         <Entry value="IllidanDive" />
         <Field value="Range[0]" />
-        <Value value="1.300000" />
+        <Value value="$IlliidanFriendorFoeRangeIncrease" />
       </Modifications>
       <Modifications>
         <Type value="FlatModification" />
         <Catalog value="Actor" />
         <Entry value="IllidanDiveRangeSplat" />
         <Field value="Scale" />
-        <Value value="1.300000" />
+        <Value value="$IlliidanFriendorFoeRangeIncrease" />
       </Modifications>
     </AbilityModificationArray>
   </CTalent>
@@ -3030,6 +3047,11 @@
     <HeroPlaystyleFlags index="Overconfident" value="1" />
     <HeroPlaystyleFlags index="RoleAutoAttacker" value="1" />
   </CUnit>
+  <CValidatorPlayerTalent id="HasIllidanBlindNotDeafEvasion">
+    <WhichPlayer Value="Caster" />
+    <Find value="1" />
+    <Value value="IllidanBlindNotDeafEvasion" />
+  </CValidatorPlayerTalent>
   <CValidatorUnitCompareBehaviorCount id="TargetDoesNotHaveBetrayersStrikeBehavior">
     <Behavior value="BetrayersStrike" />
   </CValidatorUnitCompareBehaviorCount>

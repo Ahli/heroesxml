@@ -3,6 +3,9 @@
   <const id="$AnubarakHardenManaCost" value="25" />
   <const id="$AnubarakHardenCooldown" value="7" />
   <const id="$AnubarakHardenCarapaceShieldAmount" value="340" />
+  <const id="$AnubarakBeetleHealth" value="285" />
+  <const id="$AnubarakBeetleDecayDuration" value="10" />
+  <const id="$AnubarakBeetleLifeDecayRate" value="/($AnubarakBeetleHealth $AnubarakBeetleDecayDuration)" evaluateAsExpression="1" />
   <CAbilEffectInstant id="AnubarakTheTraitorKing">
     <PrepEffect value="DismountDecloakCasterSet" />
     <Effect value="AnubarakTheTraitorKingApplyBuff" />
@@ -410,7 +413,7 @@
   </CActorSound>
   <CActorModel id="AnubarakLeechingMandiblesHealEffect" parent="StormModelAnimationStyleOneShotUnit">
     <Preload value="StormLifestealHealVisual" />
-    <On Terms="Effect.AnubarakBeetleSpitHealCreateHealer.Start; At Target" Send="Create" />
+    <On Terms="Effect.AnubarakLeechingScarabsActorDummy.Start; At Caster" Send="Create" />
     <HostSiteOps Ops="SOpAttachCenterSoft" HoldRotation="1" />
     <Model value="LifestealHealModel" />
     <AutoScaleFactor value="1.000000" />
@@ -458,7 +461,7 @@
     <On Terms="UnitBirth.AnubarakBeetleSpitBeetle" Send="Create" />
     <Sound value="Anubarak_Beetle_Spit_Beetle_Birth" />
   </CActorSound>
-  <CActorAction id="AnubarakBeetleSpitBeetleAttack" parent="GenericAttackStorm" effectAttack="AnubarakBeetleSpitBeetleDamage">
+  <CActorAction id="AnubarakBeetleSpitBeetleAttack" parent="GenericAttackStorm" effectAttack="AnubarakScarabHostBeetleWeaponImpactDummy">
     <ImpactMap index="None" Sound="Anubarak_Beetle_Spit_Beetle_AttackImpact" />
     <ImpactSound value="AnubarakBeetleSpitAttackImpactSound" />
     <ActionFlags index="ImpactSuppressUnitSound" value="1" />
@@ -1109,16 +1112,23 @@
     <Period value="1" />
     <PeriodicEffect value="AnubarakImpaleBedOfBarbsPeriodicDamage" />
   </CBehaviorBuff>
+  <CBehaviorBuff id="AnubarakScarabHostBeetleAbilityController" parent="CarryBehaviorParent">
+    <EnableEffect value="AnubarakScarabHostBeetleAddAbilityTargetController" />
+    <PeriodicEffect value="AnubarakScarabHostBeetleAddAbilityTargetController" />
+    <Period value="0.0625" />
+    <DisableValidatorArray value="AnubarakScarabHostBeetleDoesNotHaveAbilityTargetController" />
+  </CBehaviorBuff>
+  <CBehaviorBuff id="AnubarakScarabHostBeetleAbilityTargetController" parent="CarryBehaviorParent">
+    <Face value="AnubarakScarabHostTrait" />
+    <CancelEffect value="AnubarakScarabHostBeetleEnumTargetUnit" />
+  </CBehaviorBuff>
   <CBehaviorBuff id="AnubarakBeetleSpitBeetleTimedLifeAndDamageResponse">
     <DisplayDuration index="Self" value="1" />
     <DisplayDuration index="Ally" value="1" />
     <DisplayDuration index="Enemy" value="1" />
     <BuffFlags index="UpdateDurationWhileDisabled" value="1" />
-    <Duration value="8" />
+    <Duration value="-1" />
     <ExpireEffect value="TimedLifeFate" />
-    <DamageResponse Chance="1" Handled="AnubarakBeetleSpitHealSearchArea" Location="Attacker">
-      <RequireEffectArray value="AnubarakBeetleSpitBeetleDamage" />
-    </DamageResponse>
   </CBehaviorBuff>
   <CBehaviorBuff id="AnubarakBeetleSpitDeathResponseBehavior">
     <BehaviorFlags index="Permanent" value="1" />
@@ -1315,7 +1325,7 @@
     <RemoveValidatorArray value="AnubarakTargethasCocoonActive" />
   </CBehaviorBuff>
   <CBehaviorBuff id="AnubarakBeetleTimedLife" parent="StormTimedLife">
-    <Duration value="8" />
+    <Duration value="-1" />
   </CBehaviorBuff>
   <CBehaviorBuff id="AnubarakBurrowChargeCaster" parent="StormUnstoppableParent">
     <Duration value="1.125" />
@@ -1787,19 +1797,55 @@
   <CEffectApplyBehavior id="AnubarakBeetleSpitApplyTimedLife">
     <Behavior value="AnubarakBeetleSpitBeetleTimedLifeAndDamageResponse" />
   </CEffectApplyBehavior>
-  <CEffectDamage id="AnubarakBeetleSpitBeetleDamage" parent="StormSummonedUnitWeapon">
+  <CEffectApplyBehavior id="AnubarakScarabHostBeetleAddAbilityController">
+    <Behavior value="AnubarakScarabHostBeetleAbilityController" />
+  </CEffectApplyBehavior>
+  <CEffectApplyBehavior id="AnubarakScarabHostBeetleAddAbilityTargetController">
+    <ValidatorArray value="AnubarakScarabHostBeetleDoesNotHaveAbilityTargetController" />
+    <Behavior value="AnubarakScarabHostBeetleAbilityTargetController" />
+  </CEffectApplyBehavior>
+  <CEffectSet id="AnubarakScarabHostBeetleWeaponSet" parent="StormSummonedUnitAddAttackTargetSet" behaviorRemoveEffect="AnubarakScarabHostBeetleRemoveAbilityTargetController">
+    <EffectArray value="AnubarakScarabHostBeetleWeaponImpactDummy" />
+  </CEffectSet>
+  <CEffectModifyUnit id="AnubarakScarabHostBeetleWeaponImpactDummy">
+    <ValidatorArray value="StormSummonedUnitTargetIsTracked" />
+  </CEffectModifyUnit>
+  <CEffectRemoveBehavior id="AnubarakScarabHostBeetleRemoveAbilityTargetController">
+    <WhichUnit Value="Caster" />
+    <BehaviorLink value="AnubarakScarabHostBeetleAbilityTargetController" />
+    <CancelBehavior value="1" />
+  </CEffectRemoveBehavior>
+  <CEffectEnumTrackedUnits id="AnubarakScarabHostBeetleEnumTargetUnit" parent="StormSummonedUnitEnumTrackedAttackUnit">
+    <Effect value="AnubarakScarabHostBeetleWeaponSwitch" />
+  </CEffectEnumTrackedUnits>
+  <CEffectSwitch id="AnubarakScarabHostBeetleWeaponSwitch">
+    <CaseArray Validator="AnubarakScarabHostBeetleAttackerBlindedOrTargetIsEvadingAndNotGenjiDodge" Effect="BlindMissedDummy" />
+    <CaseDefault value="AnubarakScarabHostBeetleWeaponImpactSet" />
+  </CEffectSwitch>
+  <CEffectSet id="AnubarakScarabHostBeetleWeaponImpactSet">
+    <EffectArray value="AnubarakLeechingScarabsActorDummy" />
+    <EffectArray value="AnubarakBeetleSpitBeetleDamage" />
+    <EffectArray value="AnubarakScarabHostBeetleDamagedUnitTrackerAdd" />
+    <EffectArray value="AnubarakScarabHostBeetleCreatePersistentRevealDummy" />
+  </CEffectSet>
+  <CEffectModifyUnit id="AnubarakLeechingScarabsActorDummy">
+    <ValidatorArray value="AnubarakHasLeechingScarabsAndIsWithinRadius" />
+    <ImpactUnit Value="Caster" />
+  </CEffectModifyUnit>
+  <CEffectDamage id="AnubarakBeetleSpitBeetleDamage" parent="StormSpell">
     <Amount value="20" />
+    <Visibility value="Hidden" />
     <MultiplicativeModifierArray index="AnubarakLeechingScarabsDamage" Validator="AnubarakHasAnubarakCombatStyleHealBeetle" Modifier="0.3" />
     <SourceButtonFace value="AnubarakScarabHostTrait" />
+    <LeechValidator index="Life" value="AnubarakHasLeechingScarabsAndIsWithinRadius" />
+    <LeechFraction index="Life" value="0.5" />
   </CEffectDamage>
-  <CEffectSwitch id="AnubarakBeetleSpitBeetleImpactSwitch" parent="SummonedBasicAttackAbilityDamageMissCheck">
-    <CaseDefault value="AnubarakBeetleSpitBeetleImpactSet" />
-  </CEffectSwitch>
-  <CEffectSet id="AnubarakBeetleSpitBeetleImpactSet">
-    <EffectArray value="AnubarakBeetleSpitApplyDeathResponseBehavior" />
-    <EffectArray value="StormSummonedWeaponPhysicalDamageDummy" />
-    <EffectArray value="AnubarakBeetleSpitBeetleDamage" />
-  </CEffectSet>
+  <CEffectAddTrackedUnit id="AnubarakScarabHostBeetleDamagedUnitTrackerAdd" parent="StormSummonedUnitDamagedUnitTrackerAdd">
+    <TrackerUnit Effect="AnubarakScarabHostBeetleEnumTargetUnit" Value="Target" />
+  </CEffectAddTrackedUnit>
+  <CEffectCreatePersistent id="AnubarakScarabHostBeetleCreatePersistentRevealDummy" parent="StormSummonedUnitPhysicalDamageDealtPersistent">
+    <WhichLocation Effect="AnubarakScarabHostBeetleEnumTargetUnit" Value="TargetUnit" />
+  </CEffectCreatePersistent>
   <CEffectApplyBehavior id="AnubarakBeetleSpitRefreshTimedLife">
     <WhichUnit Value="Caster" />
     <Behavior value="AnubarakBeetleSpitBeetleTimedLifeAndDamageResponse" />
@@ -2099,6 +2145,7 @@
     <SpawnEffect value="AnubarakBeetleSpawnSet" />
   </CEffectCreateUnit>
   <CEffectSet id="AnubarakBeetleSpawnSet">
+    <EffectArray value="AnubarakScarabHostBeetleAddAbilityController" />
     <EffectArray value="AnubarakBeetleSpitApplyTimedLife" />
     <EffectArray value="AnubarakBeetleApplyBurningBeetle" />
   </CEffectSet>
@@ -2156,18 +2203,6 @@
     <Chance value="0" />
     <Behavior value="AnubarakCocoonCryptweaver" />
   </CEffectApplyBehavior>
-  <CEffectCreateHealer id="AnubarakBeetleSpitHealCreateHealer" parent="StormSelfOnlyHealingSpell">
-    <RechargeVitalRate value="13" />
-    <SourceButtonFace value="AnubarakScarabHostTrait" />
-  </CEffectCreateHealer>
-  <CEffectEnumArea id="AnubarakBeetleSpitHealSearchArea">
-    <Chance value="0" />
-    <ImpactLocation Value="SourceUnit" />
-    <SearchFilters value="Heroic;Ally,Neutral,Enemy,Stasis,Dead" />
-    <AreaArray Effect="AnubarakBeetleSpitHealCreateHealer">
-      <Radius value="12" />
-    </AreaArray>
-  </CEffectEnumArea>
   <CEffectDamage id="AnubarakBurrowChargeDamage" parent="StormSpell">
     <Amount value="91" />
   </CEffectDamage>
@@ -2823,14 +2858,14 @@
       <Modifications>
         <Catalog value="Unit" />
         <Entry value="AnubarakBeetleSpitBeetle" />
-        <Field value="LifeStart" />
+        <Field value="LifeRegenRate" />
         <Value value="0.040000" />
         <AffectedByOverdrive value="1" />
       </Modifications>
       <Modifications>
-        <Catalog value="Effect" />
-        <Entry value="AnubarakBeetleSpitHealCreateHealer" />
-        <Field value="RechargeVitalRate" />
+        <Catalog value="Unit" />
+        <Entry value="AnubarakBeetleSpitBeetle" />
+        <Field value="LifeStart" />
         <Value value="0.040000" />
         <AffectedByOverdrive value="1" />
       </Modifications>
@@ -3813,15 +3848,6 @@
   </CTalent>
   <CTalent id="AnubarakMasteryLeechingScarabs">
     <Face value="AnubarakLeechingMandiblesTalent" />
-    <AbilityModificationArray>
-      <Modifications>
-        <Type value="FlatModification" />
-        <Catalog value="Effect" />
-        <Entry value="AnubarakBeetleSpitHealSearchArea" />
-        <Field value="Chance" />
-        <Value value="1.000000" />
-      </Modifications>
-    </AbilityModificationArray>
     <Trait value="1" />
   </CTalent>
   <CTalent id="AnubarakMasteryPersistentCarapaceHardenCarapace">
@@ -3996,14 +4022,16 @@
   <CUnit id="AnubarakBeetleSpitBeetle" parent="StormSummonActive">
     <FlagArray index="CreateAITreeOnSpawn" value="1" />
     <Response value="Acquire" />
-    <LifeStart value="285" />
-    <LifeMax value="285" />
+    <LifeStart value="$AnubarakBeetleHealth" />
+    <LifeMax value="$AnubarakBeetleHealth" />
     <Speed value="4" />
     <AbilArray Link="stop" />
     <AbilArray Link="AttackAlly" />
     <AbilArray Link="move" />
     <BehaviorArray Link="AnubarakLegionOfBeetlesBeetleArmorBuffBehavior" />
     <BehaviorArray Link="ScarabHostBeetleJuicedTalentCarry" />
+    <BehaviorArray Link="StormSummonedUnitTargetTracker" />
+    <BehaviorArray Link="StormSummonedUnitDamagedUnitTracker" />
     <WeaponArray Link="AnubarakBeetleSpitBeetleWeapon" />
     <CardLayouts>
       <LayoutButtons Face="Move" Type="AbilCmd" AbilCmd="move,Move" Slot="Stop" />
@@ -4015,6 +4043,7 @@
     <ScoreResult value="" />
     <AIThinkTree value="AI/SummonedMinionAttackOwnerTarget.aitree" />
     <AcquireLeashRadius value="6" />
+    <LifeRegenRate value="-$AnubarakBeetleLifeDecayRate" />
   </CUnit>
   <CUnit id="AnubarakLocustSwarmAttackMissile" parent="MISSILE_INVULNERABLE" />
   <CUnit id="AnubarakLocustSwarmBug" parent="StormSummonFigment">
@@ -4522,6 +4551,31 @@
     <Find value="1" />
     <Value value="AnubarakResilientScarabs" />
   </CValidatorPlayerTalent>
+  <CValidatorUnitHasBehavior id="AnubarakScarabHostBeetleDoesNotHaveAbilityTargetController">
+    <Behavior value="AnubarakScarabHostBeetleAbilityTargetController" />
+    <Negate value="1" />
+  </CValidatorUnitHasBehavior>
+  <CValidatorCombine id="AnubarakHasLeechingScarabsAndIsWithinRadius">
+    <Type value="And" />
+    <CombineArray value="AnubarakHasAnubarakCombatStyleHealBeetle" />
+    <CombineArray value="AnubarakIsWithinLeechingScarabsRadius" />
+    <CombineArray value="CasterLifeNotFull" />
+  </CValidatorCombine>
+  <CValidatorLocationCompareRange id="AnubarakIsWithinLeechingScarabsRadius">
+    <WhichLocation Effect="AnubarakScarabHostBeetleEnumTargetUnit" Value="TargetUnit" />
+    <Compare value="LT" />
+    <Range value="12" />
+    <Value Value="CasterUnit" />
+  </CValidatorLocationCompareRange>
+  <CValidatorUnitCompareBehaviorCount id="AnubarakScarabHostBeetleAttackerBlinded">
+    <Compare value="GT" />
+    <WhichUnit Effect="AnubarakScarabHostBeetleEnumTargetUnit" />
+    <Categories index="DebuffBlind" value="1" />
+  </CValidatorUnitCompareBehaviorCount>
+  <CValidatorCombine id="AnubarakScarabHostBeetleAttackerBlindedOrTargetIsEvadingAndNotGenjiDodge">
+    <CombineArray value="AnubarakScarabHostBeetleAttackerBlinded" />
+    <CombineArray value="TargetIsEvadingAndNotGenjiDodge" />
+  </CValidatorCombine>
   <CWeaponLegacy id="AnubarakBeetleSpitBeetleWeapon">
     <Options index="Melee" value="1" />
     <Options index="ContinuousScan" value="1" />
@@ -4534,7 +4588,7 @@
     <Period value="1" />
     <DamagePoint value="0.15" />
     <Backswing value="0.25" />
-    <Effect value="AnubarakBeetleSpitBeetleImpactSwitch" />
+    <Effect value="AnubarakScarabHostBeetleWeaponSet" />
     <RandomDelayMin value="0" />
     <RandomDelayMax value="0" />
   </CWeaponLegacy>

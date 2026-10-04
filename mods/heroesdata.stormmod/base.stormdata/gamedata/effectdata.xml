@@ -165,6 +165,12 @@
     <BehaviorLink value="StormSummonedUnitDamagedUnitTracker" />
     <TrackedUnit Value="Target" />
   </CEffectAddTrackedUnit>
+  <CEffectCreatePersistent default="1" id="StormSummonedUnitPhysicalDamageDealtPersistent">
+    <InitialEffect value="StormSummonedUnitPhysicalDamageDealtDummy" />
+  </CEffectCreatePersistent>
+  <CEffectCreatePersistent default="1" id="StormSummonedUnitSpellDamageDealtPersistent">
+    <InitialEffect value="StormSummonedUnitSpellDamageDealtDummy" />
+  </CEffectCreatePersistent>
   <CEffectApplyBehavior id="ApplyInspirationApplyBuff">
     <ValidatorArray index="0" removed="1" />
     <Behavior value="InspirationBuff" />
@@ -181,6 +187,14 @@
     <ImpactLocation Value="CasterUnit" />
     <Flags index="Kill" value="1" />
   </CEffectDamage>
+  <CEffectModifyPlayer id="ResetQuestMinimums">
+    <EffectArray Operation="Set" Reference="Behavior,XalatathVoidVolleyQuestTokenCounter,Min" Value="0" />
+    <EffectArray Operation="Set" Reference="Behavior,ThrallCrashLightningTokenCounter,Min" Value="0" />
+    <EffectArray Operation="Set" Reference="Behavior,FalstadHammerangGatheringStormQuestToken,Min" Value="0" />
+    <EffectArray Operation="Set" Reference="Abil,ChenKegSmash,Range" Value="3.5" />
+    <EffectArray Operation="Set" Reference="Actor,ChenKegSmashRangeSplat,Scale" Value="4.500000" />
+    <EffectArray Operation="Set" Reference="Weapon,TyrandeHeroWeapon,Range" Value="6" />
+  </CEffectModifyPlayer>
   <CEffectDamage id="StormSummonedWeaponPhysicalDamageDummy" parent="StormDamage">
     <ImpactLocation Value="TargetUnit" History="Unknown" />
     <Flags index="NoFractionDealtBonus" value="1" />
@@ -255,17 +269,25 @@
   <CEffectApplyBehavior id="TombCoreDeathWaveSlowApplyBehavior">
     <Behavior value="TombKingsCoreDeathWaveSlow" />
   </CEffectApplyBehavior>
+  <CEffectDamage id="TowerDeathDamage" />
   <CEffectApplyBehavior id="TownApplyArmorShred">
     <Behavior value="TownRampingArmorShred" />
     <ValidatorArray value="IsHeroAndNotVehicle" />
     <ValidatorArray value="TownHallTargetNotEvadingWithExclusions" />
     <ValidatorArray value="TargetNotInvulnerable" />
+    <ValidatorArray value="TargetDoesNotHaveShredCooldown" />
+  </CEffectApplyBehavior>
+  <CEffectApplyBehavior id="TownApplyArmorShredCooldown">
+    <ValidatorArray index="0" removed="1" />
+    <Marker Link="Effect/TownApplyArmorShred" />
+    <Behavior value="TownRampingArmorShredCooldown" />
   </CEffectApplyBehavior>
   <CEffectSet id="TownCannonTowerL2ImpactSet">
     <EffectArray value="CannonTowerL2Damage" />
   </CEffectSet>
   <CEffectSet id="TownCannonTowerL3ImpactSet">
     <EffectArray value="CannonTowerL3Damage" />
+    <EffectArray value="TownApplyArmorShred" />
   </CEffectSet>
   <CEffectModifyUnit id="ExperienceAcquiredL2Tower">
     <XP value="32" />
@@ -862,13 +884,7 @@
     <BehaviorLink value="StormSummonedUnitTargetTracker" />
     <TrackerUnit Value="Source" />
   </CEffectClearTrackedUnits>
-  <CEffectCreatePersistent default="1" id="StormSummonedUnitPhysicalDamageDealtPersistent">
-    <InitialEffect value="StormSummonedUnitPhysicalDamageDealtDummy" />
-  </CEffectCreatePersistent>
   <CEffectModifyUnit id="StormSummonedUnitPhysicalDamageDealtDummy" />
-  <CEffectCreatePersistent default="1" id="StormSummonedUnitSpellDamageDealtPersistent">
-    <InitialEffect value="StormSummonedUnitSpellDamageDealtDummy" />
-  </CEffectCreatePersistent>
   <CEffectModifyUnit id="StormSummonedUnitSpellDamageDealtDummy" />
   <CEffectSet id="StormStummonedUnitEnumUnitsSetPhysicalDamage">
     <EffectArray value="StormSummonedUnitEnumDamagedUnitsPhysical" />
@@ -1554,7 +1570,7 @@
   </CEffectSet>
   <CEffectSet id="HeroGenericMountAbilityUsePrepareEffectSet">
     <EffectArray value="DecloakCasterSet" />
-    <EffectArray value="TychusAbilityUseRemoveTychusOverkill" />
+    <EffectArray value="TychusOverkillRemoveActiveBehavior" />
   </CEffectSet>
   <CEffectApplyBehavior id="ImmuneToStasisApplyBehaviorCaster">
     <WhichUnit Value="Caster" />
@@ -2633,6 +2649,7 @@
     <EffectArray value="HeroGenericRegenGlobeTargetTypeSwitch" />
     <EffectArray value="HeroGenericRegenerationMasterIncrementQuestToken" />
     <EffectArray value="TyraelArdentRestorationAddQuestToken" />
+    <EffectArray value="XalatathRegenGlobeTalentAddQuestToken" />
   </CEffectSet>
   <CEffectSet id="ShrubStatusControllerDummyEffect" />
   <CEffectSet id="AssistMePing">
@@ -2913,6 +2930,7 @@
   </CEffectCreatePersistent>
   <CEffectSet id="KingsCoreWeaponImpactSet">
     <EffectArray value="KingsCoreWeaponSearch" />
+    <EffectArray value="TownApplyArmorShred" />
   </CEffectSet>
   <CEffectSet id="OnMyWayPing">
     <TargetLocationType value="Point" />
@@ -3996,6 +4014,7 @@
     <AttributeFactor index="Minion" value="1" />
     <AttributeFactor index="Merc" value="1" />
     <AttributeFactor index="Structure" value="2" />
+    <AttributeFactor index="Summoned" value="1" />
     <AttributeFactor index="MapCreature" value="1" />
     <Amount value="17" />
   </CEffectDamage>
@@ -4037,6 +4056,7 @@
     <AttributeFactor index="Minion" value="-0.75" />
     <AttributeFactor index="Merc" value="-0.75" />
     <AttributeFactor index="Structure" value="2" />
+    <AttributeFactor index="Summoned" value="-0.75" />
     <AttributeFactor index="MapCreature" value="-0.75" />
     <Amount value="20" />
     <ValidatorArray value="TargetNotIgnoredByTowersCombine" />
@@ -5187,7 +5207,7 @@
     <AmmoUnit value="MercBanditRangedAirAttackMissile" />
   </CEffectLaunchMissile>
   <CEffectDamage id="BattleshipBombardDamage" parent="StormSpell">
-    <Amount value="2815" />
+    <Amount value="3000" />
     <ImpactLocation Value="TargetUnit" />
     <CasterHistory value="Damage" />
     <SourceButtonFace value="GhostShipCannonBombard" />
@@ -5307,7 +5327,6 @@
   <CEffectSet id="TownHallL2AttackImpactSet">
     <EffectArray value="TownHallL2WeaponDamage" />
     <EffectArray value="TownApplyArmorShred" />
-    <EffectArray value="TownApplyArmorShred" />
   </CEffectSet>
   <CEffectEnumArea id="TownHallAttackSearchArea">
     <SearchFilters value="-;Self,Player,Ally,Neutral,ImmuneToAOE,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
@@ -5325,7 +5344,6 @@
   </CEffectApplyBehavior>
   <CEffectSet id="TownHallL3AttackImpactSet">
     <EffectArray value="TownHallL3WeaponDamage" />
-    <EffectArray value="TownApplyArmorShred" />
     <EffectArray value="TownApplyArmorShred" />
   </CEffectSet>
   <CEffectEnumArea id="TownHallL2AttackSplashSearch">
@@ -5360,7 +5378,6 @@
   <CEffectDamage id="CannonTowerL2Damage" parent="StormWeapon">
     <Amount value="250" />
     <AttributeFactor index="Structure" value="1" />
-    <AttributeFactor index="Summoned" value="-0.5" />
     <Flags index="NoLeech" value="1" />
     <Flags index="NoVitalLeechLife" value="1" />
     <Flags index="NoVitalLeechShields" value="1" />
@@ -5369,7 +5386,6 @@
   <CEffectDamage id="CannonTowerL3Damage" parent="StormWeapon">
     <Amount value="330" />
     <AttributeFactor index="Structure" value="1" />
-    <AttributeFactor index="Summoned" value="-0.5" />
     <Flags index="NoLeech" value="1" />
     <Flags index="NoVitalLeechLife" value="1" />
     <Flags index="NoVitalLeechShields" value="1" />
@@ -6145,6 +6161,7 @@
     <AttributeFactor index="Minion" value="0.8" />
     <AttributeFactor index="Merc" value="0.8" />
     <AttributeFactor index="Structure" value="2" />
+    <AttributeFactor index="Summoned" value="0.8" />
     <AttributeFactor index="MapCreature" value="0.8" />
   </CEffectDamage>
   <CEffectModifyUnit id="HealerDudeHeal">
@@ -6730,7 +6747,7 @@
   </CEffectCreatePersistent>
   <CEffectSwitch id="TowerAttackWarningBeamPersistentSwitch">
     <CaseDefault value="TowerAttackWarningBeamPersistent" />
-    <CaseArray Validator="TowerCFHFocusedUnitTrackedTarget" Effect="TowerAttackWarningBeamPersistentHero" />
+    <CaseArray Validator="TargetIsHeroAndCasterNotT2Tower" Effect="TowerAttackWarningBeamPersistentHero" />
   </CEffectSwitch>
   <CEffectCreatePersistent id="TowerAttackWarningBeamPersistentHero">
     <WhichLocation Value="TargetUnit" />

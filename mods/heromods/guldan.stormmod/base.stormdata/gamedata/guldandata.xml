@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="us-ascii"?>
 <Catalog>
+  <const id="$GuldanUnitRadius" value="0.8125" />
+  <const id="$GuldanDrainLifeRange" value="7" />
+  <const id="$GuldanDrainLifeRangeSlop" value="3.5" />
+  <const id="$GuldanDrainLifeActiveActorRange" value="-(-(+($GuldanDrainLifeRange $GuldanDrainLifeRangeSlop) $GuldanUnitRadius) 0.4375)" evaluateAsExpression="1" />
+  <const id="$GuldanDrainLifeValidatorRange" value="+($GuldanDrainLifeRange $GuldanDrainLifeRangeSlop)" evaluateAsExpression="1" />
+  <const id="$GuldanChaoticEnergyRangeModifier" value="0.25" />
+  <const id="$GuldanChaoticEnergyRangeIncrease" value="*($GuldanDrainLifeRange $GuldanChaoticEnergyRangeModifier)" evaluateAsExpression="1" />
+  <const id="$GuldanDrainLifeChaoticEnergyValidatorRange" value="+($GuldanDrainLifeValidatorRange $GuldanChaoticEnergyRangeIncrease)" evaluateAsExpression="1" />
   <CAbilEffectInstant id="GuldanLifeTapFree">
     <Effect value="GuldanLifeTapCastSet" />
     <Cost>
@@ -48,12 +56,13 @@
     <PrepEffect value="GuldanDrainLifePrepareSet" />
     <Effect value="GuldanDrainLifeChannelCreatePersistent" />
     <Flags index="ClearLastMoveTarget" value="1" />
+    <Flags index="RangeUseCasterRadius" value="0" />
     <Cost>
       <Cooldown TimeUse="10" />
     </Cost>
     <TargetFilters value="Visible;Self,Player,Ally,ImmuneToAOE,Structure,User1,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
-    <Range value="6.5" />
-    <RangeSlop value="3.5" />
+    <Range value="$GuldanDrainLifeRange" />
+    <RangeSlop value="$GuldanDrainLifeRangeSlop" />
     <CmdButtonArray index="Execute" DefaultButtonFace="GuldanDrainLife">
       <Flags index="AllowMinimap" value="1" />
       <Flags index="AllowSelfCast" value="0" />
@@ -89,7 +98,7 @@
     <Flags index="ClearLastMoveTarget" value="1" />
     <Flags index="RequireTargetVision" value="0" />
     <Cost>
-      <Vital index="Energy" value="80" />
+      <Vital index="Energy" value="90" />
       <Cooldown TimeUse="14" />
     </Cost>
     <Range value="7" />
@@ -207,6 +216,10 @@
   <CAccumulatorToken id="GuldanRampantHellfireAccumulator" parent="BaseTokenAccumulator">
     <TokenId value="GuldanRampantHellfireTokenCounter" />
     <Scale value="0.12" />
+  </CAccumulatorToken>
+  <CAccumulatorToken id="GuldanHungerForPowerTokenAccumulator" parent="BaseAccumulator">
+    <TokenId value="GuldanHungerForPowerTokenCount" />
+    <Scale value="0.3334" />
   </CAccumulatorToken>
   <CActorSound id="GuldanCorruptionCastSound2" parent="SoundOneShot">
     <On Terms="Abil.GuldanCorruption.SourceCastStart" Send="Create" />
@@ -541,7 +554,7 @@
     <HostSiteOps Ops="SOpBasicScopeFollow" />
   </CActorModel>
   <CActorSplat id="GuldanDrainLifeRangeSplat" parent="StormRangeSplat">
-    <Scale value="7.250000" />
+    <Scale value="$GuldanDrainLifeRange" />
   </CActorSplat>
   <CActorRange id="GuldanDrainLifeRange" parent="StormRangeAbilPlusSplat" abil="GuldanDrainLife" />
   <CActorRange id="GuldanDrainLifeChannelRange">
@@ -551,7 +564,7 @@
     <Inherits index="TeamColor" value="1" />
     <On Terms="Effect.GuldanDrainLifeChannelCreatePersistent.Start; At Caster" Send="Create" />
     <On Terms="Behavior.GuldanDrainLifeChannel.Off" Send="Destroy" />
-    <Range value="10.000000" />
+    <Range value="$GuldanDrainLifeActiveActorRange" />
     <Icon value="Assets\Textures\storm_fx_kingleoric_base_drainhope_range.dds" />
     <IconArcLength value="3.500000" />
   </CActorRange>
@@ -807,7 +820,6 @@
     <On Terms="Effect.GuldanDemonicCircleTeleport.Start; At Source" Send="Create" />
     <HostSiteOps Ops="SOpAttachOrigin SOpPointSouthWorld SOpShadow" HoldPosition="1" />
     <InheritType value="OneShot" />
-    <Flags index="VisionTestCenterOnly" value="1" />
   </CActorModel>
   <CActorModel id="GuldanDemonicCircleCastHandFXRight" parent="StormModelAnimationStyleOneShotUnit">
     <HostSiteOps Ops="SOpAttachHandRight" />
@@ -888,8 +900,11 @@
     <Buttons Face="GuldanHealthstone" Type="AbilCmd" AbilCmd="GuldanHealthstone,Execute" />
   </CBehaviorAbility>
   <CBehaviorTokenCounter id="GuldanCorruptionEchoedCorruptionQuestToken" parent="StormQuestToken">
-    <AtMaxEvents index="0" EventId="QuestComplete" Effect="GuldanCorruptionEchoedCorruptionQuestCompleteModifyPlayer" />
-    <Max value="40" />
+    <AtMaxEvents index="0" EventId="QuestComplete" Effect="GuldanCorruptionEchoedCorruptionQuestMilestoneModifyPlayer" />
+    <Max value="85" />
+    <ConditionalEvents Compare="GE" CompareValue="40">
+      <Event EventId="QuestMilestone" />
+    </ConditionalEvents>
   </CBehaviorTokenCounter>
   <CBehaviorBuff id="GuldanDarkBargainDuration">
     <Alignment value="Negative" />
@@ -1122,11 +1137,13 @@
     <Duration value="1.5" />
     <DamageResponse>
       <Chance value="1" />
-      <Handled value="GuldanDrainLifeHealthFunnelCooldownCreatePersistent" />
+      <Handled value="GuldanDrainLifeHealthFunnelDeathResponseSet" />
       <Priority value="15" />
       <Fatal value="1" />
-      <ProvideCategories index="Shield" value="1" />
     </DamageResponse>
+    <Modification>
+      <DeathResponse Chance="1" Effect="GuldanDrainLifeHealthFunnelDeathResponseSet" />
+    </Modification>
   </CBehaviorBuff>
   <CBehaviorBuff id="GuldanCorruptionCurseOfExhaustionSlow" parent="StormSlowParent">
     <Duration value="0.3125" />
@@ -1143,6 +1160,10 @@
     <InitialEffect value="GuldanHungerForPowerApplyHealingReductionBehavior" />
     <FinalEffect value="GuldanHungerForPowerRemoveHealingReductionBehavior" />
   </CBehaviorBuff>
+  <CBehaviorTokenCounter id="GuldanHungerForPowerTokenCount" parent="StormGenericToken">
+    <Max value="1" />
+    <Init value="1" />
+  </CBehaviorTokenCounter>
   <CBehaviorBuff id="GuldanLifeTapHungerforPowerHealingReductionBehavior">
     <Alignment value="Positive" />
     <BehaviorFlags index="Permanent" value="1" />
@@ -1399,6 +1420,33 @@
     <Image value="Assets\Textures\ui_targetportrait_hero_guldan.dds" />
     <Variations Model="GuldanPortrait" Actor="GuldanPortrait" />
   </CCharacter>
+  <CEffectModifyTokenCount id="GuldanCorruptionEchoedCorruptionQuestDecreaseTokenDeath" parent="BaseEffectModifyTokenCount">
+    <Marker Link="Effect/GuldanCorruptionEchoedCorruptionQuestIncrementToken" />
+    <EffectCategory index="Quest" value="1" />
+    <CollationId value="GuldanCorruptionEchoedCorruptionQuesDecreaseToken" />
+    <TokenId value="GuldanCorruptionEchoedCorruptionQuestToken" />
+    <Value value="-8" />
+    <ValidatorArray value="GuldanCorruptionEchoedCorruptionNoMilestone" />
+  </CEffectModifyTokenCount>
+  <CEffectModifyPlayer id="GuldanCorruptionEchoedCorruptionQuestCompleteModifyPlayer">
+    <ValidatorArray value="GuldanCorruptionEchoedCorruptionMilestoneGained" />
+    <Marker Link="Effect/GuldanCorruptionEchoedCorruptionQuestMilestoneModifyPlayer" />
+    <WhichPlayer Value="Caster" />
+    <EffectArray Operation="Set" Reference="Effect,GuldanCorruptionDoTDamage,Flags[NoVitalLeechLife]" Value="0" />
+  </CEffectModifyPlayer>
+  <CEffectSet id="GuldanDeathSet">
+    <EffectArray value="GuldanFelFlamePursuitOfFlameQuestIncrementToken2" />
+  </CEffectSet>
+  <CEffectModifyTokenCount id="GuldanFelFlamePursuitOfFlameQuestIncrementToken2" parent="BaseEffectModifyTokenCount">
+    <ValidatorArray value="TargetIsHero" />
+    <ValidatorArray value="GuldanFelFlamePursuitOfFlameNotComplete" />
+    <Marker Link="Effect/GuldanFelFlamePursuitOfFlameQuestIncrementToken" />
+    <EffectCategory index="Quest" value="1" />
+    <CollationId value="GuldanFelFlamePursuitOfFlameQuestDecrementToken" />
+    <TokenId value="GuldanFelFlamePursuitOfFlameQuestToken" />
+    <Value value="0" />
+    <Operation value="Set" />
+  </CEffectModifyTokenCount>
   <CEffectApplyBehavior id="GuldanLifeTapDarknessWithinApplyAbilityPowerBehavior">
     <Behavior value="GuldanLifeTapDarknessWithinAbilityPowerBuff" />
     <ValidatorArray value="GuldanHasLifeTapDarknessWithinTalent" />
@@ -1418,8 +1466,8 @@
     <Chance value="0" />
     <TokenId value="GuldanCorruptionEchoedCorruptionQuestToken" />
   </CEffectModifyTokenCount>
-  <CEffectModifyPlayer id="GuldanCorruptionEchoedCorruptionQuestCompleteModifyPlayer">
-    <ValidatorArray value="GuldanCorruptionEchoedCorruptionComplete" />
+  <CEffectModifyPlayer id="GuldanCorruptionEchoedCorruptionQuestMilestoneModifyPlayer">
+    <ValidatorArray value="GuldanCorruptionEchoedCorruptionMilestoneGained" />
     <WhichPlayer Value="Caster" />
     <EffectArray Operation="Set" Reference="Effect,GuldanCorruptionEchoedCorruptionQuestIncrementToken,Chance" Value="0" />
   </CEffectModifyPlayer>
@@ -1494,10 +1542,19 @@
     <EffectCategory index="Quest" value="1" />
     <TokenId value="GuldanChaoticEnergyQuestToken" />
   </CEffectModifyTokenCount>
+  <CEffectSet id="GuldanDrainLifeHealthFunnelDeathResponseSet">
+    <ValidatorArray value="GuldanDrainLifeHealthFunnelSourceHasDeathResponse" />
+    <EffectArray value="GuldanDrainLifeHealthFunnelCooldownCreatePersistent" />
+    <EffectArray value="GuldanDrainLifeHealthFunnelRemoveDeathResponse" />
+  </CEffectSet>
   <CEffectCreatePersistent id="GuldanDrainLifeHealthFunnelCooldownCreatePersistent">
     <InitialDelay value="0.0625" />
     <InitialEffect value="GuldanDrainLifeHealthFunnelModifyCooldown" />
   </CEffectCreatePersistent>
+  <CEffectRemoveBehavior id="GuldanDrainLifeHealthFunnelRemoveDeathResponse">
+    <WhichUnit Value="Source" />
+    <BehaviorLink value="GuldanDrainLifeHealthFunnelDeathResponse" />
+  </CEffectRemoveBehavior>
   <CEffectModifyTokenCount id="GuldanFelFlameRampantHellfireAddToken" parent="BaseEffectModifyTokenCount">
     <TokenId value="GuldanRampantHellfireTokenCounter" />
   </CEffectModifyTokenCount>
@@ -1612,10 +1669,10 @@
   <CEffectCreateHealer id="GuldanDrainLifeCreateHealer" parent="StormSelfOnlyHealingSpell">
     <ValidatorArray value="NoJunglePassiveTarget" />
     <ImpactUnit Value="Caster" />
-    <RechargeVitalRate value="47" />
+    <RechargeVitalRate value="47">
+      <AccumulatorArray value="GuldanHungerForPowerTokenAccumulator" />
+    </RechargeVitalRate>
     <MultiplicativeModifierArray index="HarvestLife" Validator="GuldanDrainLifeHarvestLifeCombine" Modifier="0.75" Crit="1" />
-    <MultiplicativeModifierArray index="HarvestLifeHFP" Validator="GuldanDrainLifeHarvestLifeHungerForPowerCombine" Modifier="0.2475" />
-    <MultiplicativeModifierArray index="HungerForPower" Validator="GuldanHasLifeTapHungerforPowerTalent" Modifier="0.3833" />
   </CEffectCreateHealer>
   <CEffectSet id="GuldanDrainLifeImpactSet">
     <EffectArray value="GuldanDrainLifeHealthFunnelApplyResponseBehavior" />
@@ -1852,8 +1909,7 @@
   </CEffectEnumArea>
   <CEffectSet id="GuldanCorruptionImpactSet">
     <EffectArray value="GuldanCorruptionApplyDoTBehavior" />
-    <EffectArray value="GuldanCorruptionRuinousAfflictionDamageSwitch" />
-    <EffectArray value="GuldanCorruptionRuinousAfflictionApplyBehavior" />
+    <EffectArray value="GuldanCorruptionRuinousAfflictionApplicationSwitch" />
     <EffectArray value="GuldanCorruptionDemonicSightApplyReveal" />
     <EffectArray value="GuldanCorruptionEchoedCorruptionQuestIncrementToken" />
     <EffectArray value="HeroGenericDummyAbilityandWakeupImpactSet" />
@@ -1864,6 +1920,10 @@
   </CEffectApplyBehavior>
   <CEffectDamage id="GuldanCorruptionDoTDamage" parent="StormSpellDot">
     <Amount value="34" />
+    <LeechValidator index="Life" value="GuldanCorruptionEchoedCorruptionComplete" />
+    <LeechFraction index="Life" value="1">
+      <AccumulatorArray value="GuldanHungerForPowerTokenAccumulator" />
+    </LeechFraction>
   </CEffectDamage>
   <CEffectCreatePersistent id="GuldanRainOfDestructionCreationPersistent">
     <Flags index="RandomOffset" value="1" />
@@ -1983,7 +2043,7 @@
   </CEffectApplyBehavior>
   <CEffectModifyUnit id="GuldanDrainLifeHealthFunnelModifyCooldown">
     <ImpactUnit Value="Caster" />
-    <Cost Abil="GuldanDrainLife,Execute" CooldownOperation="Add" CooldownTimeUse="-10" />
+    <Cost Abil="GuldanDrainLife,Execute" CooldownOperation="Set" />
   </CEffectModifyUnit>
   <CEffectCreatePersistent id="GuldanCorruptionThirdDelayCreatePersistent">
     <OffsetVectorStartLocation Value="OriginUnit" />
@@ -2036,9 +2096,10 @@
   </CEffectSet>
   <CEffectCreateHealer id="GuldanHealthstoneCreateHealer" parent="StormSelfOnlyHealingSpellPercent">
     <ImpactUnit Value="Caster" />
-    <RechargeVitalFraction value="0.25" />
+    <RechargeVitalFraction value="0.25">
+      <AccumulatorArray value="GuldanHungerForPowerTokenAccumulator" />
+    </RechargeVitalFraction>
     <FinalEffect value="GuldanLifeTapDarknessWithinRemoveBehavior" />
-    <MultiplicativeModifierArray index="HungerForPower" Validator="GuldanHasLifeTapHungerforPowerTalent" Modifier="0.3833" />
   </CEffectCreateHealer>
   <CEffectApplyBehavior id="GuldanHorrifyHauntVulnerableApplyBehavior">
     <ValidatorArray value="GuldanHasHorrifyHauntTalent" />
@@ -2086,8 +2147,9 @@
   </CEffectDamage>
   <CEffectCreateHealer id="GuldanConsumeSoulCreateHealer" parent="StormSelfOnlyHealingSpell">
     <ImpactUnit Value="Caster" />
-    <RechargeVitalRate value="365" />
-    <MultiplicativeModifierArray index="HungerForPower" Validator="GuldanHasLifeTapHungerforPowerTalent" Modifier="0.3833" />
+    <RechargeVitalRate value="365">
+      <AccumulatorArray value="GuldanHungerForPowerTokenAccumulator" />
+    </RechargeVitalRate>
   </CEffectCreateHealer>
   <CEffectApplyBehavior id="GuldanCorruptionRuinousAfflictionApplyBehavior">
     <Chance value="0" />
@@ -2095,9 +2157,13 @@
   </CEffectApplyBehavior>
   <CEffectDamage id="GuldanCorruptionRuinousAfflictionThreeHitDamage" parent="StormSpell">
     <Flags index="Crit" value="1" />
-    <Amount value="268" />
+    <Amount value="242" />
+    <LeechValidator index="Life" value="GuldanCorruptionEchoedCorruptionComplete" />
+    <LeechFraction index="Life" value="1">
+      <AccumulatorArray value="GuldanHungerForPowerTokenAccumulator" />
+    </LeechFraction>
   </CEffectDamage>
-  <CEffectSet id="GuldanCorruptionRuinousAfflictionImpactSet">
+  <CEffectSet id="GuldanCorruptionRuinousAfflictionProcImpactSet">
     <EffectArray value="GuldanCorruptionRuinousAfflictionThreeHitDamage" />
     <EffectArray value="GuldanCorruptionRuinousAfflictionRemoveBehavior" />
   </CEffectSet>
@@ -2106,7 +2172,7 @@
     <RequireCasterUnit Value="Caster" />
   </CEffectRemoveBehavior>
   <CEffectCreatePersistent id="GuldanCorruptionEchoedCorruptionDelayCreatePersistent">
-    <ValidatorArray value="GuldanCorruptionEchoedCorruptionComplete" />
+    <ValidatorArray value="GuldanCorruptionEchoedCorruptionMilestoneGained" />
     <OffsetVectorStartLocation Value="OriginUnit" />
     <ExpireDelay value="0.5" />
     <PeriodCount value="3" />
@@ -2122,7 +2188,7 @@
   </CEffectCreatePersistent>
   <CEffectSet id="GuldanCorruptionEchoedCorruptionImpactSet">
     <EffectArray value="GuldanCorruptionApplyDoTBehavior" />
-    <EffectArray value="GuldanCorruptionRuinousAfflictionDamageSwitch" />
+    <EffectArray value="GuldanCorruptionRuinousAfflictionApplicationSwitch" />
     <EffectArray value="GuldanLifeTapDarknessWithinRemoveBehavior" />
     <EffectArray value="GuldanCorruptionDemonicSightApplyReveal" />
     <EffectArray value="ApplyAbilityImpactReveal" />
@@ -2169,10 +2235,17 @@
     <ValidatorArray index="0" value="GuldanHasDemonicCircleControllerBehavior" />
     <ValidatorArray value="CasterNotRooted" />
   </CEffectRemoveBehavior>
+  <CEffectSet id="GuldanCorruptionRuinousAfflictionProgressImpactSet">
+    <EffectArray value="GuldanCorruptionRuinousAfflictionDamage" />
+    <EffectArray value="GuldanCorruptionRuinousAfflictionApplyBehavior" />
+  </CEffectSet>
   <CEffectDamage id="GuldanCorruptionRuinousAfflictionDamage" parent="StormSpell">
     <ValidatorArray value="GuldanHasCorruptionRuinousAfflictionTalent" />
-    <ValidatorArray value="GuldanCorruptionRuinousAfflictionStackDummyBehaviorNE2" />
-    <Amount value="78" />
+    <Amount value="70" />
+    <LeechValidator index="Life" value="GuldanCorruptionEchoedCorruptionComplete" />
+    <LeechFraction index="Life" value="1">
+      <AccumulatorArray value="GuldanHungerForPowerTokenAccumulator" />
+    </LeechFraction>
   </CEffectDamage>
   <CEffectModifyUnit id="GuldanDrainLifeCancelModifyCooldown">
     <ImpactUnit Value="Caster" />
@@ -2197,8 +2270,8 @@
   <CEffectModifyPlayer id="GuldanFelFlamePursuitOfFlameQuestCompleteModifyPlayer">
     <ValidatorArray value="GuldanFelFlamePursuitOfFlameComplete" />
     <WhichPlayer Value="Caster" />
-    <EffectArray Operation="Set" Reference="Effect,GuldanFelFlameDummyVisualGuide,AreaArray[0].Radius" Value="11.55" />
-    <EffectArray Operation="Set" Reference="Effect,GuldanFelFlameSearch,AreaArray[0].RadiusBonus" Value="1.14" />
+    <EffectArray Operation="Set" Reference="Effect,GuldanFelFlameDummyVisualGuide,AreaArray[0].Radius" Value="12.07" />
+    <EffectArray Operation="Set" Reference="Effect,GuldanFelFlameSearch,AreaArray[0].RadiusBonus" Value="1.19" />
     <EffectArray Operation="Set" Reference="Effect,GuldanFelFlamePursuitOfFlameQuestIncrementToken,Chance" Value="0" />
   </CEffectModifyPlayer>
   <CEffectSet id="GuldanDrainLifePrepareSet">
@@ -2210,10 +2283,10 @@
     <WhichUnit Value="Caster" />
     <Behavior value="GuldanDrainLifeGlobalCooldown" />
   </CEffectApplyBehavior>
-  <CEffectSwitch id="GuldanCorruptionRuinousAfflictionDamageSwitch">
+  <CEffectSwitch id="GuldanCorruptionRuinousAfflictionApplicationSwitch">
     <ValidatorArray value="GuldanHasCorruptionRuinousAfflictionTalent" />
-    <CaseArray Validator="GuldanHas2CorruptionRuinousAfflictionStackDummyBehavior" Effect="GuldanCorruptionRuinousAfflictionImpactSet" />
-    <CaseDefault value="GuldanCorruptionRuinousAfflictionDamage" />
+    <CaseArray Validator="GuldanHas2CorruptionRuinousAfflictionStackDummyBehavior" Effect="GuldanCorruptionRuinousAfflictionProcImpactSet" />
+    <CaseDefault value="GuldanCorruptionRuinousAfflictionProgressImpactSet" />
   </CEffectSwitch>
   <CHero id="Guldan">
     <AIComplexityTier value="Mid" />
@@ -2226,6 +2299,7 @@
     <SkinArray value="GuldanUltimate" />
     <SkinArray value="GuldanSpider" />
     <SkinArray value="GuldanDark18" />
+    <SkinArray value="GuldanToon20" />
     <Role value="Damage" />
     <RolesMultiClass value="Damage" />
     <DefaultMount value="HorseCommon" />
@@ -2663,14 +2737,21 @@
         <Type value="FlatModification" />
         <Entry value="GuldanDrainLife" />
         <Field value="Range[0]" />
-        <Value value="1.625000" />
+        <Value value="$GuldanChaoticEnergyRangeIncrease" />
       </Modifications>
       <Modifications>
         <Type value="FlatModification" />
         <Catalog value="Actor" />
         <Entry value="GuldanDrainLifeRangeSplat" />
         <Field value="Scale" />
-        <Value value="1.625000" />
+        <Value value="$GuldanChaoticEnergyRangeIncrease" />
+      </Modifications>
+      <Modifications>
+        <Type value="FlatModification" />
+        <Catalog value="Actor" />
+        <Entry value="GuldanDrainLifeChannelRange" />
+        <Field value="Range" />
+        <Value value="$GuldanChaoticEnergyRangeIncrease" />
       </Modifications>
       <Modifications Type="FlatModification" Entry="GuldanFelFlame" Field="Cost[0].Vital[Energy]" />
       <Modifications Type="FlatModification" Entry="GuldanCorruption" Field="Cost[0].Vital[Energy]" />
@@ -2845,7 +2926,7 @@
         <Field value="AreaArray[0].RadiusBonus" />
       </Modifications>
     </AbilityModificationArray>
-    <QuestData StackBehavior="GuldanFelFlamePursuitOfFlameQuestToken" TargetCount="40" />
+    <QuestData StackBehavior="GuldanFelFlamePursuitOfFlameQuestToken" TargetCount="30" />
   </CTalent>
   <CTalent id="GuldanCorruptionEchoedCorruption">
     <Face value="GuldanCorruptionEchoedCorruption" />
@@ -2913,6 +2994,7 @@
     <Face value="GuldanLifeTapHungerforPower" />
     <RankArray>
       <BehaviorArray value="GuldanLifeTapHungerforPowerBehavior" />
+      <BehaviorArray value="GuldanHungerForPowerTokenCount" />
     </RankArray>
   </CTalent>
   <CTalent id="GuldanLifeTapImprovedLifeTap">
@@ -2960,8 +3042,8 @@
     <BehaviorArray Link="GuldanVeterancyMana" />
     <BehaviorArray Link="GuldanHasMaxLife" />
     <WeaponArray Link="HeroGuldan" />
-    <Radius value="0.8125" />
-    <InnerRadius value="0.8125" />
+    <Radius value="$GuldanUnitRadius" />
+    <InnerRadius value="$GuldanUnitRadius" />
     <CardLayouts index="0">
       <LayoutButtons Face="GuldanHorrify" Type="AbilCmd" AbilCmd="GuldanHorrify,Execute" Slot="Heroic" />
       <LayoutButtons Face="GuldanRainOfDestruction" Type="AbilCmd" AbilCmd="GuldanRainOfDestruction,Execute" Slot="Heroic" />
@@ -2981,6 +3063,7 @@
     <HeroPlaystyleFlags index="TowerPusher" value="1" />
     <HeroPlaystyleFlags index="WaveClearer" value="1" />
     <AIThinkTree value="AI/Guldan.aitree" />
+    <EffectArray index="Death" value="GuldanDeathSet" />
   </CUnit>
   <CUnit id="GuldanWeaponMissile" parent="MISSILE_INVULNERABLE">
     <Mover value="GuldanAttackMissileMover" />
@@ -2996,6 +3079,11 @@
     <Radius value="0" />
     <TacticalAIFilters value="-;Player,Neutral,Enemy" />
   </CUnit>
+  <CValidatorUnitCompareBehaviorCount id="GuldanCorruptionEchoedCorruptionComplete">
+    <WhichUnit Value="Caster" />
+    <Value value="85" />
+    <Behavior value="GuldanCorruptionEchoedCorruptionQuestToken" />
+  </CValidatorUnitCompareBehaviorCount>
   <CValidatorCombine id="GuldanFelFlameCritValidatorCombine">
     <CombineArray value="CritAliasSpellPower" />
     <CombineArray value="GuldanHas3ormorestacksofFelFlameRampantHellfire" />
@@ -3049,16 +3137,17 @@
     <Value value="15" />
     <Behavior value="GuldanChaoticEnergyQuestToken" />
   </CValidatorUnitCompareBehaviorCount>
-  <CValidatorUnitCompareBehaviorCount id="GuldanCorruptionEchoedCorruptionComplete">
+  <CValidatorUnitCompareBehaviorCount id="GuldanCorruptionEchoedCorruptionMilestoneGained">
     <WhichUnit Value="Caster" />
+    <Compare value="GE" />
     <Value value="40" />
     <Behavior value="GuldanCorruptionEchoedCorruptionQuestToken" />
   </CValidatorUnitCompareBehaviorCount>
-  <CValidatorUnitCompareBehaviorCount id="GuldanCorruptionEchoedCorruptionNotComplete">
+  <CValidatorUnitCompareBehaviorCount id="GuldanCorruptionEchoedCorruptionNoMilestone">
     <WhichUnit Value="Caster" />
+    <Compare value="LT" />
     <Value value="40" />
     <Behavior value="GuldanCorruptionEchoedCorruptionQuestToken" />
-    <Compare value="LT" />
   </CValidatorUnitCompareBehaviorCount>
   <CValidatorUnitCompareBehaviorCount id="GuldanFelFlamePursuitOfFlameComplete">
     <WhichUnit Value="Caster" />
@@ -3179,6 +3268,7 @@
   <CValidatorCombine id="GuldanDrainLifePeriodicValidator">
     <Type value="And" />
     <CombineArray value="GuldanHasDrainLifeChannelBehavior" />
+    <CombineArray value="GuldanDrainLifeTargetInRangeCombine" />
     <CombineArray value="CasterNotDeadOrSilencedOrStasisOrStunned" />
     <CombineArray value="TargetNotInvulnerable" />
     <CombineArray value="TargetNotDead" />
@@ -3266,6 +3356,31 @@
     <Value value="1" />
     <Behavior value="GuldanDrainLifeChannel" />
   </CValidatorUnitCompareBehaviorCount>
+  <CValidatorCombine id="GuldanDrainLifeTargetInRangeCombine">
+    <CombineArray value="GuldanDrainLifeTargetInRange" />
+    <CombineArray value="GuldanDrainLifeTargetInRangeAndHasChaoticEnergy" />
+  </CValidatorCombine>
+  <CValidatorCombine id="GuldanDrainLifeTargetInRangeAndHasChaoticEnergy">
+    <Type value="And" />
+    <CombineArray value="GuldanHasChaoticEnergyTalent" />
+    <CombineArray value="GuldanDrainLifeTargetInRangeChaoticEnergy" />
+  </CValidatorCombine>
+  <CValidatorLocationCompareRange id="GuldanDrainLifeTargetInRange">
+    <WhichLocation Value="CasterPoint" />
+    <Compare value="LE" />
+    <Range value="$GuldanDrainLifeValidatorRange" />
+    <Value Effect="GuldanDrainLifeChannelCreatePersistent" Value="TargetUnit" />
+  </CValidatorLocationCompareRange>
+  <CValidatorLocationCompareRange id="GuldanDrainLifeTargetInRangeChaoticEnergy">
+    <WhichLocation Value="CasterPoint" />
+    <Compare value="LE" />
+    <Range value="$GuldanDrainLifeChaoticEnergyValidatorRange" />
+    <Value Effect="GuldanDrainLifeChannelCreatePersistent" Value="TargetUnit" />
+  </CValidatorLocationCompareRange>
+  <CValidatorUnitHasBehavior id="GuldanDrainLifeHealthFunnelSourceHasDeathResponse">
+    <WhichUnit Value="Source" />
+    <Behavior value="GuldanDrainLifeHealthFunnelDeathResponse" />
+  </CValidatorUnitHasBehavior>
   <CWeaponLegacy id="HeroGuldan" parent="StormHeroSlowWeapon">
     <Icon value="Assets\Textures\storm_temp_btn-upgrade-zerg-meleeattacks-level3.dds" />
     <DisplayEffect value="GuldanWeaponDamage" />

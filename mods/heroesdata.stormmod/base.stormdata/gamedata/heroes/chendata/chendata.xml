@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="us-ascii"?>
 <Catalog>
+  <const id="$ChenFlyingKickRange" value="7" />
+  <const id="$ChenFlyingLeapRangeModifier" value="0.15" />
+  <const id="$ChenFlyingLeapRangeIncrease" value="*($ChenFlyingKickRange $ChenFlyingLeapRangeModifier)" evaluateAsExpression="1" />
   <CAbilEffectInstant id="ChenStagger">
     <Cost>
       <Cooldown TimeUse="18" />
@@ -66,7 +69,6 @@
     <Flags index="RequireTargetVision" value="0" />
     <Flags index="TargetVectorLock" value="1" />
     <Cost>
-      <Vital index="Energy" value="10" />
       <Charge Link="Abil/ChenBreathofFire" />
       <Cooldown Link="Abil/ChenBreathofFire" TimeUse="0.25" />
     </Cost>
@@ -92,12 +94,13 @@
     <Effect value="ChenFlyingKickCastSet" />
     <Flags index="ClearLastAttackTargetOutOfRange" value="1" />
     <Flags index="ClearLastMoveTarget" value="1" />
+    <Flags index="RangeUseCasterRadius" value="0" />
     <Cost>
       <Vital index="Energy" value="10" />
       <Cooldown TimeUse="5" />
     </Cost>
     <TargetFilters value="-;Player,Ally,Missile,Item,Stasis,Dead,Hidden,Invulnerable" />
-    <Range value="6" />
+    <Range value="$ChenFlyingKickRange" />
     <Arc value="360" />
     <SetLastTarget value="Attack" />
     <CmdButtonArray index="Execute" DefaultButtonFace="ChenFlyingKick" />
@@ -119,7 +122,7 @@
     <Flags index="ClearLastMoveTarget" value="1" />
     <Flags index="RequireTargetVision" value="0" />
     <Cost>
-      <Vital index="Energy" value="30" />
+      <Vital index="Energy" value="40" />
       <Cooldown TimeUse="1" />
     </Cost>
     <Range value="3.5" />
@@ -190,7 +193,7 @@
     <Flags index="TargetVectorLock" value="1" />
     <Cost>
       <Charge Link="Abil/ChenPandamonium" />
-      <Cooldown Link="Abil/ChenPandamonium" TimeUse="50" />
+      <Cooldown Link="Abil/ChenPandamonium" TimeUse="60" />
     </Cost>
     <Range value="500" />
     <Arc value="360" />
@@ -214,6 +217,11 @@
     <CmdButtonArray index="Execute" DefaultButtonFace="Move" />
     <Arc value="360" />
   </CAbilEffectTarget>
+  <CAccumulatorToken id="BreathofFireQuestDamage" parent="BaseTokenAccumulator">
+    <SourceEffect value="ChenBreathOfFireDoTDamage" />
+    <ApplicationRule value="Add" />
+    <TokenId value="ChenAccumulatingFlameQuest" />
+  </CAccumulatorToken>
   <CAccumulatorToken id="ChenStaggerGiftOfTheOxDamageTakenAccumulator" parent="BaseTokenAccumulator">
     <MinAccumulation value="0" />
     <MaxAccumulation value="10000" />
@@ -547,7 +555,7 @@
   </CActorModel>
   <CActorRange id="ChenFlyingKickRange" parent="StormRangeAbilPlusSplat" abil="ChenFlyingKick" />
   <CActorSplat id="ChenFlyingKickRangeSplat" parent="StormRangeSplat">
-    <Scale value="7.200000" />
+    <Scale value="$ChenFlyingKickRange" />
   </CActorSplat>
   <CActorRange id="ChenFortifyingBrewEnoughToShareRange" parent="StormRangeAbilPlusSplat" abil="ChenFortifyingBrew">
     <On index="3" Terms="Abil.ChenFortifyingBrew.TargetOn; ValidatePlayer HasChenFortifyingBrewEnoughToShare" Send="Create" />
@@ -985,6 +993,32 @@
     <Base value="::RollingIndex" />
     <Driver value="ChainLightning1ImpactSet2" />
   </CAttachMethodPattern>
+  <CBehaviorBuff id="BreathofFireArmorReduction" parent="StormArmor">
+    <BehaviorCategories index="DebuffVulnerable" value="1" />
+    <Alignment value="Negative" />
+    <Duration value="6" />
+    <ArmorModification>
+      <AllArmorBonus value="-20" />
+    </ArmorModification>
+  </CBehaviorBuff>
+  <CBehaviorTokenCounter id="ChenAccumulatingFlameQuest" parent="StormQuestToken">
+    <Face value="AccumulatingFlameToken" />
+    <ConditionalEvents Compare="GE" CompareValue="25">
+      <Event EventId="QuestMilestone" Effect="ChenAccumulatingFlameMilestoneModifyPlayer" />
+    </ConditionalEvents>
+    <ConditionalEvents Compare="GE" CompareValue="80">
+      <Event EventId="QuestComplete" Effect="AccumulatingFlameQuestCompleteModifyPlayer" />
+    </ConditionalEvents>
+    <Max value="9999" />
+  </CBehaviorTokenCounter>
+  <CBehaviorBuff id="StopMovementWhenDrinking" parent="HeroGenericGlobalCooldownAbilityAndMovementParent">
+    <Name value="Behavior/Name/StopMovementWhenDrinking" />
+    <Tooltip value="Behavior/Tooltip/StopMovementWhenDrinking" />
+    <Modification>
+      <AbilLinkEnableArray value="ChenFortifyingBrew" />
+    </Modification>
+    <Duration value="0.25" />
+  </CBehaviorBuff>
   <CBehaviorBuff id="ChenStormEarthFireTimeStopController" parent="StormTimeStopParent">
     <MaxStackCount value="3" />
     <RemoveValidatorArray index="0" value="CasterIsTimeStopped" />
@@ -1105,7 +1139,7 @@
   <CBehaviorBuff id="ChenElusiveBrawlerMovementSpeedBuff" parent="StormSprint">
     <Duration value="2" />
     <Modification>
-      <UnifiedMoveSpeedFactor value="0.3" />
+      <UnifiedMoveSpeedFactor value="0.2" />
     </Modification>
   </CBehaviorBuff>
   <CBehaviorBuff id="ChenPurifyingBrewUnstoppableBuff" parent="StormUnstoppableParent">
@@ -1140,10 +1174,9 @@
     <Duration value="3" />
     <BehaviorCategories index="Protected" value="0" />
     <FinalEffect value="ChenStaggerProtectedBuffFinalSet" />
-    <DamageResponse Handled="ChenStaggerDamageResponseSet" Priority="25">
+    <DamageResponse Handled="ChenStaggerDamageResponseSet" Priority="25" RecordBehaviorShieldDamage="1">
       <ExcludeEffectArray value="ChenStaggerDisplayDamage" />
       <ExcludeEffectArray value="HeroGenericDummyInterruptDamageCaster" />
-      <RecordBehaviorShieldDamage value="1" />
     </DamageResponse>
   </CBehaviorBuff>
   <CBehaviorTokenCounter id="ChenStaggerTokenCounter" parent="StormGenericToken">
@@ -1184,7 +1217,7 @@
   </CBehaviorBuff>
   <CBehaviorBuff id="ChenStormEarthFireElementalConduitCarry" parent="CarryBehaviorParent" />
   <CBehaviorBuff id="ChenFlyingKickPressurePointSlowBrewDrenched" parent="StormSlowParent">
-    <Duration value="1" />
+    <Duration value="1.5" />
     <Modification>
       <UnifiedMoveSpeedFactor value="-0.8" />
     </Modification>
@@ -1282,10 +1315,17 @@
     </ArmorModification>
   </CBehaviorBuff>
   <CBehaviorBuff id="ChenBreathofFireDoT" parent="StormDot">
-    <Duration value="3" />
+    <Duration value="6" />
     <Period value="1" />
     <PeriodicEffect value="ChenBreathofFireDoTSet" />
     <PeriodicDisplayEffect value="ChenBreathOfFireDoTDamage" />
+    <DamageResponse>
+      <Chance value="1" />
+      <Handled value="AddFirebreathQuestTokenHeroDeath" />
+      <Priority value="15" />
+      <Fatal value="1" />
+      <ValidatorArray value="SourceIsHeroAndNotHallucinationAndNotVehicleAndNotStructureReplacement" />
+    </DamageResponse>
   </CBehaviorBuff>
   <CBehaviorBuff id="ChenBrewmastersBalanceHealthRegen" parent="CarryBehaviorParent">
     <Alignment value="Positive" />
@@ -1322,7 +1362,7 @@
     <Duration value="1.25" />
   </CBehaviorBuff>
   <CBehaviorBuff id="ChenFlyingKickPressurePointSlow" parent="StormSlowParent">
-    <Duration value="1" />
+    <Duration value="1.5" />
     <Modification>
       <UnifiedMoveSpeedFactor value="-0.4" />
     </Modification>
@@ -1348,7 +1388,7 @@
   </CBehaviorBuff>
   <CBehaviorBuff id="ChenFortifyingBrewShield" parent="StormShield">
     <MaxStackCount value="6" />
-    <DamageResponse ModifyLimit="90" />
+    <DamageResponse ModifyLimit="95" />
     <EnableEffect value="ChenComboStrikesApplyAttackSpeedSwitch" />
     <DisableEffect value="ChenComboStrikesApplyAttackSpeedSwitch" />
   </CBehaviorBuff>
@@ -1424,8 +1464,8 @@
     <Duration value="0.3125" />
     <Period value="0.0625" />
     <Modification>
-      <MoveSpeedMaximum value="18.6" />
-      <MoveSpeedMinimum value="18.6" />
+      <MoveSpeedMaximum value="18.5976" />
+      <MoveSpeedMinimum value="18.5976" />
     </Modification>
     <InitialEffect value="ChenWanderingKegApplyForce" />
     <PeriodicEffect value="ChenWanderingKegApplyForce" />
@@ -1565,6 +1605,10 @@
     <Period value="0.125" />
     <PeriodicEffect value="ChenFortifyingBrewEnergyPeriodicSet" />
   </CBehaviorBuff>
+  <CButton id="AccumulatingFlameToken" parent="StormButtonParent">
+    <Icon value="Assets\Textures\storm_ui_icon_chen_breathoffire.dds" />
+    <HotkeyAlias value="ChenAccumulatingFlame" />
+  </CButton>
   <CButton id="ChenFortifyingBrewEnergizingBrewTalent" parent="StormButtonParent">
     <Icon value="Assets\Textures\storm_ui_icon_chen_fortifyingbrew_b.dds" />
     <HotkeyAlias value="ChenFortifyingBrewBrewmastersBalanceTalent" />
@@ -1745,6 +1789,47 @@
     <Variations Model="ChenPortrait" Actor="ChenPortrait" />
     <Unit value="HeroChen" />
   </CCharacter>
+  <CEffectModifyTokenCount id="AddFirebreathQuestTokenHeroDeath" parent="BaseEffectModifyTokenCount">
+    <ContextUnit Value="Source" />
+    <Marker Link="Effect/AddFirebreathQuestToken" />
+    <CollationId value="AddFirebreathQuestToken" />
+    <TokenId value="ChenAccumulatingFlameQuest" />
+    <Value value="2" />
+  </CEffectModifyTokenCount>
+  <CEffectModifyBehaviorBuffDuration id="BreathOfFireAccumulatingFlameIncreaseMythicArmorReductionDuration">
+    <ValidatorArray value="TargetIsHero" />
+    <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
+    <ValidatorArray value="Has80AccumulatingFlameTokens" />
+    <WhichUnit Value="Target" />
+    <Behavior value="BreathofFireArmorReduction" />
+    <Value value="0.75" />
+  </CEffectModifyBehaviorBuffDuration>
+  <CEffectApplyBehavior id="BreathofFireApplyMythicArmorReductionDebuff">
+    <ValidatorArray index="0" value="TargetHasChenKegSmashDrenched" />
+    <ValidatorArray value="Has80AccumulatingFlameTokens" />
+    <ValidatorArray value="TargetIsHero" />
+    <ValidatorArray value="NotVehicle" />
+    <Behavior value="BreathofFireArmorReduction" />
+  </CEffectApplyBehavior>
+  <CEffectApplyBehavior id="BreathOfFireApplyArmorReduction">
+    <ValidatorArray index="0" value="TargetNotDead" />
+    <ValidatorArray value="Has80AccumulatingFlameTokens" />
+    <Behavior value="ChenBreathofFireDoT" />
+  </CEffectApplyBehavior>
+  <CEffectModifyTokenCount id="AddFirebreathQuestToken" parent="BaseEffectModifyTokenCount">
+    <ValidatorArray value="TargetIsHero" />
+    <TokenId value="ChenAccumulatingFlameQuest" />
+    <Value value="0.25" />
+  </CEffectModifyTokenCount>
+  <CEffectModifyPlayer id="ChenAccumulatingFlameMilestoneModifyPlayer">
+    <Marker Link="Effect/ChenFortifyingBrewFreshestIngredientsQuestCompleteModifyPlayer" />
+    <EffectArray Reference="Abil,ChenKegSmash,Range" Value="4.5" />
+    <EffectArray Reference="Actor,ChenKegSmashRangeSplat,Scale" Value="4.500000" />
+  </CEffectModifyPlayer>
+  <CEffectApplyBehavior id="FortifyingBrewApplyForceStop">
+    <WhichUnit Value="Caster" />
+    <Behavior value="StopMovementWhenDrinking" />
+  </CEffectApplyBehavior>
   <CEffectModifyPlayer id="ChenFortifyingBrewFreshestIngredientsQuestCompleteModifyPlayer">
     <EffectArray Operation="Subtract" Reference="Abil,ChenFortifyingBrew,Cost.Cooldown.TimeUse" Value="2.000000" />
   </CEffectModifyPlayer>
@@ -1823,7 +1908,7 @@
     <Behavior value="ChenFortifyingBrewComboStrikesAttackSpeedBuff" />
   </CEffectApplyBehavior>
   <CEffectApplyBehavior id="ChenFortifyingBrewComboStrikesAttackSpeedBuffApplyBehaviorPermanent" parent="ChenFortifyingBrewComboStrikesAttackSpeedBuffApplyBehavior">
-    <Duration value="-1" />
+    <Duration value="0" />
   </CEffectApplyBehavior>
   <CEffectApplyBehavior id="ChenFortifyingBrewComboStrikesAttackSpeedBuffApplyBehaviorPermanentInitial" parent="ChenFortifyingBrewComboStrikesAttackSpeedBuffApplyBehaviorPermanent">
     <ValidatorArray value="ChenHasFortifyingBrewShield" />
@@ -1971,15 +2056,16 @@
     <TrackedUnit Value="Target" />
   </CEffectAddTrackedUnit>
   <CEffectModifyBehaviorBuffDuration id="ChenBreathOfFireAccumulatingFlameIncreaseIgniteDuration">
-    <Chance value="0" />
     <WhichUnit Value="Target" />
     <Behavior value="ChenBreathofFireDoT" />
     <Value value="0.75" />
     <ValidatorArray value="TargetIsHero" />
     <ValidatorArray value="CasterNotBlindedAndTargetNotEvading" />
+    <ValidatorArray value="Has80AccumulatingFlameTokens" />
   </CEffectModifyBehaviorBuffDuration>
   <CEffectSet id="ChenBreathofFireDoTSet">
     <EffectArray value="ChenBreathOfFireDoTDamage" />
+    <EffectArray value="AddFirebreathQuestToken" />
     <EffectArray value="ChenFlyingKickFlyingLeapModifyCooldown" />
   </CEffectSet>
   <CEffectApplyBehavior id="ChenElusiveBrawlerMovementSpeedBuffApplyBehavior">
@@ -2310,7 +2396,7 @@
   <CEffectModifyTokenCount id="ChenKegSmashKegTossTalentAddToken" parent="BaseEffectModifyTokenCount">
     <ValidatorArray value="TargetIsHero" />
     <ValidatorArray value="ChenHasKegToss" />
-    <ValidatorArray value="ChenDoesNotHave20KegSmashKegTossTokens" />
+    <ValidatorArray value="ChenDoesNotHave50AccumulatingFlameTokens" />
     <EffectCategory index="Quest" value="1" />
     <TokenId value="ChenKegTossTokenCounter" />
   </CEffectModifyTokenCount>
@@ -2497,6 +2583,7 @@
   </CEffectSwitch>
   <CEffectSet id="ChenBreathOfFireSet">
     <ValidatorArray value="noMarkers" />
+    <EffectArray value="AddFirebreathQuestToken" />
     <EffectArray value="ChenBreathOfFireDamageSwitch" />
     <EffectArray value="ApplyAbilityImpactReveal" />
     <EffectArray value="ChenStormstoutSecretRecipeCreateHealer" />
@@ -2532,20 +2619,20 @@
     <Visibility value="Hidden" />
     <Flags index="NoDamageTimerReset" value="1" />
     <Amount value="57" />
-    <MultiplicativeModifierArray index="AccumulatingFlame" Validator="ChenHasAccumulatingFlame" Modifier="0.3" />
     <MultiplicativeModifierArray index="EnergizingBrewDamage" Validator="ChenFortifingBrewEnergizingBrewTalentBuff" Modifier="0.2" Crit="1" />
+    <FlatModifierArray index="QuestDamage" Accumulator="BreathofFireQuestDamage" />
   </CEffectDamage>
   <CEffectDamage id="ChenBreathOfFireDamage" parent="StormSpell">
-    <ValidatorArray value="noMarkers" />
-    <Amount value="85" />
+    <Amount value="40" />
     <MultiplicativeModifierArray index="EnergizingBrewDamage" Validator="ChenFortifingBrewEnergizingBrewTalentBuff" Modifier="0.2" Crit="1" />
   </CEffectDamage>
   <CEffectSet id="ChenBreathOfFireBoggedDownSet">
-    <EffectArray value="ChenBreathOfFireDamage" />
     <EffectArray value="ChenBreathOfFireApplyDoT" />
+    <EffectArray value="ChenBreathOfFireDamage" />
     <EffectArray value="ChenBreathofFireBoggedDownModifyDrenchedBehaviorBuffDuration" />
     <EffectArray value="ChenBreathofFireBoggedDownModifySlowBehaviorBuffDuration" />
     <EffectArray value="ChenBreathofFireApplyWitheringFlamesTalentDebuff" />
+    <EffectArray value="BreathofFireApplyMythicArmorReductionDebuff" />
     <EffectArray value="ChenBreathofFireApplyRingofFireTalent" />
   </CEffectSet>
   <CEffectSwitch id="ChenBreathOfFireDamageSwitch">
@@ -2961,7 +3048,7 @@
   <CEffectDamage id="ChenFlyingKickDamage" parent="StormSpell">
     <ValidatorArray value="noMarkers" />
     <ImpactLocation Effect="ChenFlyingKickCastSet" Value="TargetUnit" />
-    <Amount value="120" />
+    <Amount value="130" />
     <MultiplicativeModifierArray index="DeadlyStrikeDamage" Validator="ChenDeadlyStrikeDamageCombine" Modifier="1.25" Crit="1" />
     <MultiplicativeModifierArray index="EnergizingBrewDamage" Validator="ChenFortifingBrewEnergizingBrewTalentBuff" Modifier="0.2" Crit="1" />
   </CEffectDamage>
@@ -2979,6 +3066,7 @@
   <CEffectSet id="ChenWeaponPreImpactSet">
     <EffectArray value="EmpoweredDummyCritEffectDamage" />
     <EffectArray value="ChenBreathOfFireAccumulatingFlameIncreaseIgniteDuration" />
+    <EffectArray value="BreathOfFireAccumulatingFlameIncreaseMythicArmorReductionDuration" />
     <EffectArray value="ChenCelerityStaggerArmorBuffApplyBehavior" />
     <EffectArray value="ChenCelerityStaggerModifyCooldown" />
     <EffectArray value="ChenElusiveBrawlerModifyPlayerCooldown" />
@@ -3211,6 +3299,7 @@
     <EffectArray value="ChenFortifyingBrewApplyController" />
     <EffectArray value="ChenFortifyingBrewApplyChannelingCoolup" />
     <EffectArray value="ChenPurifyingBrewApplyUnstoppableBuff" />
+    <EffectArray value="FortifyingBrewApplyForceStop" />
   </CEffectSet>
   <CEffectSet id="ChenFortifyingBrewFinalSet">
     <EffectArray value="ChenFortifyingBrewRemoveEnergyBehavior" />
@@ -3246,11 +3335,11 @@
     <SkinArray value="ChenLunar" />
     <SkinArray value="ChenHat" />
     <DefaultMount value="BattleBeast" />
-    <TalentTreeArray Talent="ChenEyeOfTheTiger" Tier="1" Column="1" />
+    <TalentTreeArray Talent="ChenAccumulatingFlame" Tier="1" Column="1" />
     <TalentTreeArray Talent="ChenFreshestIngredients" Tier="1" Column="2" />
     <TalentTreeArray Talent="ChenStormstoutSecretRecipe" Tier="1" Column="3" />
     <TalentTreeArray Talent="ChenDeadlyStrike" Tier="2" Column="1" />
-    <TalentTreeArray Talent="ChenAccumulatingFlame" Tier="2" Column="2" />
+    <TalentTreeArray Talent="ChenEyeOfTheTiger" Tier="2" Column="2" />
     <TalentTreeArray Talent="ChenWitheringFlames" Tier="2" Column="3" />
     <TalentTreeArray Talent="ChenGiftOfTheOxStagger" Tier="3" Column="1" />
     <TalentTreeArray Talent="ChenBrewmastersBalance" Tier="3" Column="2" />
@@ -3273,8 +3362,8 @@
     <TalentTreeArray Talent="ChenPurifyingBrew" Tier="7" Column="3" />
     <TalentTreeArray Talent="ChenEnergizingBrew" Tier="7" Column="4" />
     <TalentAIBuildsArray ChanceToPick="16">
-      <TalentsArray value="ChenEyeOfTheTiger" />
       <TalentsArray value="ChenAccumulatingFlame" />
+      <TalentsArray value="ChenEyeOfTheTiger" />
       <TalentsArray value="ChenElusiveBrawler" />
       <TalentsArray value="ChenHeroicAbilityWanderingKeg" />
       <TalentsArray value="ChenMasteryKegSmashATouchOfHoney" />
@@ -3310,7 +3399,7 @@
     </TalentAIBuildsArray>
     <TalentAIBuildsArray AIOnly="1" ChanceToPick="16">
       <TalentsArray value="ChenStormstoutSecretRecipe" />
-      <TalentsArray value="ChenAccumulatingFlame" />
+      <TalentsArray value="ChenEyeOfTheTiger" />
       <TalentsArray value="ChenGiftOfTheOxStagger" />
       <TalentsArray value="ChenHeroicAbilityStormEarthFire" />
       <TalentsArray value="ChenMasteryFortifyingBrewEnoughToShare" />
@@ -3318,7 +3407,7 @@
       <TalentsArray value="ChenElementalConduit" />
     </TalentAIBuildsArray>
     <TalentAIBuildsArray AIOnly="1" ChanceToPick="16">
-      <TalentsArray value="ChenEyeOfTheTiger" />
+      <TalentsArray value="ChenAccumulatingFlame" />
       <TalentsArray value="ChenWitheringFlames" />
       <TalentsArray value="ChenElusiveBrawler" />
       <TalentsArray value="ChenHeroicAbilityWanderingKeg" />
@@ -4016,17 +4105,17 @@
     <Abil value="ChenFlyingKick" />
     <AbilityModificationArray>
       <Modifications>
-        <Type value="MultiplyLevelModification" />
+        <Type value="FlatModification" />
         <Entry value="ChenFlyingKick" />
         <Field value="Range[0]" />
-        <Value value="1.150000" />
+        <Value value="$ChenFlyingLeapRangeIncrease" />
       </Modifications>
       <Modifications>
-        <Type value="MultiplyLevelModification" />
+        <Type value="FlatModification" />
         <Catalog value="Actor" />
         <Entry value="ChenFlyingKickRangeSplat" />
         <Field value="Scale" />
-        <Value value="1.150000" />
+        <Value value="$ChenFlyingLeapRangeIncrease" />
       </Modifications>
       <Modifications>
         <Type value="FlatModification" />
@@ -4068,6 +4157,10 @@
         <Value value="1.000000" />
       </Modifications>
     </AbilityModificationArray>
+    <RankArray>
+      <BehaviorArray value="ChenAccumulatingFlameQuest" />
+    </RankArray>
+    <QuestData StackBehavior="ChenAccumulatingFlameQuest" TargetCount="400" />
   </CTalent>
   <CTalent id="ChenFreshestIngredients">
     <Face value="ChenFreshestIngredients" />
@@ -4183,14 +4276,14 @@
         <Catalog value="Behavior" />
         <Entry value="ChenKegSmashBoggedDownSlow" />
         <Field value="Modification.UnifiedMoveSpeedFactor" />
-        <Value value="-0.300000" />
+        <Value value="-0.200000" />
       </Modifications>
       <Modifications>
         <Type value="FlatModification" />
         <Catalog value="Behavior" />
         <Entry value="ChenKegSmashSlow" />
         <Field value="Modification.UnifiedMoveSpeedFactor" />
-        <Value value="-0.300000" />
+        <Value value="-0.200000" />
       </Modifications>
       <Modifications>
         <Type value="FlatModification" />
@@ -4405,6 +4498,12 @@
       <LayoutButtons index="1" Face="HearthstoneNoMana" Type="AbilCmd" AbilCmd="Hearthstone,Execute" Slot="Hearth" />
     </CardLayouts>
   </CUnit>
+  <CValidatorUnitCompareTokenCount id="Has80AccumulatingFlameTokens">
+    <WhichUnit Value="Caster" />
+    <Compare value="GE" />
+    <Value value="80" />
+    <TokenId value="ChenAccumulatingFlameQuest" />
+  </CValidatorUnitCompareTokenCount>
   <CValidatorUnitCompareBehaviorCount id="ChenHas3StacksStormEarthFireTimeStopController">
     <Compare value="GE" />
     <Value value="3" />
@@ -4619,8 +4718,8 @@
   </CValidatorCombine>
   <CValidatorCombine id="ChenHasKegSmashKegTossAndNotComplete">
     <Type value="And" />
-    <CombineArray value="ChenHasKegToss" />
-    <CombineArray value="ChenDoesNotHave20KegSmashKegTossTokens" />
+    <CombineArray value="ChenHasAccumulatingFlame" />
+    <CombineArray value="ChenDoesNotHave50AccumulatingFlameTokens" />
   </CValidatorCombine>
   <CValidatorUnitCompareBehaviorCount id="HasStormEarthFireTimedLife">
     <Value value="1" />
@@ -4661,10 +4760,11 @@
     <Value value="ChenFireAliveUnitOnly" />
     <WhichUnit Value="Target" />
   </CValidatorPlayerRequirement>
-  <CValidatorUnitCompareTokenCount id="ChenHas20KegSmashKegTossTokens">
+  <CValidatorUnitCompareTokenCount id="ChenHas25AccumulatingFlameTokens">
     <WhichUnit Value="Caster" />
-    <Value value="20" />
-    <TokenId value="ChenKegTossTokenCounter" />
+    <Compare value="GE" />
+    <Value value="25" />
+    <TokenId value="ChenAccumulatingFlameQuest" />
   </CValidatorUnitCompareTokenCount>
   <CValidatorCombine id="ChenIsStormEarthFireUnitCombine">
     <CombineArray value="ChenIsEarthUnit" />
@@ -4748,11 +4848,11 @@
     <WhichUnit Value="Caster" />
     <Behavior value="ChenFortifyingBrewRegen" />
   </CValidatorUnitCompareBehaviorCount>
-  <CValidatorUnitCompareTokenCount id="ChenDoesNotHave20KegSmashKegTossTokens">
+  <CValidatorUnitCompareTokenCount id="ChenDoesNotHave50AccumulatingFlameTokens">
     <WhichUnit Value="Caster" />
     <Compare value="LT" />
-    <Value value="20" />
-    <TokenId value="ChenKegTossTokenCounter" />
+    <Value value="50" />
+    <TokenId value="ChenAccumulatingFlameQuest" />
   </CValidatorUnitCompareTokenCount>
   <CValidatorCombine id="ChenFreshestIngredients1StackCombine">
     <CombineArray value="ChenHas2StacksFortifyingBrew" />
@@ -4883,8 +4983,8 @@
   </CValidatorUnitCompareVital>
   <CValidatorCombine id="ChenHasKegTossCompleteAndMinDistance">
     <Type value="And" />
-    <CombineArray value="ChenHas20KegSmashKegTossTokens" />
-    <CombineArray value="ChenHasKegToss" />
+    <CombineArray value="ChenHas25AccumulatingFlameTokens" />
+    <CombineArray value="ChenHasAccumulatingFlame" />
     <CombineArray value="ChenKegSmashKegTossMinDistance" />
   </CValidatorCombine>
   <CValidatorUnitCompareBehaviorCount id="ChenHasEmpoweredCritBuff">

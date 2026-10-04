@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="us-ascii"?>
 <Catalog>
   <const id="$GarroshWreckingBallIntoTheFraySearchFilters" value="-;Self,Player,Neutral,Enemy,ImmuneToAOE,Structure,Missile,ImmuneToFriendlyAbilities,Stasis,Dead,Hidden,Summoned,MapCreature,MapBoss" />
+  <const id="$GarroshWreckingBallRange" value="6.0" />
+  <const id="$GarroshWreckingBallIntoTheFrayRange" value="9" />
+  <const id="$GarroshUnrivaledStrengthRangeModifier" value="0.15" />
+  <const id="$GarroshUnrivaledStrengthRangeIncrease" value="*($GarroshWreckingBallRange $GarroshUnrivaledStrengthRangeModifier)" evaluateAsExpression="1" />
   <CAbilEffectTarget id="GarroshGroundbreaker">
     <AbilityCategories index="Reveals" value="1" />
     <Activity value="Abil/Activity/GarroshGroundbreaker" />
@@ -54,12 +58,13 @@
     <PrepEffect value="DismountDecloakCasterSet" />
     <Effect value="GarroshWreckingBallInitialSwitch" />
     <Flags index="ClearLastMoveTarget" value="1" />
+    <Flags index="RangeUseCasterRadius" value="0" />
     <Flags index="RequireTargetVision" value="0" />
     <Cost>
       <Vital index="Energy" value="60" />
       <Cooldown TimeUse="16" />
     </Cost>
-    <Range value="5.5" />
+    <Range value="$GarroshWreckingBallRange" />
     <Arc value="360" />
     <TrackingArc value="360" />
     <TargetCursorValidators value="GarroshWreckingBallMarkerEnemyWithinProximity" />
@@ -144,11 +149,12 @@
     <PrepEffect value="DismountDecloakCasterSet" />
     <Effect value="GarroshWreckingBallIntotheFrayPersistent" />
     <Flags index="ClearLastMoveTarget" value="1" />
+    <Flags index="RangeUseCasterRadius" value="0" />
     <Flags index="RequireTargetVision" value="0" />
     <Cost>
       <Cooldown TimeUse="45" />
     </Cost>
-    <Range value="8" />
+    <Range value="$GarroshWreckingBallIntoTheFrayRange" />
     <Arc value="360" />
     <TrackingArc value="360" />
     <UninterruptibleArray index="Cast" value="1" />
@@ -515,7 +521,7 @@
   </CActorModel>
   <CActorRange id="GarroshWreckingBallRange" parent="StormRangeAbilPlusSplat" abil="GarroshWreckingBall" />
   <CActorSplat id="GarroshWreckingBallRangeSplat" parent="StormRangeSplat">
-    <Scale value="6.500000" />
+    <Scale value="$GarroshWreckingBallRange" />
   </CActorSplat>
   <CActorRange id="GarroshWreckingBallSearchRange" parent="StormRangeAbilPlusSplat" abil="GarroshWreckingBall" />
   <CActorSplat id="GarroshWreckingBallSearchRangeSplat" parent="StormRangeSplat">
@@ -691,7 +697,7 @@
     <HostSiteOps Ops="SOpAttachHandLeft" />
   </CActorModel>
   <CActorSplat id="GarroshWreckingBallIntotheFrayRangeSplat" parent="StormRangeSplat">
-    <Scale value="8.500000" />
+    <Scale value="$GarroshWreckingBallIntoTheFrayRange" />
   </CActorSplat>
   <CActorRange id="GarroshWreckingBallIntotheFraySearchRange" parent="StormRangeAbilPlusSplat" abil="GarroshWreckingBallIntotheFray" />
   <CActorSplat id="GarroshWreckingBallIntotheFraySearchRangeSplat" parent="StormRangeSplat">
@@ -822,10 +828,13 @@
     <Duration value="0.5" />
     <DamageResponse>
       <Chance value="1" />
-      <Handled value="GarroshBloodthirstCooldownCreatePersistent" />
+      <Handled value="GarroshBloodthirstDeathResponseSet" />
       <Priority value="15" />
       <Fatal value="1" />
     </DamageResponse>
+    <Modification>
+      <DeathResponse Chance="1" Effect="GarroshBloodthirstDeathResponseSet" />
+    </Modification>
   </CBehaviorBuff>
   <CBehaviorAbility id="GarroshIndomitableItem">
     <Buttons Face="GarroshIndomitable" Type="AbilCmd" AbilCmd="GarroshIndomitable,Execute" />
@@ -911,7 +920,7 @@
     <DisplayShield index="Ally" value="1" />
     <DisplayShield index="Neutral" value="1" />
     <DisplayShield index="Enemy" value="1" />
-    <Duration value="3" />
+    <Duration value="5" />
     <ArmorModification StackCount="1" />
     <Period value="0.1875" />
     <Modification>
@@ -993,7 +1002,7 @@
   <CBehaviorBuff id="GarroshBloodthirstBloodcraze">
     <Alignment value="Positive" />
     <InfoIcon value="Assets\Textures\storm_ui_icon_bloodlust.dds" />
-    <Duration value="3" />
+    <Duration value="4" />
     <Period value="1" />
     <InitialEffect value="GarroshBloodthirstHoTCreateHealer" />
     <PeriodicEffect value="GarroshBloodthirstHoTCreateHealer" />
@@ -1024,9 +1033,9 @@
     <RemoveValidatorArray value="TargetNotSpecialDeathState" />
     <Duration value="2.5" />
     <Modification>
-      <HealDealtAdditiveMultiplier index="Life" value="-0.3" />
-      <HealDealtAdditiveMultiplier index="Shields" value="-0.3" />
-      <DamageDealtFraction index="Ability" value="-0.3" />
+      <HealDealtAdditiveMultiplier index="Life" value="-0.25" />
+      <HealDealtAdditiveMultiplier index="Shields" value="-0.25" />
+      <DamageDealtFraction index="Ability" value="-0.25" />
     </Modification>
   </CBehaviorBuff>
   <CBehaviorBuff id="GarroshBodyCheckSlow" parent="StormSlowParent">
@@ -1485,7 +1494,7 @@
     <RechargeVitalRate value="1" />
   </CEffectCreateHealer>
   <CEffectDamage id="GarroshBloodThirstDamage" parent="StormSpell">
-    <MultiplicativeModifierArray index="InForTheKill" Validator="GarroshBloodthirstInFortheKillCombine" Modifier="0.7" />
+    <MultiplicativeModifierArray index="InForTheKill" Validator="GarroshBloodthirstInFortheKillCombine" Modifier="1" />
     <Amount value="156" />
   </CEffectDamage>
   <CEffectApplyBehavior id="GarroshBloodthirstApplyResponseBehavior">
@@ -1494,6 +1503,11 @@
     <Chance value="0" />
     <Behavior value="GarroshBloodthirstDeathResponse" />
   </CEffectApplyBehavior>
+  <CEffectSet id="GarroshBloodthirstDeathResponseSet">
+    <ValidatorArray value="GarroshBloodthirstSourceHasDeathResponse" />
+    <EffectArray value="GarroshBloodthirstCooldownCreatePersistent" />
+    <EffectArray value="GarroshBloodthirstRemoveDeathResponse" />
+  </CEffectSet>
   <CEffectCreatePersistent id="GarroshBloodthirstCooldownCreatePersistent">
     <InitialDelay value="0.0625" />
     <InitialEffect value="GarroshBloodThirstInFortheKillSet" />
@@ -1501,8 +1515,17 @@
   </CEffectCreatePersistent>
   <CEffectModifyUnit id="GarroshBloodthirstInForTheKillModifyCooldown">
     <ImpactUnit Value="Caster" />
-    <Cost Abil="GarroshBloodthirst,Execute" ChargeTimeUse="-12" CooldownOperation="Set" />
+    <Cost>
+      <Abil value="GarroshBloodthirst,Execute" />
+      <ChargeCountUse value="-1" />
+      <CooldownOperation value="Add" />
+      <CooldownTimeUse value="-1" />
+    </Cost>
   </CEffectModifyUnit>
+  <CEffectRemoveBehavior id="GarroshBloodthirstRemoveDeathResponse">
+    <WhichUnit Value="Source" />
+    <BehaviorLink value="GarroshBloodthirstDeathResponse" />
+  </CEffectRemoveBehavior>
   <CEffectDamage id="GarroshWreckingBallDamage" parent="StormSpell">
     <ImpactLocation Value="TargetUnit" />
     <Amount value="91" />
@@ -1744,7 +1767,7 @@
       <SortArray value="TSDistance" />
     </TargetSorts>
     <AreaArray MaxCount="1" Effect="GarroshWreckingBallSearchAreaMarkerImpactSet">
-      <Radius value="2.5" />
+      <Radius value="2.25" />
     </AreaArray>
     <SearchFlags index="ExtendByUnitRadius" value="1" />
   </CEffectEnumArea>
@@ -1856,7 +1879,7 @@
   </CEffectApplyBehavior>
   <CEffectCreateHealer id="GarroshBloodthirstHoTCreateHealer" parent="StormSelfOnlyHealingSpellPercent">
     <ImpactUnit Value="Caster" />
-    <RechargeVitalFraction value="0.0375" />
+    <RechargeVitalFraction value="0.03" />
   </CEffectCreateHealer>
   <CEffectModifyCatalogNumeric id="GarroshArmorUpPassive">
     <CatalogModifications Operation="Set" Reference="Armor,GarroshArmor,AllArmorBonus">
@@ -1879,7 +1902,7 @@
   <CEffectDamage id="GarroshWreckingBallUnrivaledStrengthDamage" parent="StormSpell">
     <ImpactLocation Value="TargetUnit" />
     <Amount value="91" />
-    <MultiplicativeModifierArray index="UnrivalStrength" Modifier="1.25" />
+    <MultiplicativeModifierArray index="UnrivalStrength" Modifier="0.75" />
   </CEffectDamage>
   <CEffectModifyUnit id="GarroshThirstforBattleBloodthirstModifyCooldown">
     <ValidatorArray value="TargetIsHero" />
@@ -3308,17 +3331,17 @@
     <Abil value="GarroshWreckingBall" />
     <AbilityModificationArray ModifyAbil="GarroshWreckingBall">
       <Modifications>
-        <Type value="MultiplyLevelModification" />
+        <Type value="FlatModification" />
         <Entry value="GarroshWreckingBall" />
         <Field value="Range" />
-        <Value value="1.250000" />
+        <Value value="$GarroshUnrivaledStrengthRangeIncrease" />
       </Modifications>
       <Modifications>
-        <Type value="MultiplyLevelModification" />
+        <Type value="FlatModification" />
         <Catalog value="Actor" />
         <Entry value="GarroshWreckingBallRangeSplat" />
         <Field value="Scale" />
-        <Value value="1.250000" />
+        <Value value="$GarroshUnrivaledStrengthRangeIncrease" />
       </Modifications>
     </AbilityModificationArray>
   </CTalent>
@@ -3744,7 +3767,7 @@
   <CValidatorLocationEnumArea id="GarroshWreckingBallEnemyProximity">
     <WhichLocation Value="CasterUnit" />
     <AreaArray Compare="GT" Count="0">
-      <Radius value="2.75" />
+      <Radius value="2.5" />
     </AreaArray>
     <SearchFilters value="Visible;Self,Player,Ally,ImmuneToAOE,NoMinionAggro,Structure,Missile,Item,Stasis,Dead,Hidden,Invulnerable,Passive,Summoned,Unstoppable,MapBoss,MapCreature" />
   </CValidatorLocationEnumArea>
@@ -3764,7 +3787,7 @@
   <CValidatorLocationCompareRange id="GarroshWreckingBallTargetWithinRange">
     <WhichLocation Value="TargetUnit" />
     <Compare value="LT" />
-    <Range value="2.5" />
+    <Range value="2.25" />
   </CValidatorLocationCompareRange>
   <CValidatorUnitCompareBehaviorCount id="GarroshWreckingBallMarkerEnemyHasBehavior">
     <Compare value="GT" />
@@ -3786,7 +3809,7 @@
   <CValidatorLocationEnumArea id="GarroshWreckingBallTalentAllyProximity">
     <WhichLocation Value="CasterUnit" />
     <AreaArray Compare="GT" Count="0">
-      <Radius value="2.75" />
+      <Radius value="2.5" />
     </AreaArray>
     <SearchFilters value="$GarroshWreckingBallIntoTheFraySearchFilters" />
   </CValidatorLocationEnumArea>
@@ -3871,6 +3894,10 @@
     <Type value="Fraction" />
     <Value value="0.5" />
   </CValidatorUnitCompareVital>
+  <CValidatorUnitHasBehavior id="GarroshBloodthirstSourceHasDeathResponse">
+    <WhichUnit Value="Source" />
+    <Behavior value="GarroshBloodthirstDeathResponse" />
+  </CValidatorUnitHasBehavior>
   <CWeaponLegacy id="HeroGarrosh" parent="StormHeroMediumWeapon">
     <Options index="Melee" value="1" />
     <Icon value="Assets\Textures\storm_temp_war3_btnorcmeleeuptwo.dds" />

@@ -33,8 +33,8 @@
         <DisableValidatorArray value="CasterDoesNotHaveNukeCalldownBehavior"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="NukeRevealer" parent="StormReveal">
-        <BehaviorCategories index="Reveal" value="0"/>
-        <Duration value="2"/>
+        <Duration value="3"/>
+        <RemoveValidatorArray value="TargetHasNukeCalldownBehavior"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="MapMechanicStack">
         <InfoIcon value="Assets\Textures\storm_ui_hud_minimap_warhead_canister_icon_large.dds"/>
@@ -62,7 +62,8 @@
         <DisplayDuration index="Neutral" value="1"/>
         <DisplayDuration index="Enemy" value="1"/>
         <RemoveValidatorArray value="CasterNotDazedOrDeadOrSilencedOrSpecialDeathStateOrStasisOrStunnedExceptTimeStopped"/>
-        <Duration value="2.5"/>
+        <RemoveValidatorArray value="HeroNotInCombat"/>
+        <Duration value="3"/>
         <Modification PushPriority="5000" AlliedPushPriority="5000">
             <ModifyFlags index="DisableWeapons" value="1"/>
         </Modification>
@@ -70,6 +71,7 @@
         <InitialEffect value="NukeChannelInitialSet"/>
         <ExpireEffect value="NukeDroppingSet"/>
         <FinalEffect value="NukeInterruptedSet"/>
+        <CancelEffect value="NukeChannelCancelOrder"/>
     </CBehaviorBuff>
     <CBehaviorBuff id="NukeSuccessful">
         <Duration value="0.125"/>
@@ -1551,19 +1553,28 @@
             <AbilLinkDisableArray value="CaptureMacGuffin"/>
         </Modification>
     </CBehaviorBuff>
+    <CBehaviorBuff id="NukeStructureHaltDecay">
+        <Duration value="3"/>
+        <Period value="0.0625"/>
+        <PeriodicEffect value="NukeStructureBurnRefreshDuration"/>
+    </CBehaviorBuff>
     <CBehaviorBuff id="NukeStructureBurnDamage" parent="StormDot">
-		<Duration value="12"/>
-		<Period value="1"/>
-		<PeriodicEffect value="NukeStructureBurnPeriodicDamage"/>
-		<PeriodicDisplayEffect value="NukeStructureBurnPeriodicDamage"/>
-		<DamageResponse Chance="1" Handled="NukeStructureBurnRefreshDuration" Priority="65">
-			<Kind index="Splash" value="0"/>
-			<Kind index="Ability" value="0"/>
-			<UnitDamageType index="Summon" value="0"/>
-			<UnitDamageType index="Merc" value="0"/>
-			<UnitDamageType index="Monster" value="0"/>
-			<UnitDamageType index="Structure" value="0"/>
-			<UnitDamageType index="Minion" value="0"/>
-		</DamageResponse>
-	</CBehaviorBuff>
+        <Duration value="10"/>
+        <Period value="1"/>
+        <PeriodicEffect value="NukeStructureBurnPeriodicDamage"/>
+        <PeriodicDisplayEffect value="NukeStructureBurnPeriodicDamage"/>
+        <DamageResponse Chance="1" Handled="NukeStructureBurnApplyHaltDecayBuff" Priority="65">
+            <Kind index="Splash" value="0"/>
+            <Kind index="Ability" value="0"/>
+            <UnitDamageType index="Merc" value="0"/>
+            <UnitDamageType index="Monster" value="0"/>
+            <UnitDamageType index="Summon" value="0"/>
+            <UnitDamageType index="Structure" value="0"/>
+            <UnitDamageType index="Minion" value="0"/>
+        </DamageResponse>
+        <DisplayDuration index="Self" value="1"/>
+        <DisplayDuration index="Ally" value="1"/>
+        <DisplayDuration index="Neutral" value="1"/>
+        <DisplayDuration index="Enemy" value="1"/>
+    </CBehaviorBuff>
 </Catalog>

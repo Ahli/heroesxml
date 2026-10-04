@@ -39,6 +39,7 @@ void libGDHL_InitVariables () {
 
     libGDHL_InitVariables_completed = true;
 
+    libGDHL_gv_updateOnAnyVisibilityChangeUnitGroup = UnitGroupEmpty();
     libGDHL_gv_gPU2020EventEnabled = true;
     libGDHL_gv_gPU2020TimerDurationMod = 6.0;
     libGDHL_gv_gPU2020Phase1Threshold = 0.01;
@@ -177,6 +178,7 @@ void libGDHL_InitVariables () {
     for (init_i = 0; init_i <= libCore_gv_bALMaxPlayers; init_i += 1) {
         libGDHL_gv_murkyEggDeathTimer[init_i] = TimerCreate();
     }
+    libGDHL_gv_mURKY_BAL_EGG_DEATH_TALENT = 30.0;
     for (init_i = 0; init_i <= libCore_gv_bALMaxPlayers; init_i += 1) {
         libGDHL_gv_heroMurkyEggHuntUnitGroup[init_i] = UnitGroupEmpty();
     }
@@ -522,7 +524,7 @@ void libGDHL_gf_HeroAbathurIncrementHeroCountFunction () {
         TriggerEnable(libGDHL_gt_HeroAbathurMonstrosityDeselectedHooktoAI, true);
         TriggerEnable(libGDHL_gt_HeroAbathurMonstrosityUnhookAI, true);
         TriggerEnable(libGDHL_gt_HeroAbathurMonstrosityKillInitialTarget, true);
-        TriggerEnable(libGDHL_gt_HeroAbathurMonstrosityAddSymbioteStacks, true);
+        TriggerEnable(libGDHL_gt_HeroAbathurMonstrosityQuestComplete, true);
         TriggerEnable(libGDHL_gt_HeroAbathurSymbiotedMonstrositySymbioted, true);
         TriggerEnable(libGDHL_gt_HeroAbathurDeepTunnelPing, true);
         TriggerEnable(libGDHL_gt_HeroAbathurSymbioteMinimapIcon, true);
@@ -560,7 +562,7 @@ void libGDHL_gf_HeroAbathurDecrementHeroCountFunction () {
         TriggerEnable(libGDHL_gt_HeroAbathurMonstrosityDeselectedHooktoAI, false);
         TriggerEnable(libGDHL_gt_HeroAbathurMonstrosityUnhookAI, false);
         TriggerEnable(libGDHL_gt_HeroAbathurMonstrosityKillInitialTarget, false);
-        TriggerEnable(libGDHL_gt_HeroAbathurMonstrosityAddSymbioteStacks, false);
+        TriggerEnable(libGDHL_gt_HeroAbathurMonstrosityQuestComplete, false);
         TriggerEnable(libGDHL_gt_HeroAbathurSymbiotedMonstrositySymbioted, false);
         TriggerEnable(libGDHL_gt_HeroAbathurDeepTunnelPing, false);
         TriggerEnable(libGDHL_gt_HeroAbathurSymbioteMinimapIcon, false);
@@ -792,6 +794,10 @@ void libGDHL_gf_HeroArthasIncrementHeroCountFunction () {
         TriggerEnable(libGDHL_gt_HeroArthasArmyoftheDeadMinionAITakeoverTransport, true);
         TriggerEnable(libGDHL_gt_HeroArthasArmyoftheDeadPortGhouls, true);
         TriggerEnable(libGDHL_gt_HeroArthasArmyoftheDeadGhoulSpawned, true);
+        TriggerEnable(libGDHL_gt_HeroArthasArmyoftheDeadNPCDeathProc, true);
+        TriggerEnable(libGDHL_gt_HeroArthasArmyoftheDeadTakedownDeathProc, true);
+        TriggerEnable(libGDHL_gt_HeroArthasArmyoftheDeadLegionofNorthrendTalentSpawn, true);
+        TriggerEnable(libGDHL_gt_HeroArthasDeathPactTalentTakedownTokenProc, true);
     }
 
 }
@@ -810,6 +816,10 @@ void libGDHL_gf_HeroArthasDecrementHeroCountFunction () {
         TriggerEnable(libGDHL_gt_HeroArthasArmyoftheDeadMinionAITakeoverTransport, false);
         TriggerEnable(libGDHL_gt_HeroArthasArmyoftheDeadPortGhouls, false);
         TriggerEnable(libGDHL_gt_HeroArthasArmyoftheDeadGhoulSpawned, false);
+        TriggerEnable(libGDHL_gt_HeroArthasArmyoftheDeadNPCDeathProc, false);
+        TriggerEnable(libGDHL_gt_HeroArthasArmyoftheDeadTakedownDeathProc, false);
+        TriggerEnable(libGDHL_gt_HeroArthasArmyoftheDeadLegionofNorthrendTalentSpawn, false);
+        TriggerEnable(libGDHL_gt_HeroArthasDeathPactTalentTakedownTokenProc, false);
     }
 
 }
@@ -1286,8 +1296,6 @@ void libGDHL_gf_HeroFalstadIncrementHeroCountFunction () {
     if ((libGDHL_gv_heroFalstadTriggerRegistrationVariable == 1)) {
         TriggerEnable(libGDHL_gt_HeroFalstadFlightCameraHeightRestore, true);
         TriggerEnable(libGDHL_gt_HeroFalstadFlightPing, true);
-        TriggerEnable(libGDHL_gt_HeroFalstadFrequentFlyerHeroTakedown, true);
-        TriggerEnable(libGDHL_gt_HeroFalstadFrequentFlyerNPCKill, true);
         TriggerEnable(libGDHL_gt_HeroFalstadDishonorableDischargeHeroKillRefreshCooldown, true);
     }
 
@@ -1304,8 +1312,6 @@ void libGDHL_gf_HeroFalstadDecrementHeroCountFunction () {
     if ((libGDHL_gv_heroFalstadTriggerRegistrationVariable == 0)) {
         TriggerEnable(libGDHL_gt_HeroFalstadFlightCameraHeightRestore, false);
         TriggerEnable(libGDHL_gt_HeroFalstadFlightPing, false);
-        TriggerEnable(libGDHL_gt_HeroFalstadFrequentFlyerHeroTakedown, false);
-        TriggerEnable(libGDHL_gt_HeroFalstadFrequentFlyerNPCKill, false);
         TriggerEnable(libGDHL_gt_HeroFalstadDishonorableDischargeHeroKillRefreshCooldown, false);
     }
 
@@ -1354,9 +1360,6 @@ void libGDHL_gf_HeroJainaIncrementHeroCountFunction () {
     if ((libGDHL_gv_heroJainaTriggerRegistrationVariable == 1)) {
         TriggerEnable(libGDHL_gt_HeroJainaWaterElementalCreated, true);
         TriggerEnable(libGDHL_gt_HeroJainaWaterElementalCommand, true);
-        TriggerEnable(libGDHL_gt_HeroJainaFrostboltWintermuteCast, true);
-        TriggerEnable(libGDHL_gt_HeroJainaConeofColdWintermuteCast, true);
-        TriggerEnable(libGDHL_gt_HeroJainaBlizzardWintermuteCast, true);
         TriggerEnable(libGDHL_gt_HeroJainaWaterElementalVehicleInitial, true);
         TriggerEnable(libGDHL_gt_HeroJainaChilledDamageResponse, true);
         TriggerEnable(libGDHL_gt_HeroJainaImprovedIceBlockOverlayOn, true);
@@ -1380,9 +1383,6 @@ void libGDHL_gf_HeroJainaDecrementHeroCountFunction () {
     if ((libGDHL_gv_heroJainaTriggerRegistrationVariable == 0)) {
         TriggerEnable(libGDHL_gt_HeroJainaWaterElementalCreated, false);
         TriggerEnable(libGDHL_gt_HeroJainaWaterElementalCommand, false);
-        TriggerEnable(libGDHL_gt_HeroJainaFrostboltWintermuteCast, false);
-        TriggerEnable(libGDHL_gt_HeroJainaConeofColdWintermuteCast, false);
-        TriggerEnable(libGDHL_gt_HeroJainaBlizzardWintermuteCast, false);
         TriggerEnable(libGDHL_gt_HeroJainaWaterElementalVehicleInitial, false);
         TriggerEnable(libGDHL_gt_HeroJainaChilledDamageResponse, false);
         TriggerEnable(libGDHL_gt_HeroJainaImprovedIceBlockOverlayOn, false);
@@ -2781,7 +2781,6 @@ void libGDHL_gf_HeroMurkyIncrementHeroCountFunction () {
         TriggerEnable(libGDHL_gt_HeroMurkyCreateEggOnSpawn, true);
         TriggerEnable(libGDHL_gt_HeroMurkyFishEyeDynamicApplication, true);
         TriggerEnable(libGDHL_gt_HeroMurkyRespawnEggCreated, true);
-        TriggerEnable(libGDHL_gt_HeroMurkyEggHuntUnitGroupController, true);
         TriggerEnable(libGDHL_gt_HeroMurkyAFishyDealChargeCountProc, true);
         TriggerEnable(libGDHL_gt_HeroMurkyEggSpawnsChangeDeathSound, true);
     }
@@ -2803,7 +2802,6 @@ void libGDHL_gf_HeroMurkyDecrementHeroCountFunction () {
         TriggerEnable(libGDHL_gt_HeroMurkyCreateEggOnSpawn, false);
         TriggerEnable(libGDHL_gt_HeroMurkyFishEyeDynamicApplication, false);
         TriggerEnable(libGDHL_gt_HeroMurkyRespawnEggCreated, false);
-        TriggerEnable(libGDHL_gt_HeroMurkyEggHuntUnitGroupController, false);
         TriggerEnable(libGDHL_gt_HeroMurkyAFishyDealChargeCountProc, false);
         TriggerEnable(libGDHL_gt_HeroMurkyEggSpawnsChangeDeathSound, false);
     }
@@ -2847,6 +2845,7 @@ void libGDHL_gf_HeroMurkyCreateEggAtBaseforPlayer (int lp_player) {
 
 void libGDHL_gf_HeroMurkyRespawnLogicCheck (int lp_player) {
     // Variable Declarations
+    int lv_randomEgg;
     unit lv_murky;
 
     // Automatic Variable Declarations
@@ -2854,31 +2853,39 @@ void libGDHL_gf_HeroMurkyRespawnLogicCheck (int lp_player) {
 
     // Implementation
     lv_murky = libGame_gv_players[lp_player].lv_heroUnit;
-    if ((((libGame_gv_heroDeathMurkyRespawnEggDeathTimeStamp[lp_player] >= (TimerGetElapsed(libGame_gv_gameTimer) - 0.0625)) && (libGame_gv_heroDeathMurkyRespawnEggDeathTimeStamp[lp_player] <= (TimerGetElapsed(libGame_gv_gameTimer) + 0.0625))) || ((libGame_gv_heroDeathMurkyRespawnEggs[lp_player] != null) && (UnitIsAlive(libGame_gv_heroDeathMurkyRespawnEggs[lp_player]) == true)))) {
+    if ((((libGame_gv_heroDeathMurkyRespawnEggDeathTimeStamp[lp_player] >= (TimerGetElapsed(libGame_gv_gameTimer) - 0.0625)) && (libGame_gv_heroDeathMurkyRespawnEggDeathTimeStamp[lp_player] <= (TimerGetElapsed(libGame_gv_gameTimer) + 0.0625))) || (((libGame_gv_heroDeathMurkyRespawnEggs[lp_player] != null) || (libGame_gv_heroDeathMurkyRespawnEgg2FromTalent[lp_player] != null)) && ((UnitIsAlive(libGame_gv_heroDeathMurkyRespawnEggs[lp_player]) == true) || (UnitIsAlive(libGame_gv_heroDeathMurkyRespawnEgg2FromTalent[lp_player]) == true))))) {
         UnitBehaviorRemove(lv_murky, "HallOfStormsProtectionBuff", 1);
-        libGame_gv_heroDeathMurkyRespawnEggPoint[lp_player] = UnitGetPosition(libGame_gv_heroDeathMurkyRespawnEggs[lp_player]);
-        UnitSetPosition(lv_murky, libGame_gv_heroDeathMurkyRespawnEggPoint[lp_player], false);
-        if ((PlayerHasTalent(lp_player, "MurkyEggShell") == true)) {
-            UnitCreateEffectUnit(lv_murky, "MurkyEggShellProcSet", lv_murky);
+        lv_randomEgg = RandomInt(1, 2);
+        if ((libGame_gv_heroDeathMurkyRespawnEggs[lp_player] == null)) {
+            libGame_gv_heroDeathMurkyRespawnEggPoint[lp_player] = UnitGetPosition(libGame_gv_heroDeathMurkyRespawnEgg2FromTalent[lp_player]);
         }
-
+        else {
+            if ((libGame_gv_heroDeathMurkyRespawnEgg2FromTalent[lp_player] == null)) {
+                libGame_gv_heroDeathMurkyRespawnEggPoint[lp_player] = UnitGetPosition(libGame_gv_heroDeathMurkyRespawnEggs[lp_player]);
+            }
+            else {
+                if ((lv_randomEgg == 1)) {
+                    libGame_gv_heroDeathMurkyRespawnEggPoint[lp_player] = UnitGetPosition(libGame_gv_heroDeathMurkyRespawnEggs[lp_player]);
+                }
+                else {
+                    libGame_gv_heroDeathMurkyRespawnEggPoint[lp_player] = UnitGetPosition(libGame_gv_heroDeathMurkyRespawnEgg2FromTalent[lp_player]);
+                }
+            }
+        }
+        UnitSetPosition(lv_murky, libGame_gv_heroDeathMurkyRespawnEggPoint[lp_player], false);
+        UnitCreateEffectUnit(lv_murky, "MurkyReviveShieldApplyShieldBuff", lv_murky);
         if ((PlayerHasTalent(lp_player, "MurkyFishEye") == true)) {
             UnitCreateEffectUnit(lv_murky, "MurkyFishEyeApplyMountSpeedBuff", lv_murky);
         }
 
     }
     else {
-        if ((libGame_gv_heroDeathMurkyRespawnEggs[lp_player] == null)) {
+        if ((libGame_gv_heroDeathMurkyRespawnEggs[lp_player] == null) && (libGame_gv_heroDeathMurkyRespawnEgg2FromTalent[lp_player] == null)) {
             libGDHL_gf_HeroMurkyCreateEggAtBaseforPlayer(lp_player);
         }
 
     }
     UnitModifyCooldown(lv_murky, "Abil/MurkyRespawnEgg", -60.0, c_cooldownOperationAdd);
-    if ((PlayerHasTalent(lp_player, "MurkyEggHunt") == true)) {
-        Wait(0.0625, c_timeGame);
-        UnitBehaviorAdd(lv_murky, "MurkyEggHuntCloak", lv_murky, 1);
-    }
-
 }
 
 void libGDHL_gf_HeroNecromancerIncrementHeroCountFunction () {
@@ -3898,7 +3905,6 @@ void libGDHL_gf_HeroTychusIncrementHeroCountFunction () {
     libGDHL_gv_heroTychusTriggerRegistrationVariable += 1;
     if ((libGDHL_gv_heroTychusTriggerRegistrationVariable == 1)) {
         TriggerEnable(libGDHL_gt_HeroTychusUpdateOrdersOnIssueOrderAbility, true);
-        TriggerEnable(libGDHL_gt_HeroTychusOverkillTargetedRetargetvH16, true);
         TriggerEnable(libGDHL_gt_HeroTychusOverkillRollingReload, true);
         TriggerEnable(libGDHL_gt_HeroTychusMasterAssassinHeroTakedownProc, true);
         TriggerEnable(libGDHL_gt_HeroTychusRelentlessSoldierTalentProc, true);
@@ -3919,7 +3925,6 @@ void libGDHL_gf_HeroTychusDecrementHeroCountFunction () {
 
     if ((libGDHL_gv_heroTychusTriggerRegistrationVariable == 0)) {
         TriggerEnable(libGDHL_gt_HeroTychusUpdateOrdersOnIssueOrderAbility, false);
-        TriggerEnable(libGDHL_gt_HeroTychusOverkillTargetedRetargetvH16, false);
         TriggerEnable(libGDHL_gt_HeroTychusOverkillRollingReload, false);
         TriggerEnable(libGDHL_gt_HeroTychusMasterAssassinHeroTakedownProc, false);
         TriggerEnable(libGDHL_gt_HeroTychusRelentlessSoldierTalentProc, false);
@@ -4001,10 +4006,8 @@ void libGDHL_gf_HeroWitchDoctorIncrementHeroCountFunction () {
         TriggerEnable(libGDHL_gt_HeroWitchDoctorZombiePrisonRelicZombiesSpawned, true);
         TriggerEnable(libGDHL_gt_HeroWitchDoctorRavenousSpiritCast, true);
         TriggerEnable(libGDHL_gt_HeroWitchDoctorRavenousSpiritExpires, true);
-        TriggerEnable(libGDHL_gt_HeroWitchDoctorPassiveTarget, true);
         TriggerEnable(libGDHL_gt_HeroWitchDoctorGargantuanCreated, true);
         TriggerEnable(libGDHL_gt_HeroWitchDoctorGargantuanStompUsed, true);
-        TriggerEnable(libGDHL_gt_HeroWitchDoctorVileInfectionTaken, true);
         TriggerEnable(libGDHL_gt_HeroWitchDoctorBloodRitualHeroTakedownProc, true);
     }
 
@@ -4023,10 +4026,8 @@ void libGDHL_gf_HeroWitchDoctorDecrementHeroCountFunction () {
         TriggerEnable(libGDHL_gt_HeroWitchDoctorZombiePrisonRelicZombiesSpawned, false);
         TriggerEnable(libGDHL_gt_HeroWitchDoctorRavenousSpiritCast, false);
         TriggerEnable(libGDHL_gt_HeroWitchDoctorRavenousSpiritExpires, false);
-        TriggerEnable(libGDHL_gt_HeroWitchDoctorPassiveTarget, false);
         TriggerEnable(libGDHL_gt_HeroWitchDoctorGargantuanCreated, false);
         TriggerEnable(libGDHL_gt_HeroWitchDoctorGargantuanStompUsed, false);
-        TriggerEnable(libGDHL_gt_HeroWitchDoctorVileInfectionTaken, false);
         TriggerEnable(libGDHL_gt_HeroWitchDoctorBloodRitualHeroTakedownProc, false);
     }
 
@@ -4212,7 +4213,6 @@ void libGDHL_gf_HeroZagaraIncrementHeroCountFunction () {
         TriggerEnable(libGDHL_gt_HeroZagaraInfestedDropSpawnRoach, true);
         TriggerEnable(libGDHL_gt_HeroZagaraInfestScaling, true);
         TriggerEnable(libGDHL_gt_HeroZagaraTyrantMawCDRonDeath, true);
-        TriggerEnable(libGDHL_gt_HeroZagaraHunterKillerHydraliskTransfusion, true);
         TriggerEnable(libGDHL_gt_HeroZagaraEndlessCreepApplyBehavior, true);
         TriggerEnable(libGDHL_gt_HeroZagaraDevouringMawOverlayOn, true);
         TriggerEnable(libGDHL_gt_HeroZagaraDevouringMawOverlayOff, true);
@@ -4240,7 +4240,6 @@ void libGDHL_gf_HeroZagaraDecrementHeroCountFunction () {
         TriggerEnable(libGDHL_gt_HeroZagaraHydraliskorMutaliskControl, false);
         TriggerEnable(libGDHL_gt_HeroZagaraInfestedDropSpawnRoach, false);
         TriggerEnable(libGDHL_gt_HeroZagaraTyrantMawCDRonDeath, false);
-        TriggerEnable(libGDHL_gt_HeroZagaraHunterKillerHydraliskTransfusion, false);
         TriggerEnable(libGDHL_gt_HeroZagaraEndlessCreepApplyBehavior, false);
         TriggerEnable(libGDHL_gt_HeroZagaraDevouringMawOverlayOn, false);
         TriggerEnable(libGDHL_gt_HeroZagaraDevouringMawOverlayOff, false);
@@ -4809,6 +4808,45 @@ void libGDHL_gt_HeroGenericSuperStealthActivateDeactivate_Init () {
     libGDHL_gt_HeroGenericSuperStealthActivateDeactivate = TriggerCreate("libGDHL_gt_HeroGenericSuperStealthActivateDeactivate_Func");
     TriggerAddEventUnitBehaviorChange(libGDHL_gt_HeroGenericSuperStealthActivateDeactivate, null, "HeroGenericStationaryExtraStealthActive", c_unitBehaviorChangeActivate);
     TriggerAddEventUnitBehaviorChange(libGDHL_gt_HeroGenericSuperStealthActivateDeactivate, null, "HeroGenericStationaryExtraStealthActive", c_unitBehaviorChangeDeactivate);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Hero - All - Hero Respec
+//--------------------------------------------------------------------------------------------------
+bool libGDHL_gt_HeroAllHeroRespec_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_player;
+    unit lv_thrall;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_player = libGame_gf_HeroRespecsTalentsPlayer();
+    lv_thrall = libGame_gv_players[lv_player].lv_heroUnit;
+
+    // Conditions
+    if (testConds) {
+        if (!((lv_player >= 1))) {
+            return false;
+        }
+
+        if (!((lv_player <= libCore_gv_bALMaxPlayers))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    UnitCreateEffectUnit(libGame_gv_players[lv_player].lv_heroUnit, "ResetQuestMinimums", libGame_gv_players[lv_player].lv_heroUnit);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libGDHL_gt_HeroAllHeroRespec_Init () {
+    libGDHL_gt_HeroAllHeroRespec = TriggerCreate("libGDHL_gt_HeroAllHeroRespec_Func");
+    libGame_gf_HeroRespecsTalents(libGDHL_gt_HeroAllHeroRespec);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -5969,9 +6007,6 @@ bool libGDHL_gt_HeroAbathurMonstrosityAddMinionKillStacks_Func (bool testConds, 
     int lv_minionAbsorbedTokenCount;
 
     // Automatic Variable Declarations
-    unitgroup auto2B15A152_g;
-    int auto2B15A152_u;
-    unit auto2B15A152_var;
     unitgroup auto7E23C28A_g;
     int auto7E23C28A_u;
     unit auto7E23C28A_var;
@@ -5990,36 +6025,12 @@ bool libGDHL_gt_HeroAbathurMonstrosityAddMinionKillStacks_Func (bool testConds, 
     }
 
     if ((UnitGetType(libGame_gv_players[lv_abathurPlayer].lv_heroUnit) == "HeroAbathur") && (PlayerHasTalent(lv_abathurPlayer, "AbathurHeroicAbilityEvolveMonstrosity") == true) && ((UnitTypeTestAttribute(UnitGetType(lv_minionUnit), c_unitAttributeMinion) == true) || (UnitTypeTestAttribute(UnitGetType(lv_minionUnit), c_unitAttributeMerc) == true))) {
-        if ((TechTreeUnitCount(lv_abathurPlayer, "AbathurSymbiote", c_techCountCompleteOnly) > 0)) {
-            auto2B15A152_g = UnitGroup("AbathurSymbiote", lv_abathurPlayer, RegionPlayableMap(), UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
-            auto2B15A152_u = UnitGroupCount(auto2B15A152_g, c_unitCountAll);
-            for (;; auto2B15A152_u -= 1) {
-                auto2B15A152_var = UnitGroupUnitFromEnd(auto2B15A152_g, auto2B15A152_u);
-                if (auto2B15A152_var == null) { break; }
-                UnitBehaviorAdd(auto2B15A152_var, "AbathurEvolveMonstrosityAbathurStack", auto2B15A152_var, 1);
-                lv_symbiote = auto2B15A152_var;
-            }
-        }
-
         auto7E23C28A_g = UnitGroupSearch("AbathurEvolvedMonstrosity", lv_abathurPlayer, UnitGetPosition(libGame_gf_SpecialCaseUnitParticipatedInNPCTakedownMinion()), libCore_gv_bALXPRadius, UnitFilter(0, 0, (1 << c_targetFilterMissile), (1 << (c_targetFilterDead - 32)) | (1 << (c_targetFilterHidden - 32))), 0);
         auto7E23C28A_u = UnitGroupCount(auto7E23C28A_g, c_unitCountAll);
         for (;; auto7E23C28A_u -= 1) {
             auto7E23C28A_var = UnitGroupUnitFromEnd(auto7E23C28A_g, auto7E23C28A_u);
             if (auto7E23C28A_var == null) { break; }
-            UnitBehaviorAdd(auto7E23C28A_var, "AbathurEvolveMonstrosityHealthStack", auto7E23C28A_var, 1);
-            lv_minionAbsorbedTokenCount = UnitBehaviorCount(auto7E23C28A_var, "AbathurEvolveMonstrosityMinionAbsorbedToken");
-            lv_minionAbsorbedTokenCount = (lv_minionAbsorbedTokenCount+1);
-            UnitSetTokenCount(auto7E23C28A_var, "AbathurEvolveMonstrosityMinionAbsorbedToken", lv_minionAbsorbedTokenCount, auto7E23C28A_var);
-            UnitCreateEffectUnit(auto7E23C28A_var, "EvolveMonstrosityHealthStackHealer", auto7E23C28A_var);
-            UnitBehaviorAdd(libGame_gv_players[lv_abathurPlayer].lv_heroUnit, "AbathurEvolveMonstrosityAbathurStack", libGame_gv_players[lv_abathurPlayer].lv_heroUnit, 1);
-            UnitBehaviorSetDurationRemaining(libGame_gv_players[lv_abathurPlayer].lv_heroUnit, "AbathurEvolveMonstrosityAbathurStack", UnitBehaviorDuration(auto7E23C28A_var, "AbathurEvolveMonstrosity"));
-            UnitBehaviorSetDurationRemaining(lv_symbiote, "AbathurEvolveMonstrosityAbathurStack", UnitBehaviorDuration(auto7E23C28A_var, "AbathurEvolveMonstrosity"));
-            if ((PlayerHasTalent(lv_abathurPlayer, "AbathurMasteryEvolutionComplete") == true)) {
-                lv_evolutionCompleteStacks = PlayerScoreValueGetAsInt(lv_abathurPlayer, "EvolutionCompleteStacks");
-                lv_evolutionCompleteStacks += 1;
-                PlayerScoreValueSetFromInt(lv_abathurPlayer, "EvolutionCompleteStacks", lv_evolutionCompleteStacks);
-            }
-
+            UnitCreateEffectUnit(libGame_gv_players[lv_abathurPlayer].lv_heroUnit, "AbathurEvolveMonstrosityIncreaseQuestStack", lv_minionUnit);
         }
     }
 
@@ -6244,6 +6255,38 @@ void libGDHL_gt_HeroAbathurSymbiotedMonstrositySymbioted_Init () {
     libGDHL_gt_HeroAbathurSymbiotedMonstrositySymbioted = TriggerCreate("libGDHL_gt_HeroAbathurSymbiotedMonstrositySymbioted_Func");
     TriggerEnable(libGDHL_gt_HeroAbathurSymbiotedMonstrositySymbioted, false);
     libGDHL_gf_AbathurSymbiote(libGDHL_gt_HeroAbathurSymbiotedMonstrositySymbioted);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Hero - Abathur - Monstrosity - Quest Complete
+//--------------------------------------------------------------------------------------------------
+bool libGDHL_gt_HeroAbathurMonstrosityQuestComplete_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_hero;
+    string lv_quest;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_hero = EventUnit();
+    lv_quest = EventUnitTokenBehavior();
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((UnitTestState(lv_hero, c_unitStateHallucination) == true)) {
+        return true;
+    }
+
+    libUIUI_gf_KillLogAnnounceQuestCompletion(UnitGetOwner(lv_hero), lv_quest, 1.0);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libGDHL_gt_HeroAbathurMonstrosityQuestComplete_Init () {
+    libGDHL_gt_HeroAbathurMonstrosityQuestComplete = TriggerCreate("libGDHL_gt_HeroAbathurMonstrosityQuestComplete_Func");
+    TriggerAddEventUnitToken(libGDHL_gt_HeroAbathurMonstrosityQuestComplete, "MonstrosityQuestComplete", null, "");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -6608,6 +6651,106 @@ void libGDHL_gt_HeroArthasAntiMagicShellHeal_Init () {
 }
 
 //--------------------------------------------------------------------------------------------------
+// Trigger: Hero - Arthas - Army of the Dead - Legion of Northrend Talent Spawn
+//--------------------------------------------------------------------------------------------------
+bool libGDHL_gt_HeroArthasArmyoftheDeadLegionofNorthrendTalentSpawn_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    unit lv_unit;
+    int lv_player;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_unit = EventPlayerEffectUsedUnit(c_effectUnitTarget);
+    lv_player = UnitGetOwner(lv_unit);
+
+    // Conditions
+    if (testConds) {
+        if (!((PlayerHasTalent(lv_player, "ArthasMasteryLegionOfNorthrendArmyoftheDead") == true))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    libGame_gf_CalculateSpawnedMinionGoalPoints(lv_player, UnitGetPosition(lv_unit));
+    libAIAI_gf_MinionAIStartMinionAI(-1, lv_unit, libGame_gv_spawnedMinionLane, libGame_gv_spawnedMinionFirstWaypointIndex, false, true, false, 0, false);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libGDHL_gt_HeroArthasArmyoftheDeadLegionofNorthrendTalentSpawn_Init () {
+    libGDHL_gt_HeroArthasArmyoftheDeadLegionofNorthrendTalentSpawn = TriggerCreate("libGDHL_gt_HeroArthasArmyoftheDeadLegionofNorthrendTalentSpawn_Func");
+    TriggerEnable(libGDHL_gt_HeroArthasArmyoftheDeadLegionofNorthrendTalentSpawn, false);
+    TriggerAddEventPlayerEffectUsed(libGDHL_gt_HeroArthasArmyoftheDeadLegionofNorthrendTalentSpawn, c_playerAny, "ArthasArmyoftheDeadLegionofNorthrendTalentSpawnSet");
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Hero - Arthas - Army of the Dead - NPC Death Proc
+//--------------------------------------------------------------------------------------------------
+bool libGDHL_gt_HeroArthasArmyoftheDeadNPCDeathProc_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_killingPlayer;
+    unit lv_minion;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    lv_killingPlayer = libGame_gf_HeroParticipatedInNPCTakedownKillingPlayer();
+    lv_minion = libGame_gf_HeroParticipatedInNPCTakedownMinion();
+    if ((PlayerHasTalent(lv_killingPlayer, "ArthasHeroicAbilityArmyoftheDead") == true) && (UnitTypeTestAttribute(UnitGetType(lv_minion), c_unitAttributeSummoned) == false) && (UnitTypeTestAttribute(UnitGetType(lv_minion), c_unitAttributeStructure) == false) && (UnitTypeTestAttribute(UnitGetType(lv_minion), c_unitAttributeCreep) == false) && ((UnitTypeTestAttribute(UnitGetType(lv_minion), c_unitAttributeMerc) == true) || (UnitTypeTestAttribute(UnitGetType(lv_minion), c_unitAttributeMinion) == true))) {
+        UnitCreateEffectUnit(libGame_gv_players[lv_killingPlayer].lv_heroUnit, "ArthasArmyoftheDeadNPCDeathModifyChargeCooldown", libGame_gv_players[lv_killingPlayer].lv_heroUnit);
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libGDHL_gt_HeroArthasArmyoftheDeadNPCDeathProc_Init () {
+    libGDHL_gt_HeroArthasArmyoftheDeadNPCDeathProc = TriggerCreate("libGDHL_gt_HeroArthasArmyoftheDeadNPCDeathProc_Func");
+    TriggerEnable(libGDHL_gt_HeroArthasArmyoftheDeadNPCDeathProc, false);
+    libGame_gf_HeroParticipatedInNPCTakedown(libGDHL_gt_HeroArthasArmyoftheDeadNPCDeathProc);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Hero - Arthas - Army of the Dead - Takedown Death Proc
+//--------------------------------------------------------------------------------------------------
+bool libGDHL_gt_HeroArthasArmyoftheDeadTakedownDeathProc_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_killingPlayer;
+    unit lv_minion;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    lv_killingPlayer = libGame_gf_HeroParticipatedInTakedownKillingPlayer();
+    if ((PlayerHasTalent(lv_killingPlayer, "ArthasHeroicAbilityArmyoftheDead") == true)) {
+        UnitCreateEffectUnit(libGame_gv_players[lv_killingPlayer].lv_heroUnit, "ArthasArmyoftheDeadTakedownModifyChargeCooldown", libGame_gv_players[lv_killingPlayer].lv_heroUnit);
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libGDHL_gt_HeroArthasArmyoftheDeadTakedownDeathProc_Init () {
+    libGDHL_gt_HeroArthasArmyoftheDeadTakedownDeathProc = TriggerCreate("libGDHL_gt_HeroArthasArmyoftheDeadTakedownDeathProc_Func");
+    TriggerEnable(libGDHL_gt_HeroArthasArmyoftheDeadTakedownDeathProc, false);
+    libGame_gf_HeroParticipatedInTakedown(libGDHL_gt_HeroArthasArmyoftheDeadTakedownDeathProc);
+}
+
+//--------------------------------------------------------------------------------------------------
 // Trigger: Hero - Arthas - Army of the Dead - Minion AI Takeover (Death)
 //--------------------------------------------------------------------------------------------------
 bool libGDHL_gt_HeroArthasArmyoftheDeadMinionAITakeoverDeath_Func (bool testConds, bool runActions) {
@@ -6793,6 +6936,37 @@ void libGDHL_gt_HeroArthasArmyoftheDeadGhoulSpawned_Init () {
     libGDHL_gt_HeroArthasArmyoftheDeadGhoulSpawned = TriggerCreate("libGDHL_gt_HeroArthasArmyoftheDeadGhoulSpawned_Func");
     TriggerEnable(libGDHL_gt_HeroArthasArmyoftheDeadGhoulSpawned, false);
     TriggerAddEventUnitCreated(libGDHL_gt_HeroArthasArmyoftheDeadGhoulSpawned, null, "ArthasGhoulMagazine", null);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Trigger: Hero - Arthas - Death Pact Talent - Takedown Token Proc 
+//--------------------------------------------------------------------------------------------------
+bool libGDHL_gt_HeroArthasDeathPactTalentTakedownTokenProc_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_killingPlayer;
+    unit lv_minion;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    lv_killingPlayer = libGame_gf_HeroParticipatedInTakedownKillingPlayer();
+    if ((PlayerHasTalent(lv_killingPlayer, "ArthasDeathPact") == true)) {
+        UnitCreateEffectUnit(libGame_gv_players[lv_killingPlayer].lv_heroUnit, "ArthasFrostmourneHungersDeathPactTalentTakedownModifyTokens", libGame_gv_players[lv_killingPlayer].lv_heroUnit);
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libGDHL_gt_HeroArthasDeathPactTalentTakedownTokenProc_Init () {
+    libGDHL_gt_HeroArthasDeathPactTalentTakedownTokenProc = TriggerCreate("libGDHL_gt_HeroArthasDeathPactTalentTakedownTokenProc_Func");
+    TriggerEnable(libGDHL_gt_HeroArthasDeathPactTalentTakedownTokenProc, false);
+    libGame_gf_HeroParticipatedInTakedown(libGDHL_gt_HeroArthasDeathPactTalentTakedownTokenProc);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -9511,51 +9685,6 @@ void libGDHL_gt_HeroDemonHunterVaultDamageBuff_Init () {
 }
 
 //--------------------------------------------------------------------------------------------------
-// Trigger: Hero - Demon Hunter - Manticore Proc
-//--------------------------------------------------------------------------------------------------
-bool libGDHL_gt_HeroDemonHunterManticoreProc_Func (bool testConds, bool runActions) {
-    // Variable Declarations
-    unit lv_target;
-    unit lv_caster;
-    int lv_casterPlayer;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-    lv_target = EventPlayerEffectUsedUnit(c_effectUnitTarget);
-    lv_caster = EventPlayerEffectUsedUnit(c_effectUnitCaster);
-    lv_casterPlayer = UnitGetOwner(lv_caster);
-
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    if ((libGDHL_gv_heroDemonHunterManticoreTarget[lv_casterPlayer] == lv_target)) {
-        if ((libGDHL_gv_heroDemonHunterManticoreIncrementer[lv_casterPlayer] == 2)) {
-            UnitCreateEffectUnitWithSource(lv_caster, "DemonHunterHeroWeaponManticoreTalentProcDamage", lv_target, c_gameCatalogAbil, "attack");
-            UnitCreateEffectUnitWithSource(lv_caster, "ManticoreRemoveProcStacks", lv_target, c_gameCatalogAbil, "attack");
-            libGDHL_gv_heroDemonHunterManticoreIncrementer[lv_casterPlayer] = 0;
-        }
-        else {
-            libGDHL_gv_heroDemonHunterManticoreIncrementer[lv_casterPlayer] += 1;
-        }
-    }
-    else {
-        UnitCreateEffectUnitWithSource(lv_caster, "ManticoreRemoveProcStacks", libGDHL_gv_heroDemonHunterManticoreTarget[lv_casterPlayer], c_gameCatalogAbil, "attack");
-        libGDHL_gv_heroDemonHunterManticoreIncrementer[lv_casterPlayer] = 1;
-        libGDHL_gv_heroDemonHunterManticoreTarget[lv_casterPlayer] = lv_target;
-    }
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libGDHL_gt_HeroDemonHunterManticoreProc_Init () {
-    libGDHL_gt_HeroDemonHunterManticoreProc = TriggerCreate("libGDHL_gt_HeroDemonHunterManticoreProc_Func");
-    TriggerEnable(libGDHL_gt_HeroDemonHunterManticoreProc, false);
-    TriggerAddEventPlayerEffectUsed(libGDHL_gt_HeroDemonHunterManticoreProc, c_playerAny, "DemonHunterHeroWeaponManticoreTalentDummyModifyUnit");
-}
-
-//--------------------------------------------------------------------------------------------------
 // Trigger: Hero - Dryad - Leaping Strike - Set Target Variable
 //--------------------------------------------------------------------------------------------------
 bool libGDHL_gt_HeroDryadLeapingStrikeSetTargetVariable_Func (bool testConds, bool runActions) {
@@ -10263,6 +10392,52 @@ void libGDHL_gt_HeroFaerieDragonPixieCharmChargeCountProc_Init () {
 }
 
 //--------------------------------------------------------------------------------------------------
+// Trigger: Hero - Falstad - Dishonorable Discharge Hero Kill Refresh Cooldown
+//--------------------------------------------------------------------------------------------------
+bool libGDHL_gt_HeroFalstadDishonorableDischargeHeroKillRefreshCooldown_Func (bool testConds, bool runActions) {
+    // Variable Declarations
+    int lv_localPlayer;
+    unit lv_Falstad;
+
+    // Automatic Variable Declarations
+    // Variable Initialization
+    lv_localPlayer = libGame_gf_HeroParticipatedInTakedownKillingPlayer();
+    lv_Falstad = libGame_gv_players[lv_localPlayer].lv_heroUnit;
+
+    // Conditions
+    if (testConds) {
+        if (!((UnitHasBehavior2(lv_Falstad, "ChargedUpDeathResetCarryBehavior") == true))) {
+            return false;
+        }
+
+        if (!(((UnitGetType(libGame_gv_players[libGame_gf_HeroParticipatedInTakedownKillingPlayer()].lv_heroUnit) == "HeroFalstad") || (UnitGetType(libGame_gv_players[libGame_gf_HeroParticipatedInTakedownKillingPlayer()].lv_activeVehicle) == "HeroFalstad")))) {
+            return false;
+        }
+    }
+
+    // Actions
+    if (!runActions) {
+        return true;
+    }
+
+    if ((UnitGetType(libGame_gv_players[libGame_gf_HeroParticipatedInTakedownKillingPlayer()].lv_heroUnit) == "HeroFalstad")) {
+        lv_Falstad = libGame_gv_players[libGame_gf_HeroParticipatedInTakedownKillingPlayer()].lv_heroUnit;
+    }
+    else {
+        lv_Falstad = libGame_gv_players[libGame_gf_HeroParticipatedInTakedownKillingPlayer()].lv_activeVehicle;
+    }
+    UnitCreateEffectUnit(lv_Falstad, "FalstadChargedUpHeroTakedownCooldownRefresh", lv_Falstad);
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+void libGDHL_gt_HeroFalstadDishonorableDischargeHeroKillRefreshCooldown_Init () {
+    libGDHL_gt_HeroFalstadDishonorableDischargeHeroKillRefreshCooldown = TriggerCreate("libGDHL_gt_HeroFalstadDishonorableDischargeHeroKillRefreshCooldown_Func");
+    TriggerEnable(libGDHL_gt_HeroFalstadDishonorableDischargeHeroKillRefreshCooldown, false);
+    libGame_gf_HeroParticipatedInTakedown(libGDHL_gt_HeroFalstadDishonorableDischargeHeroKillRefreshCooldown);
+}
+
+//--------------------------------------------------------------------------------------------------
 // Trigger: Hero - Falstad - Flight Ping
 //--------------------------------------------------------------------------------------------------
 bool libGDHL_gt_HeroFalstadFlightPing_Func (bool testConds, bool runActions) {
@@ -10344,137 +10519,6 @@ void libGDHL_gt_HeroFalstadFlightCameraHeightRestore_Init () {
     libGDHL_gt_HeroFalstadFlightCameraHeightRestore = TriggerCreate("libGDHL_gt_HeroFalstadFlightCameraHeightRestore_Func");
     TriggerEnable(libGDHL_gt_HeroFalstadFlightCameraHeightRestore, false);
     TriggerAddEventUnitBehaviorChange(libGDHL_gt_HeroFalstadFlightCameraHeightRestore, null, "FalstadFlightAscend", c_unitBehaviorChangeCreate);
-}
-
-//--------------------------------------------------------------------------------------------------
-// Trigger: Hero - Falstad - Frequent Flyer - Hero Takedown
-//--------------------------------------------------------------------------------------------------
-bool libGDHL_gt_HeroFalstadFrequentFlyerHeroTakedown_Func (bool testConds, bool runActions) {
-    // Variable Declarations
-    int lv_localPlayer;
-    unit lv_falstad;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-    lv_localPlayer = libGame_gf_HeroParticipatedInTakedownKillingPlayer();
-
-    // Conditions
-    if (testConds) {
-        if (!((PlayerHasTalent(lv_localPlayer, "FalstadTailwindFrequentFlyer") == true))) {
-            return false;
-        }
-    }
-
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    lv_falstad = libGame_gv_players[lv_localPlayer].lv_heroUnit;
-    UnitCreateEffectUnit(lv_falstad, "FalstadFrequentFlyerHeroKillIncreaseQuestToken", lv_falstad);
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libGDHL_gt_HeroFalstadFrequentFlyerHeroTakedown_Init () {
-    libGDHL_gt_HeroFalstadFrequentFlyerHeroTakedown = TriggerCreate("libGDHL_gt_HeroFalstadFrequentFlyerHeroTakedown_Func");
-    TriggerEnable(libGDHL_gt_HeroFalstadFrequentFlyerHeroTakedown, false);
-    libGame_gf_HeroParticipatedInTakedown(libGDHL_gt_HeroFalstadFrequentFlyerHeroTakedown);
-}
-
-//--------------------------------------------------------------------------------------------------
-// Trigger: Hero - Falstad - Frequent Flyer - NPC Kill
-//--------------------------------------------------------------------------------------------------
-bool libGDHL_gt_HeroFalstadFrequentFlyerNPCKill_Func (bool testConds, bool runActions) {
-    // Variable Declarations
-    int lv_killingPlayer;
-    unit lv_killingHero;
-    unit lv_minion;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-    lv_killingPlayer = libGame_gf_HeroParticipatedInNPCTakedownKillingPlayer();
-    lv_killingHero = libGame_gv_players[lv_killingPlayer].lv_heroUnit;
-    lv_minion = libGame_gf_HeroParticipatedInNPCTakedownMinion();
-
-    // Conditions
-    if (testConds) {
-        if (!((PlayerHasTalent(lv_killingPlayer, "FalstadTailwindFrequentFlyer") == true))) {
-            return false;
-        }
-    }
-
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    if (((UnitTypeTestAttribute(UnitGetType(lv_minion), c_unitAttributeSummoned) == true) || (UnitTypeTestAttribute(UnitGetType(lv_minion), c_unitAttributeUser1) == true) || (UnitTypeTestAttribute(UnitGetType(lv_minion), c_unitAttributeMapBoss) == true))) {
-        return true;
-    }
-
-    if ((UnitTypeTestAttribute(UnitGetType(lv_minion), c_unitAttributeMinion) == true) && (UnitFilterMatch(lv_minion, lv_killingPlayer, UnitFilter(0, 0, (1 << c_targetFilterCreep) | (1 << c_targetFilterMerc), 0)) == true)) {
-        UnitCreateEffectUnit(lv_killingHero, "FalstadFrequentFlyerMinionKillIncreaseQuestToken", lv_killingHero);
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libGDHL_gt_HeroFalstadFrequentFlyerNPCKill_Init () {
-    libGDHL_gt_HeroFalstadFrequentFlyerNPCKill = TriggerCreate("libGDHL_gt_HeroFalstadFrequentFlyerNPCKill_Func");
-    TriggerEnable(libGDHL_gt_HeroFalstadFrequentFlyerNPCKill, false);
-    libGame_gf_HeroParticipatedInNPCTakedown(libGDHL_gt_HeroFalstadFrequentFlyerNPCKill);
-}
-
-//--------------------------------------------------------------------------------------------------
-// Trigger: Hero - Falstad - Dishonorable Discharge Hero Kill Refresh Cooldown
-//--------------------------------------------------------------------------------------------------
-bool libGDHL_gt_HeroFalstadDishonorableDischargeHeroKillRefreshCooldown_Func (bool testConds, bool runActions) {
-    // Variable Declarations
-    int lv_localPlayer;
-    unit lv_Falstad;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-    lv_localPlayer = libGame_gf_HeroParticipatedInTakedownKillingPlayer();
-    lv_Falstad = libGame_gv_players[lv_localPlayer].lv_heroUnit;
-
-    // Conditions
-    if (testConds) {
-        if (!((PlayerHasTalent(lv_localPlayer, "FalstadLightningRodDishonorableDischarge") == true))) {
-            return false;
-        }
-
-        if (!((UnitHasBehavior2(lv_Falstad, "FalstadDishonorableDischargeQuestCompleteCarryBehavior") == true))) {
-            return false;
-        }
-
-        if (!(((UnitGetType(libGame_gv_players[libGame_gf_HeroParticipatedInTakedownKillingPlayer()].lv_heroUnit) == "HeroFalstad") || (UnitGetType(libGame_gv_players[libGame_gf_HeroParticipatedInTakedownKillingPlayer()].lv_activeVehicle) == "HeroFalstad")))) {
-            return false;
-        }
-    }
-
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    if ((UnitGetType(libGame_gv_players[libGame_gf_HeroParticipatedInTakedownKillingPlayer()].lv_heroUnit) == "HeroFalstad")) {
-        lv_Falstad = libGame_gv_players[libGame_gf_HeroParticipatedInTakedownKillingPlayer()].lv_heroUnit;
-    }
-    else {
-        lv_Falstad = libGame_gv_players[libGame_gf_HeroParticipatedInTakedownKillingPlayer()].lv_activeVehicle;
-    }
-    UnitCreateEffectUnit(lv_Falstad, "FalstadDishonorableDischargeHeroTakedownCooldownRefresh", lv_Falstad);
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libGDHL_gt_HeroFalstadDishonorableDischargeHeroKillRefreshCooldown_Init () {
-    libGDHL_gt_HeroFalstadDishonorableDischargeHeroKillRefreshCooldown = TriggerCreate("libGDHL_gt_HeroFalstadDishonorableDischargeHeroKillRefreshCooldown_Func");
-    TriggerEnable(libGDHL_gt_HeroFalstadDishonorableDischargeHeroKillRefreshCooldown, false);
-    libGame_gf_HeroParticipatedInTakedown(libGDHL_gt_HeroFalstadDishonorableDischargeHeroKillRefreshCooldown);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -10824,6 +10868,13 @@ bool libGDHL_gt_HeroJainaWaterElementalCreated_Func (bool testConds, bool runAct
     lv_waterElementalUnit = EventUnitCreatedUnit();
     lv_jainaUnit = libGame_gv_players[lv_player].lv_heroUnit;
 
+    // Conditions
+    if (testConds) {
+        if (!((UnitGetType(lv_waterElementalUnit) == "JainaWaterElemental"))) {
+            return false;
+        }
+    }
+
     // Actions
     if (!runActions) {
         return true;
@@ -10909,144 +10960,6 @@ void libGDHL_gt_HeroJainaWaterElementalSummonedUnitSpecialCaseInteraction_Init (
     libGDHL_gt_HeroJainaWaterElementalSummonedUnitSpecialCaseInteraction = TriggerCreate("libGDHL_gt_HeroJainaWaterElementalSummonedUnitSpecialCaseInteraction_Func");
     TriggerEnable(libGDHL_gt_HeroJainaWaterElementalSummonedUnitSpecialCaseInteraction, false);
     TriggerAddEventPlayerEffectUsed(libGDHL_gt_HeroJainaWaterElementalSummonedUnitSpecialCaseInteraction, c_playerAny, "JainaCommandWaterElementalSummonedUnitSpecialCaseDummy");
-}
-
-//--------------------------------------------------------------------------------------------------
-// Trigger: Hero - Jaina - Frostbolt Wintermute Cast
-//--------------------------------------------------------------------------------------------------
-bool libGDHL_gt_HeroJainaFrostboltWintermuteCast_Func (bool testConds, bool runActions) {
-    // Variable Declarations
-    unit lv_unit;
-    int lv_jainaPlayer;
-    unit lv_waterElemental;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-    lv_unit = EventUnit();
-    lv_jainaPlayer = EventPlayer();
-
-    // Conditions
-    if (testConds) {
-        if (!((PlayerHasTalent(lv_jainaPlayer, "JainaSummonWaterElementalWintermute") == true))) {
-            return false;
-        }
-
-        if (!(((lv_jainaPlayer <= libCore_gv_bALMaxPlayers) && (lv_jainaPlayer > 0)))) {
-            return false;
-        }
-    }
-
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    lv_waterElemental = libGDHL_gv_heroJainaWaterElemental[lv_jainaPlayer];
-    if ((lv_waterElemental != null) && (UnitBehaviorCount(lv_waterElemental, "JainaWaterElementalStatusAvailable") == 1)) {
-        UnitBehaviorAdd(lv_waterElemental, "JainaWaterElementalAIAbilityOverride", lv_unit, 1);
-        UnitIssueOrder(lv_waterElemental, OrderTargetingPoint(AbilityCommand("JainaWaterElementalFrostbolt", 0), EventUnitTargetPoint()), c_orderQueueAddToFront);
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libGDHL_gt_HeroJainaFrostboltWintermuteCast_Init () {
-    libGDHL_gt_HeroJainaFrostboltWintermuteCast = TriggerCreate("libGDHL_gt_HeroJainaFrostboltWintermuteCast_Func");
-    TriggerEnable(libGDHL_gt_HeroJainaFrostboltWintermuteCast, false);
-    TriggerAddEventUnitAbility(libGDHL_gt_HeroJainaFrostboltWintermuteCast, null, AbilityCommand("JainaFrostbolt", 0), c_abilEffectStageFinish, false);
-}
-
-//--------------------------------------------------------------------------------------------------
-// Trigger: Hero - Jaina - Cone of Cold Wintermute Cast
-//--------------------------------------------------------------------------------------------------
-bool libGDHL_gt_HeroJainaConeofColdWintermuteCast_Func (bool testConds, bool runActions) {
-    // Variable Declarations
-    unit lv_unit;
-    int lv_jainaPlayer;
-    unit lv_waterElemental;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-    lv_unit = EventUnit();
-    lv_jainaPlayer = EventPlayer();
-
-    // Conditions
-    if (testConds) {
-        if (!((PlayerHasTalent(lv_jainaPlayer, "JainaSummonWaterElementalWintermute") == true))) {
-            return false;
-        }
-
-        if (!(((lv_jainaPlayer <= libCore_gv_bALMaxPlayers) && (lv_jainaPlayer > 0)))) {
-            return false;
-        }
-    }
-
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    lv_waterElemental = libGDHL_gv_heroJainaWaterElemental[lv_jainaPlayer];
-    if ((lv_waterElemental != null) && (UnitBehaviorCount(lv_waterElemental, "JainaWaterElementalStatusAvailable") == 1)) {
-        UnitBehaviorAdd(lv_waterElemental, "JainaWaterElementalAIAbilityOverride", lv_unit, 1);
-        UnitIssueOrder(lv_waterElemental, OrderTargetingPoint(AbilityCommand("JainaWaterElementalConeOfCold", 0), EventUnitTargetPoint()), c_orderQueueAddToFront);
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libGDHL_gt_HeroJainaConeofColdWintermuteCast_Init () {
-    libGDHL_gt_HeroJainaConeofColdWintermuteCast = TriggerCreate("libGDHL_gt_HeroJainaConeofColdWintermuteCast_Func");
-    TriggerEnable(libGDHL_gt_HeroJainaConeofColdWintermuteCast, false);
-    TriggerAddEventUnitAbility(libGDHL_gt_HeroJainaConeofColdWintermuteCast, null, AbilityCommand("JainaConeOfCold", 0), c_abilEffectStageFinish, false);
-}
-
-//--------------------------------------------------------------------------------------------------
-// Trigger: Hero - Jaina - Blizzard Wintermute Cast
-//--------------------------------------------------------------------------------------------------
-bool libGDHL_gt_HeroJainaBlizzardWintermuteCast_Func (bool testConds, bool runActions) {
-    // Variable Declarations
-    unit lv_unit;
-    int lv_jainaPlayer;
-    unit lv_waterElemental;
-
-    // Automatic Variable Declarations
-    // Variable Initialization
-    lv_unit = EventPlayerEffectUsedUnit(c_effectUnitCaster);
-    lv_jainaPlayer = EventPlayer();
-
-    // Conditions
-    if (testConds) {
-        if (!((PlayerHasTalent(lv_jainaPlayer, "JainaSummonWaterElementalWintermute") == true))) {
-            return false;
-        }
-
-        if (!(((lv_jainaPlayer <= libCore_gv_bALMaxPlayers) && (lv_jainaPlayer > 0)))) {
-            return false;
-        }
-    }
-
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    lv_waterElemental = libGDHL_gv_heroJainaWaterElemental[lv_jainaPlayer];
-    if ((lv_waterElemental != null) && (UnitBehaviorCount(lv_waterElemental, "JainaWaterElementalStatusAvailable") == 1)) {
-        UnitBehaviorAdd(lv_waterElemental, "JainaWaterElementalAIAbilityOverride", lv_unit, 1);
-        UnitIssueOrder(lv_waterElemental, OrderTargetingPoint(AbilityCommand("JainaWaterElementalBlizzard", 0), EventPlayerEffectUsedPoint(c_effectLocationTargetPoint)), c_orderQueueAddToFront);
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libGDHL_gt_HeroJainaBlizzardWintermuteCast_Init () {
-    libGDHL_gt_HeroJainaBlizzardWintermuteCast = TriggerCreate("libGDHL_gt_HeroJainaBlizzardWintermuteCast_Func");
-    TriggerEnable(libGDHL_gt_HeroJainaBlizzardWintermuteCast, false);
-    TriggerAddEventPlayerEffectUsed(libGDHL_gt_HeroJainaBlizzardWintermuteCast, c_playerAny, "JainaWaterElementalBlizzardDummyPersistent");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -11159,6 +11072,7 @@ bool libGDHL_gt_HeroJainaFrostbiteQuestReset_Func (bool testConds, bool runActio
     }
 
     PlayerScoreValueSetFromInt(lv_player, "JainaFrostbiteDamage", 0);
+    UnitBehaviorAdd(lv_unit, "ImprovedIceBlock", lv_unit, 1);
     return true;
 }
 
@@ -11272,7 +11186,7 @@ bool libGDHL_gt_HeroJainaFrostbittenCompletionDummy_Func (bool testConds, bool r
 void libGDHL_gt_HeroJainaFrostbittenCompletionDummy_Init () {
     libGDHL_gt_HeroJainaFrostbittenCompletionDummy = TriggerCreate("libGDHL_gt_HeroJainaFrostbittenCompletionDummy_Func");
     TriggerEnable(libGDHL_gt_HeroJainaFrostbittenCompletionDummy, false);
-    TriggerAddEventUnitBehaviorChange(libGDHL_gt_HeroJainaFrostbittenCompletionDummy, null, "JainaFrostbiteCompletionCarry", c_unitBehaviorChangeCreate);
+    TriggerAddEventUnitBehaviorChange(libGDHL_gt_HeroJainaFrostbittenCompletionDummy, null, "IceColdCarryBehavior", c_unitBehaviorChangeCreate);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -11357,6 +11271,10 @@ bool libGDHL_gt_HeroKaelthasPhoenixSpawnSelection_Func (bool testConds, bool run
     libGDHL_gv_kaelthas_PhoenixUnit[lv_player] = lv_unit;
     if ((libGame_gv_players[lv_player].lv_activeVehicle == null)) {
         UnitSelect(lv_unit, lv_player, true);
+    }
+
+    if ((libAIAI_gf_HeroAIIsAIEnabledForPlayer(lv_player) == true)) {
+        UnitCreateAIThinkTree(lv_unit);
     }
 
     return true;
@@ -17354,7 +17272,7 @@ bool libGDHL_gt_HeroMuradinItsHammerTimeOnDeathProc_Func (bool testConds, bool r
     for ( ; ( (auto534F8C5E_ai >= 0 && lv_i <= auto534F8C5E_ae) || (auto534F8C5E_ai < 0 && lv_i >= auto534F8C5E_ae) ) ; lv_i += auto534F8C5E_ai ) {
         lv_unit[lv_i] = UnitBehaviorEffectUnit(lv_killedUnit, "MuradinStormBoltPerfectStormKillBonusBehavior", c_effectUnitCaster, lv_i);
         if ((UnitGetOwner(lv_unit[lv_i]) == lv_killingPlayer)) {
-            UnitCreateEffectUnit(lv_unit[lv_i], "MuradinStormboltPerfectStormHeroKillModifyTokenCount", lv_unit[lv_i]);
+            UnitCreateEffectUnit(lv_unit[lv_i], "MuradinStormboltPerfectStormKillCDReset", lv_unit[lv_i]);
         }
 
     }
@@ -17545,7 +17463,7 @@ bool libGDHL_gt_HeroMurkyMurkyEggDies_Func (bool testConds, bool runActions) {
             return false;
         }
 
-        if (!((libGame_gv_heroDeathMurkyRespawnEggs[EventPlayer()] == EventUnit()))) {
+        if (!(((libGame_gv_heroDeathMurkyRespawnEggs[EventPlayer()] == EventUnit()) || (libGame_gv_heroDeathMurkyRespawnEgg2FromTalent[EventPlayer()] == EventUnit())))) {
             return false;
         }
 
@@ -17566,67 +17484,120 @@ bool libGDHL_gt_HeroMurkyMurkyEggDies_Func (bool testConds, bool runActions) {
     lv_eggOwnerPlayer = EventPlayer();
     lv_eggOwnerPlayerTeam = libGame_gf_TeamNumberOfPlayer(lv_eggOwnerPlayer);
     lv_murkyHeroUnit = libGame_gv_players[lv_eggOwnerPlayer].lv_heroUnit;
+    if ((UnitGetOwner(libNtve_gf_KillingUnit()) != lv_eggOwnerPlayer) && (PlayerHasTalent(lv_eggOwnerPlayer, "MurkyEggShell") == true)) {
+        UnitCreateEffectUnit(lv_murkyHeroUnit, "MurkyEggShellProcSet", lv_murkyHeroUnit);
+    }
+
     if ((UnitIsValid(lv_murkyHeroUnit) == false)) {
         libGame_gv_heroDeathMurkyRespawnEggs[lv_eggOwnerPlayer] = null;
+        libGame_gv_heroDeathMurkyRespawnEgg2FromTalent[lv_eggOwnerPlayer] = null;
         return true;
+    }
+
+    if ((libGame_gv_heroDeathMurkyRespawnEggs[EventPlayer()] == EventUnit())) {
+        if ((libGame_gv_heroDeathMurkyRespawnEgg2FromTalent[EventPlayer()] != null)) {
+            libGame_gv_heroDeathMurkyRespawnEggs[lv_eggOwnerPlayer] = libGame_gv_heroDeathMurkyRespawnEgg2FromTalent[lv_eggOwnerPlayer];
+            libGame_gv_heroDeathMurkyRespawnEgg2FromTalent[lv_eggOwnerPlayer] = null;
+        }
+        else {
+            libGame_gv_heroDeathMurkyRespawnEggs[lv_eggOwnerPlayer] = null;
+        }
+    }
+
+    if ((libGame_gv_heroDeathMurkyRespawnEgg2FromTalent[EventPlayer()] == EventUnit())) {
+        libGame_gv_heroDeathMurkyRespawnEgg2FromTalent[lv_eggOwnerPlayer] = null;
     }
 
     libGame_gv_players[lv_eggOwnerPlayer].lv_soundDeathAlertPrefix = "UI_HeroDeath_Murky_";
     lv_killingPlayer = libNtve_gf_KillingPlayer();
-    libGame_gv_heroDeathMurkyRespawnEggs[lv_eggOwnerPlayer] = null;
-    libGame_gv_heroDeathMurkyRespawnEggPoint[lv_eggOwnerPlayer] = UnitGetPosition(EventUnit());
     libGame_gv_heroDeathMurkyRespawnEggDeathTimeStamp[lv_eggOwnerPlayer] = TimerGetElapsed(libGame_gv_gameTimer);
     if ((UnitHasBehavior2(libGame_gv_players[lv_eggOwnerPlayer].lv_heroUnit, "Dead") == true) && (libGame_gv_players[lv_eggOwnerPlayer].lv_isDead == true)) {
         UnitSetPosition(libGame_gv_players[lv_eggOwnerPlayer].lv_heroUnit, libGame_gv_players[lv_eggOwnerPlayer].lv_spawnPoint, false);
         lv_level = libGame_gf_GetCustomValueLevelofHeroUnit(lv_murkyHeroUnit);
         if (((TimerGetElapsed(libGame_gv_players[lv_eggOwnerPlayer].lv_respawnTimer) > 0.0) || ((TimerGetElapsed(libGame_gv_players[lv_eggOwnerPlayer].lv_respawnTimer) == 0.0) && (TimerGetRemaining(libGame_gv_players[lv_eggOwnerPlayer].lv_respawnTimer) != libCore_gf_HeroDeathTime(lv_eggOwnerPlayer, lv_level))))) {
-            if ((PlayerHasTalent(lv_eggOwnerPlayer, "MurkyBigTunaKahuna") == true)) {
-                libGame_gf_HeroDeathModifyRespawnTimer(lv_eggOwnerPlayer, (libCore_gf_HeroDeathTime(lv_eggOwnerPlayer, lv_level) - libCore_gv_bALMurkyWithEggandBigFishTalentDeathTime));
-            }
-            else {
-                libGame_gf_HeroDeathModifyRespawnTimer(lv_eggOwnerPlayer, (libCore_gf_HeroDeathTime(lv_eggOwnerPlayer, lv_level) - libCore_gv_bALMurkyWithEggDeathTime));
-            }
-            if ((libGDHL_gv_murkyDeathOverlayActive[lv_eggOwnerPlayer] == true)) {
+            if ((libGDHL_gv_murkyDeathOverlayActive[lv_eggOwnerPlayer] == true) && (libGame_gv_heroDeathMurkyRespawnEggs[EventPlayer()] == null) && (libGame_gv_heroDeathMurkyRespawnEgg2FromTalent[EventPlayer()] == null)) {
                 libUIUI_gf_FullscreenOverlayRemoveItemFromQueueForPlayer(UnitGetOwner(libGame_gv_players[lv_eggOwnerPlayer].lv_heroUnit), "Cutscenes\\GameUI_MedivacOverlay.StormCutscene", "MurkyDeathTimerDummy");
                 libGDHL_gv_murkyDeathOverlayActive[lv_eggOwnerPlayer] = false;
                 libUIUI_gf_FullscreenOverlaysShowHideDeathOverlay(true, lv_eggOwnerPlayer);
             }
 
+            if ((libGame_gv_heroDeathMurkyRespawnEggs[EventPlayer()] == null) && (libGame_gv_heroDeathMurkyRespawnEgg2FromTalent[EventPlayer()] == null)) {
+                libGame_gf_HeroDeathModifyRespawnTimer(lv_eggOwnerPlayer, (libCore_gf_HeroDeathTime(lv_eggOwnerPlayer, lv_level) - libCore_gv_bALMurkyWithEggDeathTime));
+                SoundPlayForPlayer(SoundLink("Murky_Death_NoEgg_Vox", -1), lv_eggOwnerPlayer, PlayerGroupAll(), 100.0, 0.0);
+            }
+
         }
 
-        SoundPlayForPlayer(SoundLink("Murky_Death_NoEgg_Vox", -1), lv_eggOwnerPlayer, PlayerGroupAll(), 100.0, 0.0);
     }
     else {
-        UnitBehaviorAdd(libGame_gv_players[lv_eggOwnerPlayer].lv_heroUnit, "MurkyDeadEggReveal", libNtve_gf_KillingUnit(), 1);
+        if ((libGame_gv_heroDeathMurkyRespawnEggs[EventPlayer()] == null) && (libGame_gv_heroDeathMurkyRespawnEgg2FromTalent[EventPlayer()] == null)) {
+            UnitBehaviorAdd(libGame_gv_players[lv_eggOwnerPlayer].lv_heroUnit, "MurkyDeadEggReveal", libNtve_gf_KillingUnit(), 1);
+        }
+
         lv_enemyTeam = (3 - lv_eggOwnerPlayerTeam);
         lv_revealDuration = CatalogFieldValueGetAsFixed(c_gameCatalogBehavior, "MurkyDeadEggReveal", "Duration", c_playerAny);
         libGDHL_gv_murkyRevealPing[lv_eggOwnerPlayer] = PingLastCreated();
         if ((UnitGetOwner(libNtve_gf_KillingUnit()) <= libCore_gv_bALMaxPlayers)) {
-            TextExpressionSetToken("Param/Expression/lib_GDHL_39CFD00B", "A", UnitTypeGetName(UnitGetType(libGame_gv_players[UnitGetOwner(libNtve_gf_KillingUnit())].lv_heroUnit)));
-            TextExpressionSetToken("Param/Expression/lib_GDHL_39CFD00B", "B", FixedToText(libGDHL_gv_mURKY_BAL_EGG_DEATH_cd, 0));
-            UIDisplayMessage(libGame_gv_teams[lv_enemyTeam].lv_teamPlayerGroupNoNPCPlayers, c_messageAreaChat, TextExpressionAssemble("Param/Expression/lib_GDHL_39CFD00B"));
+            if ((PlayerHasTalent(lv_eggOwnerPlayer, "MurkyShellGame") == true)) {
+                TextExpressionSetToken("Param/Expression/lib_GDHL_39CFD00B", "A", UnitTypeGetName(UnitGetType(libGame_gv_players[UnitGetOwner(libNtve_gf_KillingUnit())].lv_heroUnit)));
+                TextExpressionSetToken("Param/Expression/lib_GDHL_39CFD00B", "B", FixedToText(libGDHL_gv_mURKY_BAL_EGG_DEATH_TALENT, 0));
+                UIDisplayMessage(libGame_gv_teams[lv_enemyTeam].lv_teamPlayerGroupNoNPCPlayers, c_messageAreaChat, TextExpressionAssemble("Param/Expression/lib_GDHL_39CFD00B"));
+            }
+            else {
+                TextExpressionSetToken("Param/Expression/lib_GDHL_886F69BD", "A", UnitTypeGetName(UnitGetType(libGame_gv_players[UnitGetOwner(libNtve_gf_KillingUnit())].lv_heroUnit)));
+                TextExpressionSetToken("Param/Expression/lib_GDHL_886F69BD", "B", FixedToText(libGDHL_gv_mURKY_BAL_EGG_DEATH_cd, 0));
+                UIDisplayMessage(libGame_gv_teams[lv_enemyTeam].lv_teamPlayerGroupNoNPCPlayers, c_messageAreaChat, TextExpressionAssemble("Param/Expression/lib_GDHL_886F69BD"));
+            }
         }
-        else if (((UnitGetOwner(libNtve_gf_KillingUnit()) == libCore_gv_cOMPUTER_TeamOrder) || (UnitGetOwner(libNtve_gf_KillingUnit()) == libCore_gv_cOMPUTER_TeamChaos))) {
-            TextExpressionSetToken("Param/Expression/lib_GDHL_2F88A6C6", "A", StringExternal("Param/Value/lib_GDHL_A749A22B"));
-            TextExpressionSetToken("Param/Expression/lib_GDHL_2F88A6C6", "B", FixedToText(libGDHL_gv_mURKY_BAL_EGG_DEATH_cd, 0));
-            UIDisplayMessage(libGame_gv_teams[lv_enemyTeam].lv_teamPlayerGroupNoNPCPlayers, c_messageAreaChat, TextExpressionAssemble("Param/Expression/lib_GDHL_2F88A6C6"));
+        else if (((UnitGetOwner(libNtve_gf_KillingUnit()) == libCore_gv_cOMPUTER_TeamOrder) || (UnitGetOwner(libNtve_gf_KillingUnit()) == libCore_gv_cOMPUTER_TeamChaos) || (libGame_gv_heroDeathMurkyRespawnEggs[EventPlayer()] != null) || (libGame_gv_heroDeathMurkyRespawnEgg2FromTalent[EventPlayer()] != null))) {
+            if ((PlayerHasTalent(lv_eggOwnerPlayer, "MurkyShellGame") == true)) {
+                TextExpressionSetToken("Param/Expression/lib_GDHL_06884218", "A", StringExternal("Param/Value/lib_GDHL_B22AD03A"));
+                TextExpressionSetToken("Param/Expression/lib_GDHL_06884218", "B", FixedToText(libGDHL_gv_mURKY_BAL_EGG_DEATH_TALENT, 0));
+                UIDisplayMessage(libGame_gv_teams[lv_enemyTeam].lv_teamPlayerGroupNoNPCPlayers, c_messageAreaChat, TextExpressionAssemble("Param/Expression/lib_GDHL_06884218"));
+            }
+            else {
+                TextExpressionSetToken("Param/Expression/lib_GDHL_2F88A6C6", "A", StringExternal("Param/Value/lib_GDHL_A749A22B"));
+                TextExpressionSetToken("Param/Expression/lib_GDHL_2F88A6C6", "B", FixedToText(libGDHL_gv_mURKY_BAL_EGG_DEATH_cd, 0));
+                UIDisplayMessage(libGame_gv_teams[lv_enemyTeam].lv_teamPlayerGroupNoNPCPlayers, c_messageAreaChat, TextExpressionAssemble("Param/Expression/lib_GDHL_2F88A6C6"));
+            }
         }
-        else if ((UnitGetOwner(libNtve_gf_KillingUnit()) == libCore_gv_cOMPUTER_Hostile)) {
-            TextExpressionSetToken("Param/Expression/lib_GDHL_A932E0EB", "A", StringExternal("Param/Value/lib_GDHL_A501371D"));
-            TextExpressionSetToken("Param/Expression/lib_GDHL_A932E0EB", "B", FixedToText(libGDHL_gv_mURKY_BAL_EGG_DEATH_cd, 0));
-            UIDisplayMessage(libGame_gv_teams[lv_enemyTeam].lv_teamPlayerGroupNoNPCPlayers, c_messageAreaChat, TextExpressionAssemble("Param/Expression/lib_GDHL_A932E0EB"));
+        else if ((UnitGetOwner(libNtve_gf_KillingUnit()) == libCore_gv_cOMPUTER_Hostile) && (libGame_gv_heroDeathMurkyRespawnEggs[EventPlayer()] != null) && (libGame_gv_heroDeathMurkyRespawnEgg2FromTalent[EventPlayer()] != null)) {
+            if ((PlayerHasTalent(lv_eggOwnerPlayer, "MurkyShellGame") == true)) {
+                TextExpressionSetToken("Param/Expression/lib_GDHL_2226FB00", "A", StringExternal("Param/Value/lib_GDHL_EB28EBD4"));
+                TextExpressionSetToken("Param/Expression/lib_GDHL_2226FB00", "B", FixedToText(libGDHL_gv_mURKY_BAL_EGG_DEATH_TALENT, 0));
+                UIDisplayMessage(libGame_gv_teams[lv_enemyTeam].lv_teamPlayerGroupNoNPCPlayers, c_messageAreaChat, TextExpressionAssemble("Param/Expression/lib_GDHL_2226FB00"));
+            }
+            else {
+                TextExpressionSetToken("Param/Expression/lib_GDHL_C06C1EB1", "A", StringExternal("Param/Value/lib_GDHL_D5FDD47E"));
+                TextExpressionSetToken("Param/Expression/lib_GDHL_C06C1EB1", "B", FixedToText(libGDHL_gv_mURKY_BAL_EGG_DEATH_cd, 0));
+                UIDisplayMessage(libGame_gv_teams[lv_enemyTeam].lv_teamPlayerGroupNoNPCPlayers, c_messageAreaChat, TextExpressionAssemble("Param/Expression/lib_GDHL_C06C1EB1"));
+            }
         }
     }
     SoundPlayForPlayer(SoundLink("Murky_RespawnEgg_Death_Vox", -1), lv_eggOwnerPlayer, PlayerGroupSingle(lv_eggOwnerPlayer), 100.0, 0.0);
     libGDHL_gf_UIHeroSpecificStatusFrameUpdateMurkyEggStatus(UnitGetOwner(EventUnit()));
     lv_cooldownOnEgg = UnitGetCooldown(libGame_gv_players[lv_eggOwnerPlayer].lv_heroUnit, CatalogFieldValueGet(c_gameCatalogAbil, "MurkyRespawnEgg", "Cost[" + IntToString(0) + "].Cooldown.Link", UnitGetOwner(libGame_gv_players[lv_eggOwnerPlayer].lv_heroUnit)));
     UnitCreateEffectUnit(lv_murkyHeroUnit, "RespawnEggCancelOrder", lv_murkyHeroUnit);
-    if ((lv_cooldownOnEgg <= libGDHL_gv_mURKY_BAL_EGG_DEATH_cd)) {
+    if ((PlayerHasTalent(lv_eggOwnerPlayer, "MurkyShellGame") == false) && (lv_cooldownOnEgg <= libGDHL_gv_mURKY_BAL_EGG_DEATH_cd)) {
         lv_cooldownToAdd = (libGDHL_gv_mURKY_BAL_EGG_DEATH_cd - lv_cooldownOnEgg);
         UnitModifyCooldown(libGame_gv_players[lv_eggOwnerPlayer].lv_heroUnit, CatalogFieldValueGet(c_gameCatalogAbil, "MurkyRespawnEgg", "Cost[" + IntToString(0) + "].Cooldown.Link", UnitGetOwner(libGame_gv_players[lv_eggOwnerPlayer].lv_heroUnit)), lv_cooldownToAdd, c_cooldownOperationAdd);
+        TimerStart(libGDHL_gv_murkyEggDeathTimer[lv_eggOwnerPlayer], libGDHL_gv_mURKY_BAL_EGG_DEATH_cd, false, c_timeGame);
     }
-
-    TimerStart(libGDHL_gv_murkyEggDeathTimer[lv_eggOwnerPlayer], libGDHL_gv_mURKY_BAL_EGG_DEATH_cd, false, c_timeGame);
+    else {
+        if ((PlayerHasTalent(lv_eggOwnerPlayer, "MurkyShellGame") == true) && (lv_cooldownOnEgg <= libGDHL_gv_mURKY_BAL_EGG_DEATH_TALENT)) {
+            lv_cooldownToAdd = (libGDHL_gv_mURKY_BAL_EGG_DEATH_TALENT - lv_cooldownOnEgg);
+            UnitModifyCooldown(libGame_gv_players[lv_eggOwnerPlayer].lv_heroUnit, CatalogFieldValueGet(c_gameCatalogAbil, "MurkyRespawnEgg", "Cost[" + IntToString(0) + "].Cooldown.Link", UnitGetOwner(libGame_gv_players[lv_eggOwnerPlayer].lv_heroUnit)), lv_cooldownToAdd, c_cooldownOperationAdd);
+            TimerStart(libGDHL_gv_murkyEggDeathTimer[lv_eggOwnerPlayer], libGDHL_gv_mURKY_BAL_EGG_DEATH_TALENT, false, c_timeGame);
+        }
+        else {
+            if ((PlayerHasTalent(lv_eggOwnerPlayer, "MurkyShellGame") == true)) {
+                TimerStart(libGDHL_gv_murkyEggDeathTimer[lv_eggOwnerPlayer], libGDHL_gv_mURKY_BAL_EGG_DEATH_TALENT, false, c_timeGame);
+            }
+            else {
+                TimerStart(libGDHL_gv_murkyEggDeathTimer[lv_eggOwnerPlayer], libGDHL_gv_mURKY_BAL_EGG_DEATH_cd, false, c_timeGame);
+            }
+        }
+    }
     return true;
 }
 
@@ -17692,6 +17663,7 @@ bool libGDHL_gt_HeroMurkyMurkyDies_Func (bool testConds, bool runActions) {
     }
     else {
         UnitBehaviorAdd(libGame_gv_heroDeathMurkyRespawnEggs[lv_deadPlayer], "MurkyEggAnimDelay", libGame_gv_players[lv_deadPlayer].lv_heroUnit, 1);
+        UnitBehaviorAdd(libGame_gv_heroDeathMurkyRespawnEgg2FromTalent[lv_deadPlayer], "MurkyEggAnimDelay", libGame_gv_players[lv_deadPlayer].lv_heroUnit, 1);
         libNtve_gf_CreateUnitsWithDefaultFacing(1, "DeadUnitCameraTarget", 0, lv_deadPlayer, UnitGetPosition(lv_deadUnit), null);
         libGame_gv_players[lv_deadPlayer].lv_cameraDeadUnitCameraTarget = UnitLastCreated();
         if ((libCore_gv_sYSGameMode != libCore_ge_GameModes_Tutorial1Deprecated)) {
@@ -17702,12 +17674,7 @@ bool libGDHL_gt_HeroMurkyMurkyDies_Func (bool testConds, bool runActions) {
         libGame_gf_HeroDeathUpdateUIElementsForDeath(false, true, false, lv_deadPlayer, lv_killingPlayer);
         libUIUI_gf_FullscreenOverlayAddItemForPlayer(lv_deadPlayer, libUIUI_ge_FullscreenOverlayPriorities_Death, "Cutscenes\\GameUI_MurkyRespawnOverlay.StormCutscene", "MurkyDeathTimerDummy");
         libGDHL_gv_murkyDeathOverlayActive[lv_deadPlayer] = true;
-        if ((PlayerHasTalent(lv_deadPlayer, "MurkyBigTunaKahuna") == true)) {
-            lv_respawnTime = libCore_gv_bALMurkyWithEggandBigFishTalentDeathTime;
-        }
-        else {
-            lv_respawnTime = libCore_gv_bALMurkyWithEggDeathTime;
-        }
+        lv_respawnTime = libCore_gv_bALMurkyWithEggDeathTime;
     }
     libGame_gf_CameraUpdateCameraForPlayer(lv_deadPlayer);
     SoundPlayForPlayer(SoundLink("Murky_Death_NoEgg_Vox", -1), lv_deadPlayer, lv_killingGroup, 100.0, 0.0);
@@ -17786,6 +17753,10 @@ bool libGDHL_gt_HeroMurkyCreateEggOnSpawn_Func (bool testConds, bool runActions)
         }
 
         if (!((libGame_gv_heroDeathMurkyRespawnEggs[libGame_gf_HeroSpawnPlayer()] == null))) {
+            return false;
+        }
+
+        if (!((libGame_gv_heroDeathMurkyRespawnEgg2FromTalent[libGame_gf_HeroSpawnPlayer()] == null))) {
             return false;
         }
     }
@@ -17938,49 +17909,6 @@ void libGDHL_gt_HeroMurkyAFishyDealChargeCountProc_Init () {
 }
 
 //--------------------------------------------------------------------------------------------------
-// Trigger: Hero - Murky - Egg Hunt Unit Group Controller
-//--------------------------------------------------------------------------------------------------
-bool libGDHL_gt_HeroMurkyEggHuntUnitGroupController_Func (bool testConds, bool runActions) {
-    // Variable Declarations
-    unit lv_u;
-    int lv_player;
-
-    // Automatic Variable Declarations
-    unitgroup auto9B9A13E9_g;
-    int auto9B9A13E9_u;
-
-    // Variable Initialization
-    lv_player = UnitGetOwner(EventUnitCreatedUnit());
-
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    UnitGroupAdd(libGDHL_gv_heroMurkyEggHuntUnitGroup[lv_player], EventUnitCreatedUnit());
-    if ((UnitGroupCount(libGDHL_gv_heroMurkyEggHuntUnitGroup[lv_player], c_unitCountAlive) > libGDHL_gv_heroMurkyEggHuntMaxCount)) {
-        auto9B9A13E9_g = libGDHL_gv_heroMurkyEggHuntUnitGroup[lv_player];
-        auto9B9A13E9_u = UnitGroupCount(auto9B9A13E9_g, c_unitCountAll);
-        for (;; auto9B9A13E9_u -= 1) {
-            lv_u = UnitGroupUnitFromEnd(auto9B9A13E9_g, auto9B9A13E9_u);
-            if (lv_u == null) { break; }
-            UnitGroupRemove(libGDHL_gv_heroMurkyEggHuntUnitGroup[lv_player], lv_u);
-            UnitKill(lv_u);
-            break;
-        }
-    }
-
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libGDHL_gt_HeroMurkyEggHuntUnitGroupController_Init () {
-    libGDHL_gt_HeroMurkyEggHuntUnitGroupController = TriggerCreate("libGDHL_gt_HeroMurkyEggHuntUnitGroupController_Func");
-    TriggerEnable(libGDHL_gt_HeroMurkyEggHuntUnitGroupController, false);
-    TriggerAddEventUnitCreated(libGDHL_gt_HeroMurkyEggHuntUnitGroupController, null, "MurkyEggHunt", null);
-}
-
-//--------------------------------------------------------------------------------------------------
 // Trigger: Hero - Murky - Fish Eye Dynamic Application
 //--------------------------------------------------------------------------------------------------
 bool libGDHL_gt_HeroMurkyFishEyeDynamicApplication_Func (bool testConds, bool runActions) {
@@ -18025,6 +17953,11 @@ bool libGDHL_gt_HeroMurkyRespawnEggCreated_Func (bool testConds, bool runActions
         return true;
     }
 
+    if ((PlayerHasTalent(UnitGetOwner(EventUnit()), "MurkyShellGame") == true)) {
+        libGame_gv_heroDeathMurkyRespawnEgg2FromTalent[UnitGetOwner(EventUnit())] = libGame_gv_heroDeathMurkyRespawnEggs[UnitGetOwner(EventUnit())];
+        libGame_gv_heroDeathMurkyRespawnEggPoint2[UnitGetOwner(EventUnit())] = libGame_gv_heroDeathMurkyRespawnEggPoint[UnitGetOwner(EventUnit())];
+    }
+
     libGame_gv_heroDeathMurkyRespawnEggs[UnitGetOwner(EventUnit())] = EventUnitCreatedUnit();
     libGame_gv_heroDeathMurkyRespawnEggPoint[UnitGetOwner(EventUnit())] = UnitGetPosition(EventUnitCreatedUnit());
     libGDHL_gf_UIHeroSpecificStatusFrameUpdateMurkyEggStatus(UnitGetOwner(EventUnitCreatedUnit()));
@@ -18033,7 +17966,7 @@ bool libGDHL_gt_HeroMurkyRespawnEggCreated_Func (bool testConds, bool runActions
     for (;; auto20EC3322_u -= 1) {
         auto20EC3322_var = UnitGroupUnitFromEnd(auto20EC3322_g, auto20EC3322_u);
         if (auto20EC3322_var == null) { break; }
-        if ((auto20EC3322_var != libGame_gv_heroDeathMurkyRespawnEggs[UnitGetOwner(EventUnit())])) {
+        if ((auto20EC3322_var != libGame_gv_heroDeathMurkyRespawnEggs[UnitGetOwner(EventUnit())]) && (auto20EC3322_var != libGame_gv_heroDeathMurkyRespawnEgg2FromTalent[UnitGetOwner(EventUnit())])) {
             UnitCreateEffectUnit(auto20EC3322_var, "TimedLifeFate", auto20EC3322_var);
         }
 
@@ -24136,34 +24069,6 @@ void libGDHL_gt_HeroTychusUpdateOrdersOnIssueOrderAbility_Init () {
 }
 
 //--------------------------------------------------------------------------------------------------
-// Trigger: Hero - Tychus - Overkill Targeted Retarget v.H16
-//--------------------------------------------------------------------------------------------------
-bool libGDHL_gt_HeroTychusOverkillTargetedRetargetvH16_Func (bool testConds, bool runActions) {
-    // Automatic Variable Declarations
-    // Conditions
-    if (testConds) {
-        if (!((UnitIsAlive(EventPlayerEffectUsedUnit(c_effectUnitTarget)) == true))) {
-            return false;
-        }
-    }
-
-    // Actions
-    if (!runActions) {
-        return true;
-    }
-
-    UnitCreateEffectUnitWithSource(EventPlayerEffectUsedUnit(c_effectUnitCaster), "OverkillTargetedRetargetInitialPersistent", EventPlayerEffectUsedUnit(c_effectUnitTarget), c_gameCatalogAbil, "TychusOverkillTargeted");
-    return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-void libGDHL_gt_HeroTychusOverkillTargetedRetargetvH16_Init () {
-    libGDHL_gt_HeroTychusOverkillTargetedRetargetvH16 = TriggerCreate("libGDHL_gt_HeroTychusOverkillTargetedRetargetvH16_Func");
-    TriggerEnable(libGDHL_gt_HeroTychusOverkillTargetedRetargetvH16, false);
-    TriggerAddEventPlayerEffectUsed(libGDHL_gt_HeroTychusOverkillTargetedRetargetvH16, c_playerAny, "OverkillTargetedRetargetDestroyPersistentSet");
-}
-
-//--------------------------------------------------------------------------------------------------
 // Trigger: Hero - Tychus - Overkill Rolling Reload
 //--------------------------------------------------------------------------------------------------
 bool libGDHL_gt_HeroTychusOverkillRollingReload_Func (bool testConds, bool runActions) {
@@ -25906,7 +25811,7 @@ bool libGDHL_gt_HeroZagaraInfestedDropSpawnRoach_Func (bool testConds, bool runA
         return true;
     }
 
-    UnitCreateEffectPoint(EventPlayerEffectUsedUnit(c_effectUnitCaster), "InfestedDropLaunchTriggeredRoachSpawnMissile", UnitTypePlacementFromPoint(UnitGetType(EventPlayerEffectUsedUnit(c_effectUnitCaster)), UnitGetOwner(EventPlayerEffectUsedUnit(c_effectUnitCaster)), EventPlayerEffectUsedPoint(c_effectLocationTargetPoint), 15.0));
+    UnitCreateEffectPointWithSource(EventPlayerEffectUsedUnit(c_effectUnitCaster), "InfestedDropLaunchTriggeredRoachSpawnMissile", UnitTypePlacementFromPoint(UnitGetType(EventPlayerEffectUsedUnit(c_effectUnitCaster)), UnitGetOwner(EventPlayerEffectUsedUnit(c_effectUnitCaster)), EventPlayerEffectUsedPoint(c_effectLocationTargetPoint), 15.0), c_gameCatalogAbil, "ZagaraInfestedDrop");
     return true;
 }
 
@@ -25922,29 +25827,27 @@ void libGDHL_gt_HeroZagaraInfestedDropSpawnRoach_Init () {
 //--------------------------------------------------------------------------------------------------
 bool libGDHL_gt_HeroZagaraInfestScaling_Func (bool testConds, bool runActions) {
     // Variable Declarations
-    fixed lv_rangedDamageDealtFraction;
-    int lv_player;
     unit lv_zagara;
+    int lv_player;
     fixed lv_siegeScore;
     fixed lv_modScore;
     fixed lv_finalScore;
 
     // Automatic Variable Declarations
     // Variable Initialization
-    lv_rangedDamageDealtFraction = 1.0;
-    lv_player = EventPlayerEffectUsedUnitOwner(c_effectPlayerCaster);
-    lv_zagara = EventPlayerEffectUsedUnit(c_effectUnitCaster);
+    lv_zagara = EventUnitDamageSourceUnit();
+    lv_player = UnitGetOwner(lv_zagara);
     lv_siegeScore = PlayerScoreValueGetAsFixed(lv_player, "SiegeDamage");
     lv_modScore = (lv_siegeScore / 1000.0);
-    lv_finalScore = (lv_rangedDamageDealtFraction + (Trunc(lv_modScore) / 100.0));
+    lv_finalScore = StringToFixed(FixedToString(lv_modScore, 1));
 
     // Actions
     if (!runActions) {
         return true;
     }
 
-    if ((CatalogFieldValueGet(c_gameCatalogBehavior, "ZagaraInfestBuff", "Modification.DamageDealtFraction[" + IntToString(c_unitDamageTypeBasic) + "]", lv_player) != FixedToString(lv_finalScore, c_fixedPrecisionAny))) {
-        CatalogFieldValueSetFixed(c_gameCatalogBehavior, "ZagaraInfestBuff", "Modification.DamageDealtFraction[" + IntToString(c_unitDamageTypeBasic) + "]", lv_player, lv_finalScore);
+    if ((UnitGetTokenCount(lv_zagara, CatalogFieldValueGet(c_gameCatalogBehavior, "ZagaraInfestTokenCounter", "TokenId", c_playerAny)) != lv_finalScore)) {
+        UnitSetTokenCount(lv_zagara, CatalogFieldValueGet(c_gameCatalogBehavior, "ZagaraInfestTokenCounter", "TokenId", c_playerAny), lv_finalScore, EventUnit());
     }
 
     return true;
@@ -25954,7 +25857,7 @@ bool libGDHL_gt_HeroZagaraInfestScaling_Func (bool testConds, bool runActions) {
 void libGDHL_gt_HeroZagaraInfestScaling_Init () {
     libGDHL_gt_HeroZagaraInfestScaling = TriggerCreate("libGDHL_gt_HeroZagaraInfestScaling_Func");
     TriggerEnable(libGDHL_gt_HeroZagaraInfestScaling, false);
-    TriggerAddEventPlayerEffectUsed(libGDHL_gt_HeroZagaraInfestScaling, c_playerAny, "ZagaraInfestSearch");
+    TriggerAddDamageEvent(libGDHL_gt_HeroZagaraInfestScaling, "HeroZagara", null, c_unitDamageTypeAny, c_unitDamageEither, null);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -26741,6 +26644,7 @@ void libGDHL_InitTriggers () {
     libGDHL_gt_HeroGenericRevealCloakedPeriodicDamageSource_Init();
     libGDHL_gt_HeroGenericRevealCloakedOneOffDamageSource_Init();
     libGDHL_gt_HeroGenericSuperStealthActivateDeactivate_Init();
+    libGDHL_gt_HeroAllHeroRespec_Init();
     libGDHL_gt_HearthstoneTeleport_Init();
     libGDHL_gt_HearthstoneChannelingBuffOn_Init();
     libGDHL_gt_HearthstoneChannelingBuffOff_Init();
@@ -26770,6 +26674,7 @@ void libGDHL_InitTriggers () {
     libGDHL_gt_HeroAbathurMonstrosityKillInitialTarget_Init();
     libGDHL_gt_HeroAbathurMonstrosityAddSymbioteStacks_Init();
     libGDHL_gt_HeroAbathurSymbiotedMonstrositySymbioted_Init();
+    libGDHL_gt_HeroAbathurMonstrosityQuestComplete_Init();
     libGDHL_gt_HeroAbathurSymbioteMinimapIcon_Init();
     libGDHL_gt_HeroArtanisProtectorofAiurHeroTakedownProc_Init();
     libGDHL_gt_HeroArtanisBladeDashPhasePrismCast_Init();
@@ -26778,10 +26683,14 @@ void libGDHL_InitTriggers () {
     libGDHL_gt_HeroArtanisSpearofAdunPurifierBeamUnitCreated_Init();
     libGDHL_gt_HeroArtanisSpearofAdunPurifierBeamRedirectTarget2ElectricBoogaloo_Init();
     libGDHL_gt_HeroArthasAntiMagicShellHeal_Init();
+    libGDHL_gt_HeroArthasArmyoftheDeadLegionofNorthrendTalentSpawn_Init();
+    libGDHL_gt_HeroArthasArmyoftheDeadNPCDeathProc_Init();
+    libGDHL_gt_HeroArthasArmyoftheDeadTakedownDeathProc_Init();
     libGDHL_gt_HeroArthasArmyoftheDeadMinionAITakeoverDeath_Init();
     libGDHL_gt_HeroArthasArmyoftheDeadMinionAITakeoverTransport_Init();
     libGDHL_gt_HeroArthasArmyoftheDeadPortGhouls_Init();
     libGDHL_gt_HeroArthasArmyoftheDeadGhoulSpawned_Init();
+    libGDHL_gt_HeroArthasDeathPactTalentTakedownTokenProc_Init();
     libGDHL_gt_HeroAnubarakBurrowChargeSuppressCollision_Init();
     libGDHL_gt_HeroAnubarakBurrowChargeMaxRange_Init();
     libGDHL_gt_HeroAnubarakBurrowChargeCancel_Init();
@@ -26842,7 +26751,6 @@ void libGDHL_InitTriggers () {
     libGDHL_gt_HeroDiabloResetEternalSoulstoneRessurection_Init();
     libGDHL_gt_HeroDiabloBlackSoulstoneStackTalentPicked_Init();
     libGDHL_gt_HeroDemonHunterVaultDamageBuff_Init();
-    libGDHL_gt_HeroDemonHunterManticoreProc_Init();
     libGDHL_gt_HeroDryadLeapingStrikeSetTargetVariable_Init();
     libGDHL_gt_HeroDryadLeapingStrikeFindLandingLocation_Init();
     libGDHL_gt_HeroDryadLeapingStrikeCreateAttackPersistent_Init();
@@ -26862,11 +26770,9 @@ void libGDHL_InitTriggers () {
     libGDHL_gt_HeroFaerieDragonPhaseShiftPing_Init();
     libGDHL_gt_HeroFaerieDragonPhaseShiftCamera_Init();
     libGDHL_gt_HeroFaerieDragonPixieCharmChargeCountProc_Init();
+    libGDHL_gt_HeroFalstadDishonorableDischargeHeroKillRefreshCooldown_Init();
     libGDHL_gt_HeroFalstadFlightPing_Init();
     libGDHL_gt_HeroFalstadFlightCameraHeightRestore_Init();
-    libGDHL_gt_HeroFalstadFrequentFlyerHeroTakedown_Init();
-    libGDHL_gt_HeroFalstadFrequentFlyerNPCKill_Init();
-    libGDHL_gt_HeroFalstadDishonorableDischargeHeroKillRefreshCooldown_Init();
     libGDHL_gt_HeroFalstadWingmanVariables_Init();
     libGDHL_gt_HeroIllidanApplyFotBCooldownonInventoryUse_Init();
     libGDHL_gt_HeroIllidanMetamorphosisAvatarApplyHealthBuff_Init();
@@ -26878,9 +26784,6 @@ void libGDHL_InitTriggers () {
     libGDHL_gt_HeroJainaWaterElementalCreated_Init();
     libGDHL_gt_HeroJainaWaterElementalCommand_Init();
     libGDHL_gt_HeroJainaWaterElementalSummonedUnitSpecialCaseInteraction_Init();
-    libGDHL_gt_HeroJainaFrostboltWintermuteCast_Init();
-    libGDHL_gt_HeroJainaConeofColdWintermuteCast_Init();
-    libGDHL_gt_HeroJainaBlizzardWintermuteCast_Init();
     libGDHL_gt_HeroJainaWaterElementalVehicleInitial_Init();
     libGDHL_gt_HeroJainaFrostbiteIceblockItem_Init();
     libGDHL_gt_HeroJainaFrostbiteQuestReset_Init();
@@ -27008,7 +26911,6 @@ void libGDHL_InitTriggers () {
     libGDHL_gt_HeroMurkyCleanUpEggUIForDebugHeroSwap_Init();
     libGDHL_gt_HeroMurkyAFishyDealVariables_Init();
     libGDHL_gt_HeroMurkyAFishyDealChargeCountProc_Init();
-    libGDHL_gt_HeroMurkyEggHuntUnitGroupController_Init();
     libGDHL_gt_HeroMurkyFishEyeDynamicApplication_Init();
     libGDHL_gt_HeroMurkyRespawnEggCreated_Init();
     libGDHL_gt_HeroNecromancerSkeletonMasteryProc_Init();
@@ -27137,7 +27039,6 @@ void libGDHL_InitTriggers () {
     libGDHL_gt_HeroTychusThatsTheStuffHealPreviewCatalog_Init();
     libGDHL_gt_HeroTychusThatsTheStuffOff_Init();
     libGDHL_gt_HeroTychusUpdateOrdersOnIssueOrderAbility_Init();
-    libGDHL_gt_HeroTychusOverkillTargetedRetargetvH16_Init();
     libGDHL_gt_HeroTychusOverkillRollingReload_Init();
     libGDHL_gt_HeroTyraelSanctificationFacing_Init();
     libGDHL_gt_HeroTyraelSanctificationTimerStart_Init();
